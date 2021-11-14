@@ -1,0 +1,203 @@
+2021.11.12
+Fast Forward 1 Year
+
+Officially splintered/rebranded EDACS-FM Florida Man Edition, EDACS-LCN, and PyEDACS Control Deck FME.
+Many MANY new features and bug fixes.
+Too many to list them all.
+Now supports gnuradio and comes with startup scripts for PyEDACS.
+Still supports rtl_fm and rtl_udp.
+Now includes ability to import csv files for sites (freqs) and groups (allow,block,encrypted).
+Now includes logging to voice.log or afs.log.
+Removed unnecesarily redundant versions of same software.
+(May bring back the analyzer in the future for dumping raw FR files)
+Verified working with EDACS Standard, Networked, Networked ESK, and ESK Extended Addressing systems.
+License change to GPL license to match gnuradio companion app files and software.
+
+Why Rebrand? Offer more clarity to what the software does, and offer fresh start, match license type to gnuradio, because Florida Man is funny to me.
+
+Known Bugs/"Features":
+Call scrolling too fast (need to make array, see below)
+Calls not all logged if same group/sender: Logging only occurs once a second, so if same group/caller goes really fast, doesn't make cut off.
+Calls duplicated in log if channel is super SUPER busy. Similar to above, need to make array and TTL.
+Need to set ulimit -s to 16M to avoid segfault/core dump, caused by making array on the stack. See below.
+
+Wish List:
+
+Florida Man Edition: Fix Array to use Heap and not Stack, Make Array for active calls and patches, etc. Figure out reliable way to find sender on non EA systems. Reimplement dotting detection in the LCN channel, since it wasn't very reliable, going to look into a few leads. Keyboard controls for PyEDACS, RF gain, PPM, Frequency adjustments via keyboard and getch().
+
+Long Term: Make GUI version.
+
+----Original Change Log preserved down below, despite some errors-----
+
+
+V0.3b Build 2020.10.06
+Introducing NCURSES build of ledacs-esk as a new seperate program
+ ledacs-esk-ncurses is a drop in replacement for ledacs-esk, call with same parameters
+  or use nstart.sh file included; modify at your leisure
+ users will need to install libncurses5-dev and libncurses5 to use ledacs-esk-ncurses
+ ledacs-esk and ledacs-esk-analyzer are still available
+
+
+Updated readme.txt to reflect usage of ledacs-esk-ncurses
+Cleaned up readme.txt in regards to AFC vs OFF and fixed/clarified AFC OFF meaning
+Included ledacs-esk-ncurses into build, rebuild, and pi-build script files
+
+Site ID now prints as decimal and hex side by side (my personal preference)
+Nice ascii art added to ledacs-esk-ncurses
+
+V0.28 Build 2020.09.08
+Had to Fix LCN again, was grabbing 6 bits instead of 5;
+ Would have potentially caused issues with that extra bit grab on higher LCN numbers
+
+V0.27 Build 2020.09.07
+Implemented Channel Assignment Types for: 
+   MT-1:
+   00001 - TDMA Group Voice Channel Assignment
+   00010 - Group Data Channel Assignment
+   000ll - Digital Group Voice Channel Assignment
+   11111 - Use MT-2
+
+   MT-2:
+   0000 - Initiate Test Call
+   1101 - Serial Number Request
+
+Changed 'VOICE' to 'ACTIVE' when a channel is active and 
+added printout to bottom to show which of the above it is.
+
+Moved site_id to error detected FR frames in logic 
+Misc other printout tweaks
+
+Reinstated ADD and KICK listings only in analyzer, way too verbose for normal use.
+
+Added pi-build.sh which includes 'cmake .. -DDETACH_KERNEL_DRIVER=ON' line to prevent
+need to manually modprobe -r kernel driver prior to using dot-detector and rtl_udp.
+
+V0.26 Build 2020.08.31
+
+Fix LCN channel by acquiring the correct bits; It did work(by fluke), but would have had issues
+if the particular site had more than 16 LCN channels
+
+V0.25 Build 2020.08.24
+Finally Fixed Site ID to list the correct ID (thanks EricCottrell)
+Changed Group ID from 7FFF to FFFF (16 bit GID)
+Changed Status to 5-bit MT-1 Status and 4-bit MT-2 Status
+MT-1 and MT-2 Binary Print out in Debug 1 and higher
+(Also need to work on MT-A/MT-B/MT-D)
+Put lshifter back in for ESK EA LCN; need somebody to test LCNs on normal EDACS
+Site ID may still be incorrect on non ESK and/or non EA variants
+May need to break backwards compatibilty, unsure.
+
+V0.24 Build 2020.08.22
+Implemented PEER listing on debug 2 (too verbose to make a normal feature)
+Re-wrote sender, group, lcn, and status variables to draw from FR instead of SR
+Implemented 'error detection' by comparing fr messages, not full-proof but better
+Included 'understanding_frames.txt' file that breaks down FR 40 bit message segments
+Minor tweaks to IDLE printing while VOICE still active
+Updated Debug to print FR blocks and implemented Debug 3 for 
+printing all error checked FR blocks, and Debug 4 for 
+non-error checked blocks.
+
+V0.23 Build 2020.08.21
+Implemented Human Readable 'FR' blocks of 40 bit (10 HEX) code to 
+represent the 40 bit segments of 'messages' the control channel
+sends in pairs of threes. Will use this to impliment error checking
+in future updates.
+
+Found method to pipe signal from GQRX over UDP into analyzer with nc and sox.
+Added gqrx_udp_signal.sh as an example file/usable script.
+May add more info on its use in future updates.
+
+Updated to only print AFS info when set to legacy EDACS argument on startup.
+(Probably isn't reliable anyways unless its a 4-4-3 AFS bit setup)
+
+V0.22 Build 2020.08.17
+Minor code cleaning and tweaking
+Cleaned up Debug and simplified
+Debug 0 = No verbosity
+Debug 1 = SR output for Idle and Voice and legacy AFS info
+Debug 2 = Display all commands received, status, and SR, plus debug 1
+(Update: SR has been replaced with more human readable FR)
+Tinkering with .detector script sample output sound rate (boosted to 48000 mono out)
+
+V0.21 Build 2020.08.15
+Fix bug in ledacs-esk-analyzer that didn't show calls placed due to removal of LCNs
+Implemented lshifter as an internal variable that changes based on which EDACS system is specified.
+
+v0.2 Build 2020.08.12
+
+Implimented allow/deny lists for groups and senders
+Cleaned up or removed lots of code and comments
+Removed all code related to PATCH, ID, DATA, and other commands as they were too complex
+Removed distinction between a normal call and a PVT call, since it didn't seem reliable
+Renamed standalone.sh to analyzer.sh, so I could call ./start.sh with tabs faster
+Renamed ledacs-esk-standalone to ledacs-esk-analyzer for consistency
+Other minor tweaks/fixes 
+Inadvertent new bugs probably
+
+
+Known Issues:
+
+1.) Site ID, LCN, Group, Sender, or other values may temporarily report an incorrect number.
+
+This issue is primarily due to a lack of any real error detection, if the signal or samples read in that 
+exact moment by the software are 'off', then incorect values may temporarily show up.  Due to the simplicity
+of this software, this issue will most likely not be fixed, but shouldn't greatly affect the performance
+of the software. For now, best fix may be to ensure good signal with your dongle, adjust position/antenna
+if its convenient.
+
+Update: Since implementing FR blocks and error detection, this seems to behave much better, but 
+may still occur just not nearly as frequently as it used to. True way to fix this would probably
+be to implement a second register and compare them, but this could potentially cause bad performance.
+Most likely better to sacrifice accuracy for maintaining performance.
+
+2.) Voice channels may open for groups/senders in the deny list
+
+This is due to two factors, the first, as above, iccorect values streaming into the software, it may open
+the channel for a bogus group or sender if it didn't read it correctly. Second, the manner of checkdown
+that occurs checking the current group versus the deny list, it may open up if the group or sender is
+further down the list. A 'quick fix' was implimented to set the squelch high to close the channel, but
+this may introduce new issues such as closing a desired voice channel when the denied group/sender
+attempts to speak up at the same time.
+
+3.) Allow List overrides Deny list
+
+If you have items in the allow list and the deny list, the deny list will be ignored in favor of the
+allow list. This is by design, Allow list only allows what you manually specify, denying everything
+else. 
+
+4.) Segmentation fault if incorrect variables are given at command prompt or in start.sh, standalone.sh.
+
+I haven't had time to rewrite the arguments portion of the software, partially out of not wanting to 
+break more stuff and end up banging my head against my desk trying to figure it out. Been focused more
+on getting what works to work better and stripping out things that don't work so well. Also, I'm not
+a good programmer, laziness, busy, etc. etc. Just be sure to use all the required arguments for now. 
+
+5.) Unknown functionality with other variants of EDACS
+
+Currently, this software has only been tested against a few EDACS ESK control channels, since
+I don't have any other EDACS in my home area, I have yet to be able to test it against the
+original and other variants of EDACS. Any feedback would be appreciated. If nothing happens
+for you and you are sure you are tuned to a EDACS CC, then please run debug options on for verbose
+details and feel free to submit them. 
+
+rtl_fm -d 0 -f 851375000 -s 28.8k -p 0.5 -g 49 | ./ledacs-esk site243 1 1 3 allow deny >> debug.txt
+
+Run something similar to above for a few moments and then ctrl-c to close it, then submit the 
+debug.txt file with a description of the type of EDACS system, any known site ID, etc.
+
+6.) Incorrect Site ID.
+Testing has shown that the Site ID is most likely not pulling from the correct portion
+of the control channel signal, will need more testing. The location of the Site ID seems
+to vary from one CC to another, will need more research.
+
+Update: Still trying to figure this out after implementing FR blocks. So far, I can't find
+a reliable pattern to pull site info from. My working hypothesis is that its obscurred or
+has multiple rules in play for solving it.
+
+Update Update: Finally figured this out thanks to some seriously awesome help from
+EricCottrell at the Radio Reference forums. He had some notes that seriously put
+that to bed. 
+
+
+
+
