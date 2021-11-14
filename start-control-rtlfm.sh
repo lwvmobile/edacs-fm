@@ -29,9 +29,9 @@ fi
 
     
 #for single frequency, uncomment below and use
-#rtl_fm -d 0 -f 851375000 -s 28.8k -p 2.0 -g 36 | ./edacs-fm -x -s site.csv -g group.csv
+#rtl_fm -d 0 -f 851375000 -s 28.8k -p -2.0 -g 42 | ./edacs-fm -$type -s site.csv -g group.csv -a $A -f $F
 
 #for multiple frequencies, uncomment below and use
 #be sure to tweak gain -g and squelch -l appropriately
-rtl_fm -d 0 -f 851.8M -f 855.9875M -f 858.4875M -f 851.375M -l 150 -s 28.8k -p 2.0 -g 42 | ./edacs-fm -$type -s site.csv -g group.csv -a $A -f $F
+rtl_fm -d 0 -f 851.8M -f 855.9875M -f 858.4875M -f 851.375M -l 150 -s 28.8k -p -2.0 -g 42 | ./edacs-fm -$type -s site.csv -g group.csv -a $A -f $F
 
