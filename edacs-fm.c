@@ -1013,7 +1013,7 @@ int main(int argc, char ** argv) {
 
       last_sync_time = time(NULL); //set timestamp
       print_timeri = print_timeri - 1; //primitive timer for printing out IDLE status updates
-      if (command == idcmd && print_timeri < 0 )//IDLE, Florida Man don't want no print timer bullshit'
+      if (command == idcmd && print_timeri < 0 )//IDLE
       {
 
         if (voice_to == 0) //1 for inactive (backwards, I know)
@@ -1105,7 +1105,7 @@ int main(int argc, char ** argv) {
 
           senderx = (fr_4 & 0xFFFFF000) >> 12;
           //if the sender isn't identical and 1 second last voice difference, test to see if this works correctly, may not log call if call occurs during startup
-          if (tsenderx != senderx && (time(NULL) - last_voice_time > 1) && x_choice == 1) 
+          if (tsenderx != senderx && (time(NULL) - last_voice_time > 1) && x_choice == 1 && site_id > 0) 
           {
             FILE * pFile;
             pFile = fopen("voice.log", "a");
