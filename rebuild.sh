@@ -1,7 +1,7 @@
 #comment out git commands if you are rebuilding on your own code, sometimes git commands do strange things
-git stash
-git pull
-git stash pop
+#git stash
+#git pull
+#git stash pop
 #gcc -o ledacs-esk-analyzer ledacs-esk-analyzer.c
 #not sure if analyzer will return or not
 gcc -o edacs-fm edacs-fm.c $(ncursesw5-config --cflags --libs)
