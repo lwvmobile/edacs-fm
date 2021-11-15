@@ -85,11 +85,9 @@ Be sure to set your VFO to 25khz NFM, set the VFO on the control channel and sel
 
 ![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/sdrpp-help.png)
 
-GQRX
+GQRX??
 
-Be sure to set your receiver to 25khz Narrow FM, set the receiver on the control channel and select Rec under the Audio tab.
-
-![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/gqrx-help.png)
+I don't recommend sending GQRX samples right now, I tested a few of my own creation, and found they may have issues that prevent them from working properly. I highly recommend SDR++ right now.
 
 Samples can be uploaded to https://ufile.io/ free of charge without making a membership. File links can be sent to me under issues, I will have a rolling issue for control channel samples.
 
