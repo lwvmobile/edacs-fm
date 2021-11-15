@@ -5,10 +5,10 @@
 #if you can't get this script to run, make sure to run:
 #chmod +x build.sh rebuild.sh 
 #then run: ./build.sh to start script.
-#comment out below comments if you do not use a debian/ubuntu based system, will need to install prerequisites yourself i.e. pacman, dnf, etc.
 cp sample-configuration/* ./
 chmod 444 sample-configuration/*
 chmod +x build.sh rebuild.sh start-control-gr.sh start-control-rtlfm.sh start-lcn-gr.sh start-lcn-rtludp.sh start-pyedacs-gr.sh sdrpp-gqrx-udp-signal-analyzer.sh
+#comment out below comments if you do not use a debian/ubuntu based system, will need to install prerequisites yourself i.e. pacman, dnf, etc.
 sudo apt update
 sudo apt install git sox cmake build-essential socat libusb-1.0-0-dev libncurses5 libncurses5-dev gnuradio gr-osmosdr rtl-sdr libusb-1.0-0-dev
 gcc -o edacs-fm edacs-fm.c $(ncursesw5-config --cflags --libs)
