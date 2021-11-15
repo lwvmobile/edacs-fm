@@ -81,7 +81,7 @@ WAV files of Control Channels can be acquired using SDR++ or GQRX.
 
 SDR++
 
-Be sure to set your VFO to 25khz NFM, set the VFO on the control channel and select Audio under Recorder.
+Be sure to set your VFO to 25khz NFM, set the VFO on the control channel and select Audio under Recorder. Make sure to keep the audio in the green and not in the red under recording, turn the gain down if necessary. Thanks.
 
 ![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/sdrpp-help.png)
 
