@@ -1,6 +1,7 @@
 #comment out git pull if you are rebuilding on your own code, else leave if you want to update your own install
-#git checkout .
-#git pull
+git stash
+git pull
+git stash pop
 #gcc -o ledacs-esk-analyzer ledacs-esk-analyzer.c
 #not sure if analyzer will return or not
 gcc -o edacs-fm edacs-fm.c $(ncursesw5-config --cflags --libs)
