@@ -1,4 +1,4 @@
-#comment out git pull if you are rebuilding on your own code, else leave if you want to update your own install
+#comment out git commands if you are rebuilding on your own code, sometimes git commands do strange things
 git stash
 git pull
 git stash pop
