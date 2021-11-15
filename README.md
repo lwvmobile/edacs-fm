@@ -17,13 +17,7 @@ sudo apt update
 
 sudo apt install git sox cmake build-essential socat libusb-1.0-0-dev libncurses5 libncurses5-dev gnuradio gr-osmosdr rtl-sdr libusb-1.0-0-dev
 
-chmod +x build.sh rebuild.sh start-control-gr.sh start-control-rtlfm.sh start-lcn-gr.sh start-lcn-rtludp.sh start-pyedacs-gr.sh sdrpp-gqrx-udp-signal-analyzer.sh
-
-This command will give the necessary execution permissions to our scripts for
-building and quickly starting up the software without needing to remember
-long strings of code.
-
-Next, run the included build.sh script to compile all the code necesary.
+chmod +x build.sh 
 
 ./build.sh
 
