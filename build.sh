@@ -3,16 +3,16 @@
 #installed. Debian/*Buntu: sudo apt update && install build-essential
 #feel free to customize this script to your liking or cherry pick
 #if you can't get this script to run, make sure to run:
-# chmod +x build.sh rebuild.sh start.sh detector.sh
+#chmod +x build.sh rebuild.sh 
 #then run: ./build.sh to start script.
 #comment out below comments if you do not use a debian/ubuntu based system, will need to install prerequisites yourself i.e. pacman, dnf, etc.
+cp sample-configuration/* ./
+chmod 444 sample-configuration/*
 chmod +x build.sh rebuild.sh start-control-gr.sh start-control-rtlfm.sh start-lcn-gr.sh start-lcn-rtludp.sh start-pyedacs-gr.sh sdrpp-gqrx-udp-signal-analyzer.sh
 sudo apt update
 sudo apt install git sox cmake build-essential socat libusb-1.0-0-dev libncurses5 libncurses5-dev gnuradio gr-osmosdr rtl-sdr libusb-1.0-0-dev
-#gcc -o ledacs-esk-analyzer ledacs-esk-analyzer.c
-#not sure if analyzer will return or not
 gcc -o edacs-fm edacs-fm.c $(ncursesw5-config --cflags --libs)
-#uncomment line above and comment below line if ncurses produces garbled ascii art, or you have newer than ncurses5, i.e. ARCH LINUX
+#comment line above and uncomment below line if ncurses produces garbled ascii art, or you have newer than ncurses5, i.e. ARCH LINUX
 #gcc -o edacs-fm edacs-fm.c -lncurses
 gcc -o edacs-lcn edacs-lcn.c
 tar -xvf rtl-sdr-master-udp.tar.xz

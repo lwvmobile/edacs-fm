@@ -4,6 +4,11 @@
 #feel free to comment out ulimit if monitoring smaller systems
 ulimit -s 16384
 
+
+echo Which site would you like to monitor?
+read sitevariable
+echo Which RF Gain Value?
+read rfgain
 echo Which type of System?
 echo l EDACS Standard or Networked
 echo e EDACS Standard or Networked with ESK
@@ -27,12 +32,4 @@ else
     F=4
 fi
 
-    
-#for single frequency, uncomment below and use
-#rtl_fm -d 0 -f 851375000 -s 28.8k -p -2.0 -g 42 | ./edacs-fm -$type -s site.csv -g group.csv -a $A -f $F
-
-#for multiple frequencies, uncomment below and use
-#be sure to tweak gain -g and squelch -l appropriately
-rtl_fm -d 0 -f 851.8M -f 855.9875M -f 858.4875M -f 851.375M -l 150 -s 28.8k -p -2.0 -g 42 | ./edacs-fm -$type -s site.csv -g group.csv -a $A -f $F
-
-
+socat stdio udp-listen:2000 | sox -t raw -b 16 -e signed-integer -r 48000 -c 1 - -t raw - rate 28800 | ./edacs-fm -$type -s site.csv -g group.csv -c $sitevariable -r $rfgain -a $A -f $F
