@@ -35,4 +35,4 @@ fi
 #be sure to tweak gain -g and squelch -l appropriately
 rtl_fm -d 0 -f 851.8M -f 855.9875M -f 858.4875M -f 851.375M -l 150 -s 28.8k -p -2.0 -g 42 | ./edacs-fm -$type -s site.csv -g group.csv -a $A -f $F
 
-#adding test line here to test git stash/pull/pop commands, making sure it doesn't wipe out local scripts
+#adding test line here to test git stash/pull/pop commands, making sure it doesn't wipe out local scripts2222
