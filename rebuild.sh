@@ -1,4 +1,5 @@
 #comment out git pull if you are rebuilding on your own code, else leave if you want to update your own install
+git checkout .
 git pull
 #gcc -o ledacs-esk-analyzer ledacs-esk-analyzer.c
 #not sure if analyzer will return or not
