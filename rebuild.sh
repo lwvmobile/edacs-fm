@@ -9,3 +9,5 @@ gcc -o edacs-fm edacs-fm.c $(ncursesw5-config --cflags --libs)
 #gcc -o edacs-fm edacs-fm.c -lncurses
 gcc -o edacs-lcn edacs-lcn.c
 
+#adding line to make these all executable again in case git pull changes it 
+chmod +x build.sh rebuild.sh start-control-gr.sh start-control-rtlfm.sh start-lcn-gr.sh start-lcn-rtludp.sh start-pyedacs-gr.sh sdrpp-gqrx-udp-signal-analyzer.sh
