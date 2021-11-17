@@ -204,6 +204,7 @@ unsigned long long ID_FR1 = 0; //making this to investigate 0xFC IDLE command, r
 unsigned long long ID_FR4 = 0; //making this to investigate 0xFC IDLE command, remove later on
 unsigned long long int CC_LCN = 0;
 unsigned long long int hanguptime = 0;
+unsigned long long int resettime = 0;
 
 char * FM_banner[14] = {
 
@@ -223,14 +224,7 @@ char * FM_banner[14] = {
 };
 
 signed int peer_counter = 0;
-signed long long int peer_list[6] = {
-  0,
-  0,
-  0,
-  0,
-  0,
-  0
-};
+signed long long int peer_list[6] = {0,0,0,0,0,0};
 signed long long int peer = 0;
 
 signed int debug = 0; //debug value for printing out status and data on different command codes, etc
@@ -241,9 +235,7 @@ char inp = 'x';
 
 int handle; //for UDP
 unsigned short port = UDP_PORT; //
-char data[UDP_BUFLEN] = {
-  0
-}; //
+char data[UDP_BUFLEN] = {0}; //
 struct sockaddr_in address; //
 
 //--------------------------------------------
@@ -786,6 +778,7 @@ int main(int argc, char ** argv) {
   cc = 0;
   groupcsv = "group.csv";
   sitecsv = "site.csv";
+  resettime = time(NULL);
 
   ParseInputOptions(argc, argv);
   signed int avg = 0; //sample average
@@ -863,6 +856,8 @@ int main(int argc, char ** argv) {
       patch_site = 0;
       tempsite_id = 999;
       active = 0;
+      lcn_tally = 0;
+      resettime = time(NULL);
       if (start_site_id == 0){
         site_id = 0;
         site_name = "Searching";
@@ -957,7 +952,7 @@ int main(int argc, char ** argv) {
         //s_mask = 0x007; 3
         //AFS =  0x625 <- first hex always has to be 7 or less, so don't mask with F, mask with 7
         //4      0x780 >> 3 + 4 or (11 = a_len) 
-        //3      0x0F0 >> 4 + 1 or (f_mask << s_len)
+        //3      0x070 >> 4 + 1 or (f_mask << s_len)
         //4      0x00F just use afs & a_mask
         agency = (afs & a_mask) >> (11 - a_len); //this one is correct
         fleet = (afs & f_mask) >> s_len; //this is also correct, assuming mask is correct
@@ -974,6 +969,7 @@ int main(int argc, char ** argv) {
         {
           site_id = ((fr_1 & 0x1F000) >> 12) | ((fr_1 & 0x1F000000) >> 19);
           if (site_id != tempsite_id) {
+			lcn_tally = 0;
             csvImport();
             tempsite_id = site_id;
           }
@@ -1007,7 +1003,11 @@ int main(int argc, char ** argv) {
         }
 
         if (x_choice == 2 && command == 0xFD){
-          CC_LCN = (fr_1 & 0x1F000000) >> 24;}  
+          CC_LCN = (fr_1 & 0x1F000000) >> 24;}
+          
+        if (time(NULL) - resettime > 1200){ //reset lcn_tally after 20 minutes
+			lcn_tally = 0;
+			resettime = time(NULL);}  
 
       //-------------------------------------------------
 
