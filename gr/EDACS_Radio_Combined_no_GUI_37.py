@@ -99,7 +99,7 @@ class EDACS_Radio_Combined_no_GUI_37(gr.top_block):
         	1, samp_rate, cutoff, transition, firdes.WIN_HAMMING, 6.76))
         self.blocks_udp_sink_0_0 = blocks.udp_sink(gr.sizeof_short*1, '127.0.0.1', 2001, 1472, False)
         self.blocks_udp_sink_0 = blocks.udp_sink(gr.sizeof_short*1, '127.0.0.1', 2000, 1472, False)
-        self.blocks_float_to_short_0_0 = blocks.float_to_short(1, 500)
+        self.blocks_float_to_short_0_0 = blocks.float_to_short(1, 700)
         self.blocks_float_to_short_0 = blocks.float_to_short(1, 500)
         self.blocks_endian_swap_0_0 = blocks.endian_swap(2)
         self.blocks_endian_swap_0 = blocks.endian_swap(2)
