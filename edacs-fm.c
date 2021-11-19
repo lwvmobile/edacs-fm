@@ -837,7 +837,9 @@ int main(int argc, char ** argv) {
     init_pair(3, COLOR_CYAN, COLOR_BLACK);
     noecho();
     cbreak();
-
+	if ((time(NULL) - hanguptime) > 15){ //extending to 15 seconds just in case dot detection doesn't catch
+              squelchSet(5000);
+    }
     if ((time(NULL) - last_sync_time) > SYNC_TIMEOUT) //check if the CC is still there
     {
       erase();
@@ -1243,9 +1245,7 @@ int main(int argc, char ** argv) {
             hanguptime = time(NULL); // trying this really quick
             //voice_to=0; // voice_to = 0 is for active
           }
-          if ((time(NULL) - hanguptime) > 15){ //extending to 15 seconds just in case dot detection doesn't catch
-              squelchSet(5000);
-          }
+          
 
         refresh();
       } //this once closes vcmd
