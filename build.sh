@@ -7,7 +7,8 @@
 #then run: ./build.sh to start script.
 cp sample-configuration/* ./
 chmod 444 sample-configuration/*
-chmod +x build.sh rebuild.sh start-control-gr.sh start-control-rtlfm.sh start-lcn-gr.sh start-lcn-rtludp.sh start-pyedacs-gr.sh start-sdrpp-gqrx-udp-signal.sh
+#chmod +x build.sh rebuild.sh start-control-gr.sh start-control-rtlfm.sh start-lcn-gr.sh start-lcn-rtludp.sh start-pyedacs-gr.sh start-sdrpp-gqrx-udp-signal.sh
+chmod +x *.sh
 #comment out below comments if you do not use a debian/ubuntu based system, will need to install prerequisites yourself i.e. pacman, dnf, etc.
 sudo apt update
 sudo apt install git sox cmake build-essential socat libusb-1.0-0-dev libncurses5 libncurses5-dev gnuradio gr-osmosdr rtl-sdr libusb-1.0-0-dev
