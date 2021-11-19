@@ -1,7 +1,19 @@
-2021.11.16
+2021.11.19
 Minor tweaks to logging
 reset lcn_tally if signal lost/changed/new site ID
 reset lcn_tally after 20 minutes (resettime variable)
+tweak start-lcn-gr script, set float-to-short for lcn channel up from 500 to 700
+
+work on dotting sequence detection; working it into gnuradio, gr and rtl scripts
+remove some squelch conditions from edacs-fm now that dotting sequence detection is working 
+tweaking gnuradio sample rates, down to 28.8k on lcn channel
+(being very careful not to introduce overrun/underrun issues for gnuradio, sox, or aplay)
+make sure both dotting sequence detection and digital audio decoding both work at same time
+
+TODO STILL: update all grc files and generate new python scripts with 28.8k and 700 float. TEST TEST TEST!!!
+ADD string variables for rtl devices in gnuradio, getch string in pyEDACS.py maybe? look into it.
+Find way for user to use other device sources, like airspy or whatever
+Use GNURADIO for signal source, line in from scanner? release along with wav player maybe? things to look into.
 
 2021.11.12
 Fast Forward 1 Year
