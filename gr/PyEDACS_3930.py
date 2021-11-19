@@ -4,7 +4,7 @@ import sys
 import time
 
 localIP     = "127.0.0.1"
-localPort   = 6021
+localPort   = 6020
 bufferSize  = 1024
 ENT_list = [
 "██████╗ ██╗   ██╗",                       
