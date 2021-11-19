@@ -21,7 +21,6 @@ from argparse import ArgumentParser
 from gnuradio.eng_arg import eng_float, intx
 from gnuradio import eng_notation
 from gnuradio import network
-import configparser
 import osmosdr
 import time
 
@@ -38,18 +37,13 @@ class EDACS_Radio_Combined_no_GUI_3930(gr.top_block):
         ##################################################
         self.samp_rate = samp_rate = 2.048e6
         self.volume = volume = 5
-        self._variable_config_0_config = configparser.ConfigParser()
-        self._variable_config_0_config.read('default')
-        try: variable_config_0 = self._variable_config_0_config.getfloat('main', 'key')
-        except: variable_config_0 = 0
-        self.variable_config_0 = variable_config_0
         self.transition = transition = 1500
         self.sqlcn = sqlcn = -150
         self.rfgain = rfgain = 42
         self.quadrature = quadrature = samp_rate/4
         self.ppmlcn = ppmlcn = 0
         self.ppmcc = ppmcc = 0
-        self.freqlcn = freqlcn = 850e6
+        self.freqlcn = freqlcn = 851.375e6
         self.freqcc = freqcc = 850e6
         self.cutoff = cutoff = 25000
 
@@ -178,12 +172,6 @@ class EDACS_Radio_Combined_no_GUI_3930(gr.top_block):
 
     def set_volume(self, volume):
         self.volume = volume
-
-    def get_variable_config_0(self):
-        return self.variable_config_0
-
-    def set_variable_config_0(self, variable_config_0):
-        self.variable_config_0 = variable_config_0
 
     def get_transition(self):
         return self.transition

@@ -72,7 +72,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '49'
+    value: '0'
   states:
     bus_sink: false
     bus_source: false
@@ -156,7 +156,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: '3'
+    value: '5'
   states:
     bus_sink: false
     bus_source: false
@@ -306,7 +306,7 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    scale: '500'
+    scale: '700'
     vlen: '1'
   states:
     bus_sink: false
@@ -489,7 +489,7 @@ blocks:
     comment: ''
     decim: int(quadrature)
     fbw: '0'
-    interp: int(48e3)
+    interp: int(28.8e3)
     maxoutbuf: '0'
     minoutbuf: '0'
     taps: '[]'
@@ -578,7 +578,7 @@ blocks:
     ant7: ''
     ant8: ''
     ant9: ''
-    args: rtl=00000004
+    args: rtl=0
     bb_gain0: '20'
     bb_gain1: '20'
     bb_gain10: '20'
@@ -935,7 +935,7 @@ blocks:
     ant7: ''
     ant8: ''
     ant9: ''
-    args: rtl=00000003
+    args: rtl=1
     bb_gain0: '20'
     bb_gain1: '20'
     bb_gain10: '20'
