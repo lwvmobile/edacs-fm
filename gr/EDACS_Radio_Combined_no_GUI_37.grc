@@ -794,7 +794,7 @@
     </param>
     <param>
       <key>scale</key>
-      <value>500</value>
+      <value>700</value>
     </param>
     <param>
       <key>vlen</key>
@@ -1427,7 +1427,7 @@
     </param>
     <param>
       <key>interp</key>
-      <value>48000</value>
+      <value>28800</value>
     </param>
     <param>
       <key>maxoutbuf</key>

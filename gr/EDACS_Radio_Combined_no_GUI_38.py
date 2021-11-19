@@ -70,7 +70,7 @@ class EDACS_Radio_Combined_no_GUI_38(gr.top_block):
         self.rtlsdr_source_0.set_antenna('', 0)
         self.rtlsdr_source_0.set_bandwidth(0, 0)
         self.rational_resampler_xxx_1_0 = filter.rational_resampler_fff(
-                interpolation=48000,
+                interpolation=28800,
                 decimation=quadrature,
                 taps=None,
                 fractional_bw=None)

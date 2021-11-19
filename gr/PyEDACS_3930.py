@@ -4,7 +4,7 @@ import sys
 import time
 
 localIP     = "127.0.0.1"
-localPort   = 6020
+localPort   = 6021
 bufferSize  = 1024
 ENT_list = [
 "██████╗ ██╗   ██╗",                       
@@ -24,8 +24,14 @@ ENT_list = [
 UDPServerSocket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 # Bind to address and ip
 UDPServerSocket.bind((localIP, localPort))
-print("UDP server up and listening for frequency and squelch")
+#print("UDP server up and listening for frequency and squelch")
+#device1 = input("Please specify control channel device string: \n")
+#print(device1)
+#device2 = input("Please specify lcn channel device string: \n")
+#print(device2)
 tb = EDACS_Radio_Combined_no_GUI_3930.EDACS_Radio_Combined_no_GUI_3930()
+#tb.set_device1(device1)
+#tb.set_device2(device2)
 tb.start()
 def ENT():
     ENT_list.reverse()
@@ -70,10 +76,7 @@ def udp_listen():
             #print("LCN Squelch: 0 dB")
 ENT()
 while(True):
-    #udp_listen()
-    try:
-        udp_listen()
-    except ValueError as ve:
-        print(ve)
+    udp_listen()
+    #pass
 
 

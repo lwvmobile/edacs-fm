@@ -4,7 +4,7 @@
 # GNU Radio Python Flow Graph
 # Title: EDACS Radio Combined no GUI 37
 # Author: lwvmobile
-# Generated: Mon Nov  1 13:51:31 2021
+# Generated: Thu Nov 18 19:58:05 2021
 ##################################################
 
 
@@ -70,7 +70,7 @@ class EDACS_Radio_Combined_no_GUI_37(gr.top_block):
         self.rtlsdr_source_0.set_bandwidth(0, 0)
 
         self.rational_resampler_xxx_1_0 = filter.rational_resampler_fff(
-                interpolation=48000,
+                interpolation=28800,
                 decimation=quadrature,
                 taps=None,
                 fractional_bw=None,

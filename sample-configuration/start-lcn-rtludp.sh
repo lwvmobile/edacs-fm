@@ -1,1 +1,1 @@
-./rtl_udp -d 1 -f 851375000 -s 28.8k -p -2.0 -g 36 2> /dev/null | tee >(sox -t raw -b 16 -e signed-integer -r 28800 -c 1 - -t raw - vol 2 sinc 0.2k-4.5k -a 110 rate 48000 2> /dev/null | aplay -t raw -f S16_LE -r 48000 -c 1 2> /dev/null) | ./edacs-lcn
+./rtl_udp -d 1 -f 855987500 -s 28.8k -p -2.0 -g 46 2> /dev/null | tee >(sox -t raw -b 16 -e signed-integer -r 28800 -c 1 - -t raw - 2> /dev/null | aplay -t raw -f S16_LE -r 28800 -c 1 2> /dev/null ) | ./edacs-lcn

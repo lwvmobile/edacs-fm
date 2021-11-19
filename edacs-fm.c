@@ -779,7 +779,7 @@ int main(int argc, char ** argv) {
   groupcsv = "group.csv";
   sitecsv = "site.csv";
   resettime = time(NULL);
-
+  
   ParseInputOptions(argc, argv);
   signed int avg = 0; //sample average
   s_len = 11 - (a_len + f_len);
@@ -811,6 +811,7 @@ int main(int argc, char ** argv) {
 
   sleep(1); //patience is a virtue	
   //if gain specified by user, then change gain in PyEDACS from default value
+  squelchSet(5000);
   if (rfgain > 0) {
     gainSet(rfgain);  
   }
@@ -1013,12 +1014,12 @@ int main(int argc, char ** argv) {
 
       last_sync_time = time(NULL); //set timestamp
       print_timeri = print_timeri - 1; //primitive timer for printing out IDLE status updates
-      if (command == idcmd && print_timeri < 0 )//IDLE
+      if (command == idcmd && print_timeri < 0 )//IDLE, try shortening print_timeri??
       {
 
-        if (voice_to == 0) //1 for inactive (backwards, I know)
-        {
-          squelchSet(5000); //if LCN is activated below, this will not hang up LCN until resuming, on busy systems using hanguptime to hang up after 10 seconds
+        if (voice_to == 0) //1 for inactive (backwards, I know) 
+        {  //remove squelchSet IF dot detection is working, but leave hanguptime just in case??
+          //squelchSet(5000); //moving/adding to start of main to squelch in rtludp instance
           voice_to = 1; //1 - idle
         }
         erase();
@@ -1135,7 +1136,7 @@ int main(int argc, char ** argv) {
           last_voice_time = time(NULL);
 
         } 
-          print_timeri = 100;
+          print_timeri = 50;
           erase();
           attron(COLOR_PAIR(3));
           for (short int i = 0; i < 13; i++) {
@@ -1242,7 +1243,7 @@ int main(int argc, char ** argv) {
             hanguptime = time(NULL); // trying this really quick
             //voice_to=0; // voice_to = 0 is for active
           }
-          if ((time(NULL) - hanguptime) > 10){ //should look into making hangup time a user defined variable
+          if ((time(NULL) - hanguptime) > 15){ //extending to 15 seconds just in case dot detection doesn't catch
               squelchSet(5000);
           }
 
