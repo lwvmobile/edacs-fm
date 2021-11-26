@@ -226,6 +226,7 @@ char * FM_banner[14] = {
 signed int peer_counter = 0;
 signed long long int peer_list[6] = {0,0,0,0,0,0};
 signed long long int peer = 0;
+unsigned long long int peer_lcn = 0;
 
 signed int debug = 0; //debug value for printing out status and data on different command codes, etc
 unsigned short d_choice = 0; //verbosity levels so users can see debug information etc                                   
@@ -468,12 +469,30 @@ typedef struct patch_v {
 }
 parray;
 
-signed long long int makePatchArray(signed long long int ttargetd, parray[] ) {
+signed long long int makePatchArray(signed long long int ttargetd, dict parray[] ) {
     parray patcharray[10000];
     patcharray[ttargetd].targetd = targetp;
     patcharray[ttargetd].sourced = sourcep;
-}
+}*/
 // WIP 
+// WIP Peer Array
+/*
+typedef struct peer_value {
+  char PeerN[20];
+  char PeerLCN[20];
+  
+}
+peerdict;
+
+signed long long int makePeerArray(){
+	peerdict peer_array[400]; //array to store peers
+	char field[20] = "farts"; // initializing this POS
+	sprintf(field, "%c", peer);
+	strcpy(peer_array[peer].PeerN, field);
+	sprintf(field, "%c", peer_lcn);
+	strcpy(peer_array[peer].PeerLCN, field);
+}
+// WIP
 */
 void loadGroupInfo(signed long long int tgroup_id, groupinfo group_array[]) {
   groupx_name = group_array[tgroup_id].groupName;
@@ -987,7 +1006,7 @@ int main(int argc, char ** argv) {
         }
         if (command == PATCH_CMD && (fr_1 & 0xFF00000000) == 0x5E00000000) //ADD LISTING 
         {
-          patch_site = ((fr_4 & 0xFF00000000) >> 32);
+          patch_site = ((fr_4 & 0xFF00000000) >> 32); //I don't even remember or know if this is valid info
           targetp = ((fr_4 & 0xFFFF000) >> 12);
           sourcep = ((fr_1 & 0xFFFF000) >> 12);
         }
@@ -995,6 +1014,12 @@ int main(int argc, char ** argv) {
         {
           kicked = (fr_4 & 0xFFFFF000) >> 12;
         }
+        if ((fr_1 & 0xFFF0000000) == 0x5880000000 && ((fr_1 & 0xFF000) >> 12) > 0){ //PEER Listing
+			peer = (fr_1 & 0xFF000) >> 12; 
+			peer_lcn = (fr_1 & 0x1F000000) >> 24;
+			//makePeerArray();
+        }
+        
         if (x_choice == 1 && command == IDLE_CMD) //setting this to ID_FR to investigate these frames for now, remove later
         {
           ID_FR1 = fr_1;
@@ -1011,7 +1036,21 @@ int main(int argc, char ** argv) {
         if (time(NULL) - resettime > 1200){ //reset lcn_tally after 20 minutes
 			lcn_tally = 0;
 			resettime = time(NULL);}  
-
+		        
+		// Start AFC/PPM Adjustment testing code
+        if (adjust == 1) {
+          if (AFC < -1000) {
+          ppm = 1; //need to adjust to 0.1 instead, need to change type first
+          ppmAdjust(ppm); //on the PyEDACS side, this value is added to ppm value already asserted to dongle
+          sleep(3); //wait for adjustment to take effect, may need to use 2 instead
+          }
+          if (AFC > 1000) {
+          ppm = -1; //need to adjust to 0.1 instead, need to change type first
+          ppmAdjust(ppm); //on the PyEDACS side, this value is added to ppm value already asserted to dongle
+          sleep(3); //wait for adjustment to take effect, may need to use 2 instead
+          }
+        }
+      // End AFC/PPM Adjustment testing code, most likely will get axed if not working at some point soon
       //-------------------------------------------------
 
       last_sync_time = time(NULL); //set timestamp
@@ -1068,27 +1107,13 @@ int main(int argc, char ** argv) {
               attroff(COLOR_PAIR(1));
           }
          printw("\n");
-        }  
-        refresh();
-        // Start AFC/PPM Adjustment testing code
-        if (adjust == 1) {
-          if (AFC < -1000) {
-          ppm = 1; //need to adjust to 0.1 instead, need to change type first
-          ppmAdjust(ppm); //on the PyEDACS side, this value is added to ppm value already asserted to dongle
-          sleep(3); //wait for adjustment to take effect, may need to use 2 instead
-          }
-          if (AFC > 1000) {
-          ppm = -1; //need to adjust to 0.1 instead, need to change type first
-          ppmAdjust(ppm); //on the PyEDACS side, this value is added to ppm value already asserted to dongle
-          sleep(3); //wait for adjustment to take effect, may need to use 2 instead
-          }
         }
-      // End AFC/PPM Adjustment testing code, most likely will get axed if not working at some point soon
+        if (debug > 0){
+			printw("Peer Site[%lld]\nPeer CLCN[%lld]\n", peer, peer_lcn);}
+        if (debug > 0){
+			printw("Patch[%lld] to [%lld]\n", sourcep, targetp); }
+        refresh(); 
       } 
-      if ((fr_1 & 0xFFF0000000) == 0x5880000000 && ((fr_1 & 0xFF000) >> 12) > 0){ //PEER Listing
-        peer = (fr_1 & 0xFF000) >> 12; }
-        
-        
       if (x_choice ==1 && (command == vcmd || command == 0xA8 || command == 0xB0 || command == 0x90) || (x_choice == 2 && (command == 0xEE || command == 0xEF ) ) ) { 
 
         if ( (x_choice == 1 && lcn > lcn_tally && mt1 == 0x3) || ( lcn > lcn_tally && x_choice == 2) ) {lcn_tally=lcn;}  //only increment LCN channel list on 0x3 for testing, revert later when 0x2 and 0x1 are figured out properly
@@ -1205,7 +1230,11 @@ int main(int argc, char ** argv) {
                 attroff(COLOR_PAIR(3));
             }
             printw("\n");
-          }  
+          }
+          if (debug > 0){
+			printw("Peer Site[%lld]\nPeer CLCN[%lld]\n", peer, peer_lcn);}
+		  if (debug > 0){
+			printw("Patch[%lld] to [%lld]\n", sourcep, targetp); }
           refresh();
           //add more modes for blocking, block groups, may have to just skip allow only groups until universal deny thing exists again  
           mode_a = "DE"; //Digital Encrypted from csv, blocking
