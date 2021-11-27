@@ -1,3 +1,12 @@
+2021.11.27
+Add logging of Peers and Patches to pandp.log file, logs all peers and patches in the array after ititial 60 seconds of signal
+Will reset logtime counter when site_id changes, signal loss, or after 10 minutes, and log again
+Will log peers and patches when site_id changes (i.e. using SDR++ or GQRX) or signal loss event
+No more VC squelch when CC lost, rely on dotting sequence detection to handle hanging up since it works very well
+Enumerated Patch Array printw in -v mode
+call logging no longer throttled by 1 second, will print duplicates IF multiple calls active, but better than missing calls on log
+(Call logging and display will be fixed/improved when an actual call array is created)
+
 2021.11.26
 Happy Birthday!
 Make small array for peers instead of cycling through them;

@@ -206,6 +206,7 @@ unsigned long long ID_FR4 = 0; //making this to investigate 0xFC IDLE command, r
 unsigned long long int CC_LCN = 0;
 unsigned long long int hanguptime = 0;
 unsigned long long int resettime = 0;
+unsigned long long int logtime = 0;
 
 char * FM_banner[14] = {
 
@@ -766,7 +767,8 @@ int main(int argc, char ** argv) {
   groupcsv = "group.csv";
   sitecsv = "site.csv";
   resettime = time(NULL);
-  
+  logtime = time(NULL) - 540;
+  //logtime = time(NULL);
   ParseInputOptions(argc, argv);
   signed int avg = 0; //sample average
   s_len = 11 - (a_len + f_len);
@@ -837,12 +839,33 @@ int main(int argc, char ** argv) {
       attroff(COLOR_PAIR(2));
       printw("Control Channel not found/lost. Timeout. Waiting...\n");
 
-      squelchSet(5000); //mute, may remove if condition of control channel lost during voice active
+      //squelchSet(5000); //mutes when cc is lost, disabling since dot detection working again
       last_sync_time = time(NULL);
       kicked = 0;
       targetp = 0;
       sourcep = 0;
       peer = 0;
+      //log peers and patches when signal time out
+      if ( x_choice == 1 && patch_array[0][0] > 0){ //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
+		FILE * pFile;
+        pFile = fopen("pandp.log", "a");
+        fprintf(pFile, "%s %s SITE %3lld Signal Loss Logging \n", getDate(), getTime(), tempsite_id);
+        fprintf(pFile, "Peer Sites ");
+		for (short int i=0; i < 9; i++){ 
+		  if (peer_list[i] > 0){ 
+			fprintf(pFile, "[%lld]", peer_list[i]); 
+			}
+		  }
+		  fprintf(pFile, "\n");
+		  for (short int i=0; i < 49; i++){ 
+			if (patch_array[i][0] > 0){ 
+				fprintf(pFile, "Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
+				fprintf(pFile, "\n"); 
+			}
+		}
+            fclose(pFile);
+	  }
+	  //end logging peers and patches before wipe
       for (short int i = 0; i < 9; i++) {  //zero out peer_list
 		  peer_list[i] = 0; }
       for (short int i = 0; i < 49; i++) { //zero out patch_array
@@ -853,6 +876,8 @@ int main(int argc, char ** argv) {
       active = 0;
       lcn_tally = 0;
       resettime = time(NULL);
+      logtime = time(NULL) - 540; //double check
+      //logtime = time(NULL);
       if (start_site_id == 0){
         site_id = 0;
         site_name = "Searching";
@@ -966,6 +991,28 @@ int main(int argc, char ** argv) {
           if (site_id != tempsite_id) {
 			lcn_tally = 0;
 			peer = 0;
+			//log peers and patches if site id changes suddenly and site_id not equal to 0 i.e. SDR++ or GQRX signal
+			if ( site_id > 0 && tempsite_id != 999 && x_choice == 1 && patch_array[0][0] > 0){ //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
+				FILE * pFile;
+				pFile = fopen("pandp.log", "a");
+				fprintf(pFile, "%s %s SITE %3lld Site ID changed to %3lld\n", getDate(), getTime(), tempsite_id, site_id);
+				fprintf(pFile, "Peer Sites ");
+				for (short int i=0; i < 9; i++){ 
+					if (peer_list[i] > 0){ 
+					fprintf(pFile, "[%lld]", peer_list[i]); 
+				}
+			}
+			fprintf(pFile, "\n");
+			for (short int i=0; i < 49; i++){ 
+			  if (patch_array[i][0] > 0){ 
+				fprintf(pFile, "Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
+				fprintf(pFile, "\n"); 
+				}
+			  }
+              fclose(pFile);
+              logtime = time(NULL) - 540;
+              //logtime = time(NULL);
+			}
 			for (short int i = 0; i < 9; i++) {  //zero out peer_list
 				peer_list[i] = 0; }
 			for (short int i = 0; i < 49; i++) { //zero out patch_array
@@ -1038,10 +1085,36 @@ int main(int argc, char ** argv) {
         if (x_choice == 2 && command == 0xFD){
           CC_LCN = (fr_1 & 0x1F000000) >> 24;}
           
-        if (time(NULL) - resettime > 1200){ //reset lcn_tally after 20 minutes
+        if (time(NULL) - resettime > 1215){ //reset lcn_tally, peers, patches after 20 minutes 15 seconds, give just enough time for 2 pandp logs
 			lcn_tally = 0;
+			for (short int i = 0; i < 9; i++) {  //zero out peer_list
+				peer_list[i] = 0; }
+			for (short int i = 0; i < 49; i++) { //zero out patch_array
+				patch_array[i][0] = 0;
+				patch_array[i][1] = 0; }
+			
 			resettime = time(NULL);}  
-		        
+		// log peers and patches after one minute of collection, then 10 minutes afterwards
+		if ( (time(NULL) - logtime > 600) && x_choice == 1){ 
+			FILE * pFile;
+            pFile = fopen("pandp.log", "a");
+            fprintf(pFile, "%s %s SITE %3lld Log Time\n", getDate(), getTime(), tempsite_id);
+            fprintf(pFile, "Peer Sites ");
+			for (short int i=0; i < 9; i++){ 
+				if (peer_list[i] > 0){ 
+					fprintf(pFile, "[%lld]", peer_list[i]); 
+				}
+			}
+			fprintf(pFile, "\n");
+			for (short int i=0; i < 49; i++){ 
+				if (patch_array[i][0] > 0){ 
+					fprintf(pFile, "Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
+					fprintf(pFile, "\n"); 
+				}
+			}
+            fclose(pFile);
+            logtime = time(NULL);
+		}	        
 		// Start AFC/PPM Adjustment testing code
         if (adjust == 1) {
           if (AFC < -1000) {
@@ -1129,7 +1202,7 @@ int main(int argc, char ** argv) {
         if (x_choice == 1 && debug > 0){
 			for (short int i=0; i < 49; i++){ 
 				if (patch_array[i][0] > 0){ 
-					printw("Patch Group [%5lld] to [%5lld]", patch_array[i][1], patch_array[i][0]);
+					printw("Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
 					printw("\n"); 
 				}
 			}
@@ -1155,7 +1228,8 @@ int main(int argc, char ** argv) {
 
           senderx = (fr_4 & 0xFFFFF000) >> 12;
           //if the sender isn't identical and 1 second last voice difference, test to see if this works correctly, may not log call if call occurs during startup
-          if (tsenderx != senderx && (time(NULL) - last_voice_time > 1) && x_choice == 1 && site_id > 0) 
+          //if (tsenderx != senderx && (time(NULL) - last_voice_time > 1) && x_choice == 1 && site_id > 0) 
+          if (tsenderx != senderx && x_choice == 1 && site_id > 0) //more testing on logging voice calls
           {
             FILE * pFile;
             pFile = fopen("voice.log", "a");
@@ -1163,8 +1237,9 @@ int main(int argc, char ** argv) {
             fclose(pFile);
             tsenderx = senderx;
           }
-          
-          if (tafs != afs && x_choice == 2 && site_id > 0 && (time(NULL) - last_voice_time > 1) ) //currently will not log same AFS using multiple LCNs in succession, weird splat happens in afs.log on startup
+          //currently will not log same AFS using multiple LCNs in succession, weird splat happens in afs.log on startup <- may work better now?
+          //if (tafs != afs && x_choice == 2 && site_id > 0 && (time(NULL) - last_voice_time > 1) ) 
+          if (tafs != afs && x_choice == 2 && site_id > 0)
           {
             FILE * pFile;
             pFile = fopen("afs.log", "a");
@@ -1269,7 +1344,7 @@ int main(int argc, char ** argv) {
 		  if (x_choice == 1 && debug > 0){
 			for (short int i=0; i < 49; i++){ 
 				if (patch_array[i][0] > 0){ 
-					printw("Patch Group [%5lld] to [%5lld]", patch_array[i][1], patch_array[i][0]);
+					printw("Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
 					printw("\n"); 
 				}
 			}
