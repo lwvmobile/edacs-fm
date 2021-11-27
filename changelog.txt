@@ -4,7 +4,13 @@ Make small array for peers instead of cycling through them;
 contemplating doing same for all patches, but may require more array space than I'm willing to code for.
 Does anybody really look at patches anyways?
 changed peer sites and patches to display on ESK EA sites by default now, no more -v required
+individual peer site with control channel LCN listing still available via -v option
 
+midnight addendum:
+make a 50 row patch array, only viewable with -v verbosity mode, it fills up quite a bit of screen space
+(subject to removal if performace issues occur)
+
+fix minor spacing OCD issues of mine
 2021.11.25
 Happy Thanksgiving!
 Put Patches and Peer Site Listing back in, view with -v for verbosity

@@ -141,6 +141,7 @@ signed long long int senderx = 0;
 unsigned long long int groupx = 0;
 signed long long int sourcep = 0;
 signed long long int targetp = 0;
+signed long long int patch_array[50][2]; 
 signed long long kicked = 0;
 signed long long int tsenderx = 0;
 unsigned long long tafs = 999;
@@ -460,40 +461,7 @@ typedef struct key_v {
 }
 groupinfo;
 
-//WIP patch array, may lead to using active voice channel array if I can get it to work
-/*
-typedef struct patch_v {
-    
-    signed long long int targetd[8];
-    signed long long int sourced[8];
-}
-parray;
 
-signed long long int makePatchArray(signed long long int ttargetd, dict parray[] ) {
-    parray patcharray[10000];
-    patcharray[ttargetd].targetd = targetp;
-    patcharray[ttargetd].sourced = sourcep;
-}*/
-// WIP 
-// WIP Peer Array
-/*
-typedef struct peer_value {
-  char PeerN[20];
-  char PeerLCN[20];
-  
-}
-peerdict;
-
-signed long long int makePeerArray(){
-	peerdict peer_array[400]; //array to store peers
-	char field[20] = "farts"; // initializing this POS
-	sprintf(field, "%c", peer);
-	strcpy(peer_array[peer].PeerN, field);
-	sprintf(field, "%c", peer_lcn);
-	strcpy(peer_array[peer].PeerLCN, field);
-}
-// WIP
-*/
 void loadGroupInfo(signed long long int tgroup_id, groupinfo group_array[]) {
   groupx_name = group_array[tgroup_id].groupName;
   mode = group_array[tgroup_id].groupMode;
@@ -875,16 +843,11 @@ int main(int argc, char ** argv) {
       targetp = 0;
       sourcep = 0;
       peer = 0;
-      peer_list[0] = 0;
-      peer_list[1] = 0;
-      peer_list[2] = 0;
-      peer_list[3] = 0;
-      peer_list[4] = 0;
-      peer_list[5] = 0;
-      peer_list[6] = 0;
-      peer_list[7] = 0;
-      peer_list[8] = 0;
-      peer_list[9] = 0;
+      for (short int i = 0; i < 9; i++) {  //zero out peer_list
+		  peer_list[i] = 0; }
+      for (short int i = 0; i < 49; i++) { //zero out patch_array
+		  patch_array[i][0] = 0;
+		  patch_array[i][1] = 0; }
       patch_site = 0;
       tempsite_id = 999;
       active = 0;
@@ -1003,16 +966,11 @@ int main(int argc, char ** argv) {
           if (site_id != tempsite_id) {
 			lcn_tally = 0;
 			peer = 0;
-			peer_list[0] = 0;
-			peer_list[1] = 0;
-			peer_list[2] = 0;
-			peer_list[3] = 0;
-			peer_list[4] = 0;
-			peer_list[5] = 0;
-			peer_list[6] = 0;
-			peer_list[7] = 0;
-			peer_list[8] = 0;
-			peer_list[9] = 0;
+			for (short int i = 0; i < 9; i++) {  //zero out peer_list
+				peer_list[i] = 0; }
+			for (short int i = 0; i < 49; i++) { //zero out patch_array
+				patch_array[i][0] = 0;
+				patch_array[i][1] = 0; }
             csvImport();
             tempsite_id = site_id;
           }
@@ -1030,6 +988,20 @@ int main(int argc, char ** argv) {
           patch_site = ((fr_4 & 0xFF00000000) >> 32); //I don't even remember or know if this is valid info
           targetp = ((fr_4 & 0xFFFF000) >> 12);
           sourcep = ((fr_1 & 0xFFFF000) >> 12);
+          //Make 2D array with Patches in it
+          short int p = 0;
+			while (p < 49){
+				if (patch_array[p][0] > 0){
+					if (patch_array[p][0] == targetp){
+						break;}
+				}
+				if (patch_array[p][0] == 0){
+					patch_array[p][0] = targetp;
+					patch_array[p][1] = sourcep;
+					break;}
+			p++;
+			}
+          
         }
         if (command == DATA_CMDX && (fr_1 & 0xFF00000000) == 0x5B00000000) //KICK LISTING 
         {
@@ -1038,7 +1010,7 @@ int main(int argc, char ** argv) {
         if ((fr_1 & 0xFFF0000000) == 0x5880000000 && ((fr_1 & 0xFF000) >> 12) > 0){ //PEER Listing
 			peer = (fr_1 & 0xFF000) >> 12; 
 			peer_lcn = (fr_1 & 0x1F000000) >> 24;
-			//makePeerArray();
+			//Make Small Array with Peers in it
 			short int p = 0;
 			while (p < 10){
 				if (peer_list[p] > 0){
@@ -1102,8 +1074,8 @@ int main(int argc, char ** argv) {
           printw("%s \n", FM_banner[i]);
         }  
         attroff(COLOR_PAIR(1));
-        printw("%s  AFC=[%d]Hz\n", getTime(), AFC);
-        printw("Site ID=[%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
+        printw("%s  AFC [%d]Hz\n", getTime(), AFC);
+        printw("Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
         if (x_choice == 2) {
             printw("Status Bits = ", status);
             for (unsigned short int i = 0; i < 4; i++) {
@@ -1132,8 +1104,8 @@ int main(int argc, char ** argv) {
         printw("\n");
         }
         for (short int i = 0; i < lcn_tally; i++) {
-          printw("LCN[%2d]", lcn_tally - (lcn_tally-1) + i);
-          printw("[%lldHz] ", LCN_list[i]);
+          printw("LCN [%2d] ", lcn_tally - (lcn_tally-1) + i);
+          printw("[%lld]Hz ", LCN_list[i]);
           if (x_choice == 1 && CC_LCN == (i+1)){
               attron(COLOR_PAIR(1));
               printw("Control Channel");
@@ -1142,7 +1114,6 @@ int main(int argc, char ** argv) {
          printw("\n");
         }
         if (x_choice == 1){
-			//printw("Peer Site[%lld]\nPeer CLCN[%lld]\n", peer, peer_lcn);}
 			printw("Peer Sites ");
 			for (short int i=0; i < 9; i++){ 
 				if (peer_list[i] > 0){ 
@@ -1151,8 +1122,18 @@ int main(int argc, char ** argv) {
 			}
 			printw("\n");
 		  }
-        if (x_choice == 1){
+		if (x_choice == 1 && debug > 0){
+			printw("Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);}
+		if (x_choice == 1 && debug == 0){
 			printw("Patch Group [%lld] to [%lld]\n", sourcep, targetp); }
+        if (x_choice == 1 && debug > 0){
+			for (short int i=0; i < 49; i++){ 
+				if (patch_array[i][0] > 0){ 
+					printw("Patch Group [%5lld] to [%5lld]", patch_array[i][1], patch_array[i][0]);
+					printw("\n"); 
+				}
+			}
+		}
         refresh(); 
       } 
       if (x_choice ==1 && (command == vcmd || command == 0xA8 || command == 0xB0 || command == 0x90) || (x_choice == 2 && (command == 0xEE || command == 0xEF ) ) ) { 
@@ -1211,8 +1192,8 @@ int main(int argc, char ** argv) {
             printw("%s \n", FM_banner[i]);
           }  
           attroff(COLOR_PAIR(3));
-          printw("%s  AFC=[%d]Hz\n", getTime(), AFC);
-          printw("Site ID=[%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
+          printw("%s  AFC [%d]Hz\n", getTime(), AFC);
+          printw("Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
           if (x_choice == 2) {
             printw("Status Bits = ", status);
             for (unsigned short int i = 0; i < 4; i++) {
@@ -1238,15 +1219,15 @@ int main(int argc, char ** argv) {
             printw("\n");
           }
           for (short int i = 0; i < lcn_tally; i++) {
-            printw("LCN[%2d]", lcn_tally - (lcn_tally-1) + i);
-            printw("[%lldHz] ", LCN_list[i]);
+            printw("LCN [%2d] ", lcn_tally - (lcn_tally-1) + i);
+            printw("[%lld]Hz ", LCN_list[i]);
             if (CC_LCN == (i+1)){
               attron(COLOR_PAIR(1));  
               printw("Control Channel");}
               attroff(COLOR_PAIR(1));
             if (x_choice == 1 && lcn == (i+1)){
                 attron(COLOR_PAIR(3));
-                printw("RID[%lld] TG[%lld][%s][%s] ", senderx, groupx, groupx_name, mode);
+                printw("RID [%lld] TG [%lld] [%s] [%s] ", senderx, groupx, groupx_name, mode);
                 if (mt1 == 0x3){
                     printw("Digital");
                 }
@@ -1263,7 +1244,7 @@ int main(int argc, char ** argv) {
             }
             if (x_choice == 2 && lcn == (i+1)){
                 attron(COLOR_PAIR(3));
-                printw("AFS[%lld][%d-%d-%d][%s][%s]", afs, agency, fleet, subfleet, groupx_name, mode);
+                printw("AFS[%lld] [%d-%d-%d] [%s] [%s] ", afs, agency, fleet, subfleet, groupx_name, mode);
                 if (status == 0xE){
                   printw("Analog");}
                 if (status == 0xF){
@@ -1273,7 +1254,6 @@ int main(int argc, char ** argv) {
             printw("\n");
           }
           if (x_choice == 1){
-			//printw("Peer Site[%lld]\nPeer CLCN[%lld]\n", peer, peer_lcn);}
 			printw("Peer Sites ");
 			for (short int i=0; i < 9; i++){ 
 				if (peer_list[i] > 0){ 
@@ -1282,8 +1262,18 @@ int main(int argc, char ** argv) {
 			}
 			printw("\n");
 		  }
-		  if (x_choice == 1){
+		  if (x_choice == 1 && debug > 0){
+			printw("Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);}
+		  if (x_choice == 1 && debug == 0){
 			printw("Patch Group [%lld] to [%lld]\n", sourcep, targetp); }
+		  if (x_choice == 1 && debug > 0){
+			for (short int i=0; i < 49; i++){ 
+				if (patch_array[i][0] > 0){ 
+					printw("Patch Group [%5lld] to [%5lld]", patch_array[i][1], patch_array[i][0]);
+					printw("\n"); 
+				}
+			}
+		  }
           refresh();
           //add more modes for blocking, block groups, may have to just skip allow only groups until universal deny thing exists again  
           mode_a = "DE"; //Digital Encrypted from csv, blocking
