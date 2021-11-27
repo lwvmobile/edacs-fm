@@ -1,3 +1,10 @@
+2021.11.26
+Happy Birthday!
+Make small array for peers instead of cycling through them;
+contemplating doing same for all patches, but may require more array space than I'm willing to code for.
+Does anybody really look at patches anyways?
+changed peer sites and patches to display on ESK EA sites by default now, no more -v required
+
 2021.11.25
 Happy Thanksgiving!
 Put Patches and Peer Site Listing back in, view with -v for verbosity

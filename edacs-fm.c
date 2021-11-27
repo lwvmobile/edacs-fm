@@ -224,7 +224,7 @@ char * FM_banner[14] = {
 };
 
 signed int peer_counter = 0;
-signed long long int peer_list[6] = {0,0,0,0,0,0};
+signed long long int peer_list[9] = {0,0,0,0,0,0,0,0,0};
 signed long long int peer = 0;
 unsigned long long int peer_lcn = 0;
 
@@ -875,6 +875,16 @@ int main(int argc, char ** argv) {
       targetp = 0;
       sourcep = 0;
       peer = 0;
+      peer_list[0] = 0;
+      peer_list[1] = 0;
+      peer_list[2] = 0;
+      peer_list[3] = 0;
+      peer_list[4] = 0;
+      peer_list[5] = 0;
+      peer_list[6] = 0;
+      peer_list[7] = 0;
+      peer_list[8] = 0;
+      peer_list[9] = 0;
       patch_site = 0;
       tempsite_id = 999;
       active = 0;
@@ -992,6 +1002,17 @@ int main(int argc, char ** argv) {
           site_id = ((fr_1 & 0x1F000) >> 12) | ((fr_1 & 0x1F000000) >> 19);
           if (site_id != tempsite_id) {
 			lcn_tally = 0;
+			peer = 0;
+			peer_list[0] = 0;
+			peer_list[1] = 0;
+			peer_list[2] = 0;
+			peer_list[3] = 0;
+			peer_list[4] = 0;
+			peer_list[5] = 0;
+			peer_list[6] = 0;
+			peer_list[7] = 0;
+			peer_list[8] = 0;
+			peer_list[9] = 0;
             csvImport();
             tempsite_id = site_id;
           }
@@ -1018,6 +1039,18 @@ int main(int argc, char ** argv) {
 			peer = (fr_1 & 0xFF000) >> 12; 
 			peer_lcn = (fr_1 & 0x1F000000) >> 24;
 			//makePeerArray();
+			short int p = 0;
+			while (p < 10){
+				if (peer_list[p] > 0){
+					if (peer_list[p] == peer){
+						break;}
+				}
+				if (peer_list[p] == 0){
+					peer_list[p] = peer;
+					break;}
+			p++;
+			}
+				
         }
         
         if (x_choice == 1 && command == IDLE_CMD) //setting this to ID_FR to investigate these frames for now, remove later
@@ -1108,10 +1141,18 @@ int main(int argc, char ** argv) {
           }
          printw("\n");
         }
-        if (debug > 0){
-			printw("Peer Site[%lld]\nPeer CLCN[%lld]\n", peer, peer_lcn);}
-        if (debug > 0){
-			printw("Patch[%lld] to [%lld]\n", sourcep, targetp); }
+        if (x_choice == 1){
+			//printw("Peer Site[%lld]\nPeer CLCN[%lld]\n", peer, peer_lcn);}
+			printw("Peer Sites ");
+			for (short int i=0; i < 9; i++){ 
+				if (peer_list[i] > 0){ 
+					printw("[%lld]", peer_list[i]); 
+				}
+			}
+			printw("\n");
+		  }
+        if (x_choice == 1){
+			printw("Patch Group [%lld] to [%lld]\n", sourcep, targetp); }
         refresh(); 
       } 
       if (x_choice ==1 && (command == vcmd || command == 0xA8 || command == 0xB0 || command == 0x90) || (x_choice == 2 && (command == 0xEE || command == 0xEF ) ) ) { 
@@ -1231,10 +1272,18 @@ int main(int argc, char ** argv) {
             }
             printw("\n");
           }
-          if (debug > 0){
-			printw("Peer Site[%lld]\nPeer CLCN[%lld]\n", peer, peer_lcn);}
-		  if (debug > 0){
-			printw("Patch[%lld] to [%lld]\n", sourcep, targetp); }
+          if (x_choice == 1){
+			//printw("Peer Site[%lld]\nPeer CLCN[%lld]\n", peer, peer_lcn);}
+			printw("Peer Sites ");
+			for (short int i=0; i < 9; i++){ 
+				if (peer_list[i] > 0){ 
+					printw("[%lld]", peer_list[i]); 
+				}
+			}
+			printw("\n");
+		  }
+		  if (x_choice == 1){
+			printw("Patch Group [%lld] to [%lld]\n", sourcep, targetp); }
           refresh();
           //add more modes for blocking, block groups, may have to just skip allow only groups until universal deny thing exists again  
           mode_a = "DE"; //Digital Encrypted from csv, blocking
