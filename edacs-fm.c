@@ -148,6 +148,10 @@ unsigned long long tafs = 999;
 unsigned long long sender = 0;
 unsigned long long tsender = 0;
 
+//just stuff to play with, think about and what not
+//call matrix 32 columns (lcns) with rows for time of call, group/afs, sender, won't be able to use names(strings) without struct hmmm
+//unsigned long long int call_matrix[32][3];
+
 char * mode_a;
 char * mode_b;
 int modecompare;
@@ -226,7 +230,8 @@ char * FM_banner[14] = {
 };
 
 signed int peer_counter = 0;
-signed long long int peer_list[9] = {0,0,0,0,0,0,0,0,0};
+//signed long long int peer_list[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+signed long long int peer_list[12];
 signed long long int peer = 0;
 unsigned long long int peer_lcn = 0;
 
@@ -851,7 +856,7 @@ int main(int argc, char ** argv) {
         pFile = fopen("pandp.log", "a");
         fprintf(pFile, "%s %s SITE %3lld Signal Loss Logging \n", getDate(), getTime(), tempsite_id);
         fprintf(pFile, "Peer Sites ");
-		for (short int i=0; i < 9; i++){ 
+		for (short int i=0; i < 12; i++){ 
 		  if (peer_list[i] > 0){ 
 			fprintf(pFile, "[%lld]", peer_list[i]); 
 			}
@@ -866,7 +871,7 @@ int main(int argc, char ** argv) {
             fclose(pFile);
 	  }
 	  //end logging peers and patches before wipe
-      for (short int i = 0; i < 9; i++) {  //zero out peer_list
+      for (short int i = 0; i < 12; i++) {  //zero out peer_list
 		  peer_list[i] = 0; }
       for (short int i = 0; i < 49; i++) { //zero out patch_array
 		  patch_array[i][0] = 0;
@@ -997,7 +1002,7 @@ int main(int argc, char ** argv) {
 				pFile = fopen("pandp.log", "a");
 				fprintf(pFile, "%s %s SITE %3lld Site ID changed to %3lld\n", getDate(), getTime(), tempsite_id, site_id);
 				fprintf(pFile, "Peer Sites ");
-				for (short int i=0; i < 9; i++){ 
+				for (short int i=0; i < 12; i++){ 
 					if (peer_list[i] > 0){ 
 					fprintf(pFile, "[%lld]", peer_list[i]); 
 				}
@@ -1013,7 +1018,7 @@ int main(int argc, char ** argv) {
               logtime = time(NULL) - 540;
               //logtime = time(NULL);
 			}
-			for (short int i = 0; i < 9; i++) {  //zero out peer_list
+			for (short int i = 0; i < 12; i++) {  //zero out peer_list
 				peer_list[i] = 0; }
 			for (short int i = 0; i < 49; i++) { //zero out patch_array
 				patch_array[i][0] = 0;
@@ -1059,7 +1064,7 @@ int main(int argc, char ** argv) {
 			peer_lcn = (fr_1 & 0x1F000000) >> 24;
 			//Make Small Array with Peers in it
 			short int p = 0;
-			while (p < 10){
+			while (p < 12){
 				if (peer_list[p] > 0){
 					if (peer_list[p] == peer){
 						break;}
@@ -1087,7 +1092,7 @@ int main(int argc, char ** argv) {
           
         if (time(NULL) - resettime > 1215){ //reset lcn_tally, peers, patches after 20 minutes 15 seconds, give just enough time for 2 pandp logs
 			lcn_tally = 0;
-			for (short int i = 0; i < 9; i++) {  //zero out peer_list
+			for (short int i = 0; i < 12; i++) {  //zero out peer_list
 				peer_list[i] = 0; }
 			for (short int i = 0; i < 49; i++) { //zero out patch_array
 				patch_array[i][0] = 0;
@@ -1100,7 +1105,7 @@ int main(int argc, char ** argv) {
             pFile = fopen("pandp.log", "a");
             fprintf(pFile, "%s %s SITE %3lld Log Time\n", getDate(), getTime(), tempsite_id);
             fprintf(pFile, "Peer Sites ");
-			for (short int i=0; i < 9; i++){ 
+			for (short int i=0; i < 12; i++){ 
 				if (peer_list[i] > 0){ 
 					fprintf(pFile, "[%lld]", peer_list[i]); 
 				}
@@ -1188,7 +1193,7 @@ int main(int argc, char ** argv) {
         }
         if (x_choice == 1){
 			printw("Peer Sites ");
-			for (short int i=0; i < 9; i++){ 
+			for (short int i=0; i < 12; i++){ 
 				if (peer_list[i] > 0){ 
 					printw("[%lld]", peer_list[i]); 
 				}
@@ -1330,7 +1335,7 @@ int main(int argc, char ** argv) {
           }
           if (x_choice == 1){
 			printw("Peer Sites ");
-			for (short int i=0; i < 9; i++){ 
+			for (short int i=0; i < 12; i++){ 
 				if (peer_list[i] > 0){ 
 					printw("[%lld]", peer_list[i]); 
 				}
