@@ -45,7 +45,7 @@
 
 #include <ncurses.h>
 
-#include <stdio_ext.h> //new start
+#include <stdio_ext.h>
 
 #include <math.h>
 
@@ -63,8 +63,8 @@
 
 #include <stdbool.h>
 
-#include <locale.h>  //end new
-//
+#include <locale.h>
+ //
 #define NB_ENABLE true
 #define NB_DISABLE false
 //
@@ -86,7 +86,7 @@
 
 #define SYNC_TIMEOUT 3 //maximum time between sync frames in seconds
 #define VOICE_TIMEOUT 1 //maximum time of unsquelched audio after last voice channel assignment command in seconds
-//New CC Commands added
+
 #define DATA_CMD 0xFA //0xA0    
 #define DATA_CMDX 0xFB //0xA1
 #define ID_CMD 0xFD //0xFD
@@ -113,12 +113,12 @@ unsigned long long sr_2 = 0; //
 unsigned long long sr_3 = 0; //
 unsigned long long sr_4 = 0; //
 
-unsigned long long fr_6 = 0; //40-bit shift registers for pushing decoded binary data
-unsigned long long fr_1 = 0xFFFFFFFFFF; //each is a 40 bit message that repeats 3 times
-unsigned long long fr_2 = 0; //two messages per frame
-unsigned long long fr_3 = 0; //
+unsigned long long fr_1 = 0xFFFFFFFFFF; //40-bit shift registers for pushing decoded binary data
+unsigned long long fr_2 = 0; //each is a 40 bit message that repeats 3 times
+unsigned long long fr_3 = 0; //two messages per frame
 unsigned long long fr_4 = 0xFFFFFFFFFF; //These are the human readable versions for debugging etc
 unsigned long long fr_5 = 0;
+unsigned long long fr_6 = 0;
 
 unsigned short a_len = 4; //AFS allocation type
 unsigned short f_len = 4; //bit lengths
@@ -129,7 +129,7 @@ unsigned short s_mask = 0x0; //
 
 unsigned short x_mask = 0xA0;
 unsigned short x_choice = 1;
-//
+
 unsigned long long afs = 0; //AFS 11-bit info
 unsigned long long int patch_site = 0;
 unsigned long long int site_id = 0;
@@ -141,16 +141,15 @@ signed long long int senderx = 0;
 unsigned long long int groupx = 0;
 signed long long int sourcep = 0;
 signed long long int targetp = 0;
-signed long long int patch_array[50][2]; 
+signed long long int patch_array[50][2];
 signed long long kicked = 0;
 signed long long int tsenderx = 0;
 unsigned long long tafs = 999;
-unsigned long long sender = 0;
-unsigned long long tsender = 0;
 
-//just stuff to play with, think about and what not
-//call matrix 32 columns (lcns) with rows for time of call, group/afs, sender, won't be able to use names(strings) without struct hmmm
-//unsigned long long int call_matrix[32][3];
+//call_matrix 32 columns (lcns) with rows for time of call, group/afs, sender, and status
+unsigned long long int call_matrix[33][4];
+//group_matrix for groupname and mode
+char * group_matrix[33][2];
 
 char * mode_a;
 char * mode_b;
@@ -165,48 +164,36 @@ unsigned char mta = 0;
 unsigned char mtb = 0;
 unsigned char mtd1 = 0;
 unsigned char mtd2 = 0;
+
 int adjust = 0; //highly temperamental, don't use for now
 int cyclecc = 0;
 signed int ppm = 0;
 
-signed int lshifter = 0; //LCN bit shifter
 unsigned int vcmd = 0x00; //voice command variable set by argument
 unsigned int idcmd = 0x00;
-unsigned char xcommand = 0; //XOR of command variable
 unsigned char command = 0; //read from control channel
-unsigned char xlcn = 0;
 unsigned char lcn = 0;
 unsigned char lcn_tally = 0;
-unsigned char lcn_tick = 0;
-unsigned char xstatus = 0; //
 unsigned char status = 0; //
-unsigned char agency = 0, fleet = 0, subfleet = 0; //
-//
-unsigned short lafs = 0x000;
+unsigned char agency = 4, fleet = 4, subfleet = 3; // going to initialize with 4-4-3 scheme, most universal
+
 char * sitecsv;
 char * groupcsv;
 int rfgain = 0;
 
-unsigned char CRC = 0;
-int active = 0;
 unsigned long long int last_sync_time = 0; //last received sync timestamp
 unsigned long long int last_voice_time = 0; //last received voice channel assignment timestamp
 
 unsigned char current_lcn = 0; //current LCN
 unsigned long long int LCN_list[MAX_LCN_NUM]; //LCN list
-unsigned char lcn_num = 0; //number of logical channels
 unsigned char cc = 1;
-
-unsigned char allow_num = 0;
-unsigned int allow_total = 0;
 
 unsigned char deny_num = 0;
 unsigned int deny_total = 0;
 signed int deny_flag = 0;
 short int udeny = 0;
 short int allow = 0;
-unsigned long long ID_FR1 = 0; //making this to investigate 0xFC IDLE command, remove later on
-unsigned long long ID_FR4 = 0; //making this to investigate 0xFC IDLE command, remove later on
+
 unsigned long long int CC_LCN = 0;
 unsigned long long int hanguptime = 0;
 unsigned long long int resettime = 0;
@@ -214,36 +201,35 @@ unsigned long long int logtime = 0;
 
 char * FM_banner[14] = {
 
-"||   ||     ||   || ███████╗██████╗░░█████╗░░█████╗░░██████╗                   ",
-"||   ||, , ,||   || ██╔════╝██╔══██╗██╔══██╗██╔══██╗██╔════╝                   ",
-"||  (||/|/(|||/  || █████╗░░██║░░██║███████║██║░░╚═╝╚█████╗░                   ",
-"||  ||| _'_`|||  || ██╔══╝░░██║░░██║██╔══██║██║░░██╗░╚═══██╗                   ",
-"||   || o o ||   || ███████╗██████╔╝██║░░██║╚█████╔╝██████╔╝                   ",
-"||  (||  - `||)  || ╚══════╝╚═════╝░╚═╝░░╚═╝░╚════╝░╚═════╝░                   ",
-"||   ||  =  ||   || ███████╗███╗░░░███╗  Florida Man Edition                   ",
-"||   || (_) ||   || ██╔════╝████╗░████║  Thanks to:                            ",
-"||___||) , (||___|| █████╗░░██╔████╔██║    sp5wwp                              ",
-"||---||- _ -||---|| ██╔══╝░░██║╚██╔╝██║    EricCottrell                        ",
-"||--_||_____||_--|| ██║░░░░░██║░╚═╝░██║    JSTARS03                            ",
-"||)-| S243-F3 |-(|| ╚═╝░░░░░╚═╝░░░░░╚═╝    blantonl                            ",
-"|| | ||     |||  ||     ...and the radioreference.com forums                   "                                        
+  "||   ||     ||   || ███████╗██████╗░░█████╗░░█████╗░░██████╗ ", //shorted these so art doesn't get mangled in smaller screen area??
+  "||   ||, , ,||   || ██╔════╝██╔══██╗██╔══██╗██╔══██╗██╔════╝ ", //or leave with extra spaces so long strings in calls don't wraparound??
+  "||  (||/|/(|||/  || █████╗░░██║░░██║███████║██║░░╚═╝╚█████╗░ ", //reextend to this legnth if necesary
+  "||  ||| _'_`|||  || ██╔══╝░░██║░░██║██╔══██║██║░░██╗░╚═══██╗ ",
+  "||   || o o ||   || ███████╗██████╔╝██║░░██║╚█████╔╝██████╔╝ ",
+  "||  (||  - `||)  || ╚══════╝╚═════╝░╚═╝░░╚═╝░╚════╝░╚═════╝░ ",
+  "||   ||  =  ||   || ███████╗███╗░░░███╗  Florida Man Edition ",
+  "||   || (_) ||   || ██╔════╝████╗░████║  Thanks to:          ",
+  "||___||) , (||___|| █████╗░░██╔████╔██║    sp5wwp            ",
+  "||---||- _ -||---|| ██╔══╝░░██║╚██╔╝██║    EricCottrell      ",
+  "||--_||_____||_--|| ██║░░░░░██║░╚═╝░██║    JSTARS03          ",
+  "||)-| S243-F3 |-(|| ╚═╝░░░░░╚═╝░░░░░╚═╝    blantonl          ",
+  "|| | ||     |||  ||     ...and the radioreference.com forums "
 };
 
 signed int peer_counter = 0;
-//signed long long int peer_list[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
 signed long long int peer_list[12];
 signed long long int peer = 0;
 unsigned long long int peer_lcn = 0;
 
 signed int debug = 0; //debug value for printing out status and data on different command codes, etc
-unsigned short d_choice = 0; //verbosity levels so users can see debug information etc                                   
 
 signed short int print_timeri = 10;
-char inp = 'x';
 
 int handle; //for UDP
 unsigned short port = UDP_PORT; //
-char data[UDP_BUFLEN] = {0}; //
+char data[UDP_BUFLEN] = {
+  0
+}; //
 struct sockaddr_in address; //
 
 //--------------------------------------------
@@ -319,7 +305,7 @@ void loadLCN(int tsite_id, dict site_array[]) //load LCN frequencies from csv im
   LCN_list[28] = atoi(site_array[tsite_id].lcn28N);
   LCN_list[29] = atoi(site_array[tsite_id].lcn29N);
   LCN_list[30] = atoi(site_array[tsite_id].lcn30N);
-  LCN_list[31] = atoi(site_array[tsite_id].lcn31N); 
+  LCN_list[31] = atoi(site_array[tsite_id].lcn31N);
   site_name = site_array[tsite_id].siteN;
   location_name = site_array[tsite_id].location;
 }
@@ -338,7 +324,7 @@ int csvImport() {
   int field_count = 0;
   dict site_array[9999]; //array to struct to store values
   int tsite_id = site_id;
-  //int i = 0;
+
   while (fgets(buffer, BSIZE, fp)) {
     field_count = 0;
     row_count++;
@@ -382,70 +368,70 @@ int csvImport() {
 
       if (field_count == 11)
         strcpy(site_array[i].lcn9N, field);
-      
+
       if (field_count == 12)
         strcpy(site_array[i].lcn10N, field);
-      
+
       if (field_count == 13)
         strcpy(site_array[i].lcn11N, field);
-      
+
       if (field_count == 14)
         strcpy(site_array[i].lcn12N, field);
-      
+
       if (field_count == 15)
         strcpy(site_array[i].lcn13N, field);
-      
+
       if (field_count == 16)
         strcpy(site_array[i].lcn14N, field);
-      
+
       if (field_count == 17)
         strcpy(site_array[i].lcn15N, field);
-      
+
       if (field_count == 18)
         strcpy(site_array[i].lcn16N, field);
-      
+
       if (field_count == 19)
         strcpy(site_array[i].lcn17N, field);
-      
+
       if (field_count == 20)
         strcpy(site_array[i].lcn18N, field);
-      
+
       if (field_count == 21)
         strcpy(site_array[i].lcn19N, field);
-      
+
       if (field_count == 22)
         strcpy(site_array[i].lcn20N, field);
-      
+
       if (field_count == 23)
         strcpy(site_array[i].lcn21N, field);
-      
+
       if (field_count == 24)
         strcpy(site_array[i].lcn22N, field);
-      
+
       if (field_count == 25)
         strcpy(site_array[i].lcn23N, field);
-      
+
       if (field_count == 26)
         strcpy(site_array[i].lcn24N, field);
-      
+
       if (field_count == 27)
         strcpy(site_array[i].lcn25N, field);
-      
+
       if (field_count == 28)
         strcpy(site_array[i].lcn26N, field);
-      
+
       if (field_count == 29)
         strcpy(site_array[i].lcn27N, field);
-      
+
       if (field_count == 30)
         strcpy(site_array[i].lcn28N, field);
-      
+
       if (field_count == 31)
         strcpy(site_array[i].lcn29N, field);
-      
+
       if (field_count == 32)
         strcpy(site_array[i].lcn30N, field);
-      
+
       if (field_count == 33)
         strcpy(site_array[i].lcn31N, field);
 
@@ -467,13 +453,15 @@ typedef struct key_v {
 }
 groupinfo;
 
-
-void loadGroupInfo(signed long long int tgroup_id, groupinfo group_array[]) {
+//group_matrix testing
+void loadGroupMatrix(unsigned char tlcn, signed long long int tgroup_id, groupinfo group_array[]) {
+  group_matrix[tlcn][0] = group_array[tgroup_id].groupName;
+  group_matrix[tlcn][1] = group_array[tgroup_id].groupMode;
   groupx_name = group_array[tgroup_id].groupName;
   mode = group_array[tgroup_id].groupMode;
 
 }
-
+//end group_matrix testing
 signed long long int csvGroupImport() {
   char filename[] = "group.csv";
   strcpy(filename, groupcsv);
@@ -488,9 +476,8 @@ signed long long int csvGroupImport() {
   int field_count = 0;
   groupinfo group_array[67000]; //array to struct to store values
   signed long long int tgroup_id2 = groupx;
-
-  while (fgets(buffer, BSIZE, fp))
-  {
+  unsigned char tlcn2 = lcn; //group_matrix testing
+  while (fgets(buffer, BSIZE, fp)) {
     field_count = 0;
     row_count++;
     if (row_count == 1)
@@ -512,7 +499,7 @@ signed long long int csvGroupImport() {
     }
   }
   fclose(fp);
-  loadGroupInfo(tgroup_id2, group_array);
+  loadGroupMatrix(tlcn2, tgroup_id2, group_array);
   return 0;
 }
 int init_udp() //UDP init
@@ -550,15 +537,6 @@ char * getTime(void) //get pretty hh:mm:ss timestamp
   return curr;
 }
 
-char * logTime(void) {
-  struct tm * ptr;
-  char * stamp2;
-  time_t t;
-  t = time(NULL);
-  ptr = localtime( & t);
-  stamp2 = asctime(ptr);
-  return stamp2;
-}
 char * getDate(void) {
   char datename[32];
   char * curr2;
@@ -592,7 +570,7 @@ void tuneCC(unsigned long long int ccfreq) //tuning to CC freq, only works with 
 
   sendto(handle, data, UDP_BUFLEN, 0, (const struct sockaddr * ) & address, sizeof(struct sockaddr_in));
 }
-
+//rework ppmAdjust just for initial ppm correction, and not for self adjustments, change argument to required and send data to pyEdacs, see gainSet
 void ppmAdjust(unsigned long long int ccppm) //adjustments to CC PPM, only works with PyEDACS tuner, not rtl_fm/udp
 {
   data[0] = 7;
@@ -626,14 +604,14 @@ void gainSet(int gain) //adjustments to RF Gain in PyEDACS tuner, may also funct
   sendto(handle, data, UDP_BUFLEN, 0, (const struct sockaddr * ) & address, sizeof(struct sockaddr_in));
 }
 
-void ENT() //Print a swanky ascii art banner
+void FM() //Print a swanky ascii art banner
 {
 
   for (short int i = 0; i < 13; i++) {
     printf("%s \n", FM_banner[i]);
   }
 }
-
+//need to work this back into future release
 void print_usage(char * name) {
 
   printf("Usage:\n");
@@ -669,7 +647,7 @@ bool ParseInputOptions(int argc, char ** argv) {
     c = getopt_long(argc, argv, "t d v l e x a:f:s:c:g:r:p",
       long_options, & option_index);
 
-    // warning: I don't know why but required argument are not so "required" <--need to use : after required arguments, no colon for optional ones
+    // warning: need to use : after required arguments, no colon for optional ones
     //          if a following option is encountered getopt_long returns this option as the argument in optarg 
     //          instead of error, but if there is only one option with a missing arg then it returns an error.
     //          
@@ -701,7 +679,6 @@ bool ParseInputOptions(int argc, char ** argv) {
       x_mask = 0xA0; //XOR for ESK
       idcmd = 0xFD;
       vcmd = 0x18;
-      lshifter = 2;
       x_choice = 1;
       break;
     case 'e':
@@ -709,25 +686,23 @@ bool ParseInputOptions(int argc, char ** argv) {
       x_mask = 0xA0; //XOR for ESK
       idcmd = 0xFD;
       vcmd = 0xEE;
-      lshifter = 2;
       x_choice = 2;
-      break;  
+      break;
     case 'l':
       printf("EDACS Standard Mode Enabled \n");
       x_mask = 0x0; //no XOR for legacy
       vcmd = 0xEE;
       idcmd = 0xFD;
-      lshifter = 2;
       x_choice = 2;
       break;
     case 'a':
-      a_len = atol(optarg); 
+      a_len = atol(optarg);
       printf("Agency bit setting = [%d] bits\n", a_len);
       break;
     case 'f':
-      f_len = atol(optarg); 
+      f_len = atol(optarg);
       printf("Fleet bit setting = [%d] bits\n", f_len);
-      break;  
+      break;
     case 's':
       if (optarg[0] == '-') {
         printf("Error: -%c: option requires an argument\n", c);
@@ -755,7 +730,7 @@ bool ParseInputOptions(int argc, char ** argv) {
       }
       rfgain = atoi(optarg);
       printf("RF Gain = %d \n", rfgain);
-      break;  
+      break;
     case 'p':
       adjust = 1;
       printf("AFC/PPM auto adjust enabled - warning, highly temperamental \n");
@@ -766,38 +741,36 @@ bool ParseInputOptions(int argc, char ** argv) {
 
 //--------------------------------------------MAIN--------------------------------------
 int main(int argc, char ** argv) {
-  setlocale(LC_ALL, "");  
-  ENT();
+  setlocale(LC_ALL, "");
+  FM();
   cc = 0;
   groupcsv = "group.csv";
   sitecsv = "site.csv";
   resettime = time(NULL);
   logtime = time(NULL) - 540;
-  //logtime = time(NULL);
   ParseInputOptions(argc, argv);
   signed int avg = 0; //sample average
   s_len = 11 - (a_len + f_len);
-  if (x_choice == 2)
-  {
+  if (x_choice == 2) {
     printf("Subfleet bit setting = [%X] bits \n", s_len);
-    for(unsigned short int i=0; i<a_len; i++)	//A
+    for (unsigned short int i = 0; i < a_len; i++) //A
     {
-	  a_mask=a_mask<<1;
-	  a_mask|=1;
+      a_mask = a_mask << 1;
+      a_mask |= 1;
     }
-    a_mask=a_mask<<(11-a_len);
-    printf("a_mask = [%X] \n", a_mask);	
-    for(unsigned short int i=0; i<f_len; i++)	//F
+    a_mask = a_mask << (11 - a_len);
+    printf("a_mask = [%X] \n", a_mask);
+    for (unsigned short int i = 0; i < f_len; i++) //F
     {
-	  f_mask=f_mask<<1;
-	  f_mask|=1;
+      f_mask = f_mask << 1;
+      f_mask |= 1;
     }
-    f_mask=f_mask<<s_len;
-    printf("f_mask = [%X] \n", f_mask);	
-    for(unsigned short int i=0; i<s_len; i++)	//S
+    f_mask = f_mask << s_len;
+    printf("f_mask = [%X] \n", f_mask);
+    for (unsigned short int i = 0; i < s_len; i++) //S
     {
-	  s_mask=s_mask<<1;
-	  s_mask|=1;
+      s_mask = s_mask << 1;
+      s_mask |= 1;
     }
     printf("s_mask = [%X] \n", s_mask);
   }
@@ -807,11 +780,11 @@ int main(int argc, char ** argv) {
   //if gain specified by user, then change gain in PyEDACS from default value
   squelchSet(5000);
   if (rfgain > 0) {
-    gainSet(rfgain);  
+    gainSet(rfgain);
   }
   //When using PyEDACS and changing site you want to monitor, this will set to a presumably empty channel so it won't be stuck on the last monitored channel
   if (start_site_id > 0) {
-      tuneCC(850000000);
+    tuneCC(850000000);
   }
   last_sync_time = time(NULL);
   last_voice_time = time(NULL);
@@ -826,64 +799,64 @@ int main(int argc, char ** argv) {
   while (1) {
     initscr(); //Initialize NCURSES screen window
     start_color();
-    init_pair(1, COLOR_YELLOW, COLOR_BLACK);
-    init_pair(2, COLOR_MAGENTA, COLOR_BLACK);
-    init_pair(3, COLOR_CYAN, COLOR_BLACK);
+    init_pair(1, COLOR_YELLOW, COLOR_BLACK);      //Yellow/Amber for frame sync/control channel, NV style
+    init_pair(2, COLOR_RED, COLOR_BLACK);        //Red Voice LCN disconnect
+    init_pair(3, COLOR_GREEN, COLOR_BLACK);     //Green for Active Digital Call
+    init_pair(4, COLOR_CYAN, COLOR_BLACK);     //Cyan for Patches or any Debug Info
+    init_pair(5, COLOR_MAGENTA, COLOR_BLACK); //Magenta for no frame sync/signal
     noecho();
     cbreak();
-	if ((time(NULL) - hanguptime) > 15){ //extending to 15 seconds just in case dot detection doesn't catch
-              squelchSet(5000);
+    if ((time(NULL) - hanguptime) > 15) { //extending to 15 seconds just in case dot detection doesn't catch
+      squelchSet(5000);
     }
     if ((time(NULL) - last_sync_time) > SYNC_TIMEOUT) //check if the CC is still there
     {
       erase();
-      attron(COLOR_PAIR(2));
+      attron(COLOR_PAIR(5));
       for (short int i = 0; i < 13; i++) {
         printw("%s \n", FM_banner[i]);
       }
-      attroff(COLOR_PAIR(2));
+      attroff(COLOR_PAIR(5));
       printw("Control Channel not found/lost. Timeout. Waiting...\n");
-
-      //squelchSet(5000); //mutes when cc is lost, disabling since dot detection working again
       last_sync_time = time(NULL);
       kicked = 0;
       targetp = 0;
       sourcep = 0;
       peer = 0;
       //log peers and patches when signal time out
-      if ( x_choice == 1 && patch_array[0][0] > 0){ //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
-		FILE * pFile;
+      if (x_choice == 1 && patch_array[0][0] > 0) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
+        FILE * pFile;
         pFile = fopen("pandp.log", "a");
         fprintf(pFile, "%s %s SITE %3lld Signal Loss Logging \n", getDate(), getTime(), tempsite_id);
         fprintf(pFile, "Peer Sites ");
-		for (short int i=0; i < 12; i++){ 
-		  if (peer_list[i] > 0){ 
-			fprintf(pFile, "[%lld]", peer_list[i]); 
-			}
-		  }
-		  fprintf(pFile, "\n");
-		  for (short int i=0; i < 49; i++){ 
-			if (patch_array[i][0] > 0){ 
-				fprintf(pFile, "Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
-				fprintf(pFile, "\n"); 
-			}
-		}
-            fclose(pFile);
-	  }
-	  //end logging peers and patches before wipe
-      for (short int i = 0; i < 12; i++) {  //zero out peer_list
-		  peer_list[i] = 0; }
+        for (short int i = 0; i < 12; i++) {
+          if (peer_list[i] > 0) {
+            fprintf(pFile, "[%lld]", peer_list[i]);
+          }
+        }
+        fprintf(pFile, "\n");
+        for (short int i = 0; i < 49; i++) {
+          if (patch_array[i][0] > 0) {
+            fprintf(pFile, "Patch Group #%2d [%5lld] to [%5lld]", i + 1, patch_array[i][1], patch_array[i][0]);
+            fprintf(pFile, "\n");
+          }
+        }
+        fclose(pFile);
+      }
+      //end logging peers and patches before wipe
+      for (short int i = 0; i < 12; i++) { //zero out peer_list
+        peer_list[i] = 0;
+      }
       for (short int i = 0; i < 49; i++) { //zero out patch_array
-		  patch_array[i][0] = 0;
-		  patch_array[i][1] = 0; }
+        patch_array[i][0] = 0;
+        patch_array[i][1] = 0;
+      }
       patch_site = 0;
       tempsite_id = 999;
-      active = 0;
       lcn_tally = 0;
       resettime = time(NULL);
       logtime = time(NULL) - 540; //double check
-      //logtime = time(NULL);
-      if (start_site_id == 0){
+      if (start_site_id == 0) {
         site_id = 0;
         site_name = "Searching";
         location_name = "Searching";
@@ -901,10 +874,10 @@ int main(int argc, char ** argv) {
             sleep(2);
           }
         }
-        if (LCN_list[cyclecc]==0) { //if no more frequencies in sites.csv, jump back to beginning of cycle
+        if (LCN_list[cyclecc] == 0) { //if no more frequencies in sites.csv, jump back to beginning of cycle
           cyclecc = 0;
         }
-        if (cyclecc > 31) {  //if cyclecc exceeds 31, jump back to beginning, assuming there are 32 LCN channels specified
+        if (cyclecc > 31) { //if cyclecc exceeds 31, jump back to beginning, assuming there are 32 LCN channels specified
           cyclecc = 0;
         }
       }
@@ -935,7 +908,7 @@ int main(int argc, char ** argv) {
           min = avg_arr[i];
       }
       AFC = (min + max) / 2;
-      
+
     }
     //--------------------------------------
 
@@ -962,78 +935,78 @@ int main(int argc, char ** argv) {
       if (fr_1 == fr_3 && fr_4 == fr_6) //error detection up top to trickle down
       {
         command = ((fr_1 & 0xFF00000000) >> 32) ^ x_mask;
-        if (x_choice == 1){
-            lcn = (fr_1 & 0x3E0000000) >> (27 + lshifter); 
-            //lcn = ((fr_1 & 0xF8000000) >> 27); //going to try just like for legacy just for fun...NOPE
-            xstatus = (fr_1 & 0x7C00000) >> 22;
+        if (x_choice == 1) {
+          lcn = (fr_1 & 0x3E0000000) >> 29; //double check for accuracy, triple check even
+
         }
-        
-        if (x_choice == 2){  //funky formatting is for easier visualizing on where to apply masking
-         status = (fr_1 &0xF00000000) >> 32;
-            lcn = (fr_1 & 0xF8000000) >> 27;
-              afs = (fr_1 & 0x7FF000) >> 12;
-        //a_mask = 0x780; 4
-        //f_mask = 0x078; 4 
-        //s_mask = 0x007; 3
-        //AFS =  0x625 <- first hex always has to be 7 or less, so don't mask with F, mask with 7
-        //4      0x780 >> 3 + 4 or (11 = a_len) 
-        //3      0x070 >> 4 + 1 or (f_mask << s_len)
-        //4      0x00F just use afs & a_mask
-        agency = (afs & a_mask) >> (11 - a_len); //this one is correct
-        fleet = (afs & f_mask) >> s_len; //this is also correct, assuming mask is correct
-        subfleet = (afs & s_mask);
-              if (status == 0xE){
-           sender = (fr_1 & 0x7FF000) >> 12;} //Not quite sure when/where to grab this variable in the FR and which statuses
- 
+        //AFS and status for standard should all be moved to calling block eventually
+        if (x_choice == 2) { //funky formatting is for easier visualizing on where to apply masking
+          status = (fr_1 & 0xF00000000) >> 32;
+             lcn = (fr_1 & 0xF8000000) >> 27;
+             afs =   (fr_1 & 0x7FF000) >> 12;
+          //leaving this for my personal reference
+          //a_mask = 0x780; 4
+          //f_mask = 0x078; 4 
+          //s_mask = 0x007; 3
+          //AFS =  0x625 <- first hex always has to be 7 or less, so don't mask with F, mask with 7
+          //4      0x780 >> 3 + 4 or (11 = a_len) 
+          //3      0x070 >> 4 + 1 or (f_mask << s_len)
+          //4      0x00F just use afs & a_mask
+          agency = (afs & a_mask) >> (11 - a_len);
+          fleet = (afs & f_mask) >> s_len;
+          subfleet = (afs & s_mask);
         }
-        
+
         mt1 = command >> 3;
         mt2 = (fr_1 & 0x780000000) >> 31;
-        //step below probably needs fixing for EA sites without ESK
+
+        //step below probably needs fixing for EA sites without ESK, if such a thing exists
+        //meh, switch to ID command later, or figure out if its a mt1/mt2 thing
         if ((fr_1 & 0xFFF0000000) == 0x5D00000000 && x_choice == 1 || (fr_1 & 0xFFF0000000) == 0x5D60000000 && x_choice == 1) //Site ID, some SL*** sites seem to use 0x5D6 and not 5D0, maybe lower ID sites, backwards compatibility?
         {
           site_id = ((fr_1 & 0x1F000) >> 12) | ((fr_1 & 0x1F000000) >> 19);
           if (site_id != tempsite_id) {
-			lcn_tally = 0;
-			peer = 0;
-			//log peers and patches if site id changes suddenly and site_id not equal to 0 i.e. SDR++ or GQRX signal
-			if ( site_id > 0 && tempsite_id != 999 && x_choice == 1 && patch_array[0][0] > 0){ //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
-				FILE * pFile;
-				pFile = fopen("pandp.log", "a");
-				fprintf(pFile, "%s %s SITE %3lld Site ID changed to %3lld\n", getDate(), getTime(), tempsite_id, site_id);
-				fprintf(pFile, "Peer Sites ");
-				for (short int i=0; i < 12; i++){ 
-					if (peer_list[i] > 0){ 
-					fprintf(pFile, "[%lld]", peer_list[i]); 
-				}
-			}
-			fprintf(pFile, "\n");
-			for (short int i=0; i < 49; i++){ 
-			  if (patch_array[i][0] > 0){ 
-				fprintf(pFile, "Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
-				fprintf(pFile, "\n"); 
-				}
-			  }
+            lcn_tally = 0;
+            peer = 0;
+            //log peers and patches if site id changes suddenly and site_id not equal to 0 i.e. SDR++ or GQRX signal
+            if (site_id > 0 && tempsite_id != 999 && x_choice == 1 && patch_array[0][0] > 0) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
+              FILE * pFile;
+              pFile = fopen("pandp.log", "a");
+              fprintf(pFile, "%s %s SITE %3lld Site ID changed to %3lld\n", getDate(), getTime(), tempsite_id, site_id);
+              fprintf(pFile, "Peer Sites ");
+              for (short int i = 0; i < 12; i++) {
+                if (peer_list[i] > 0) {
+                  fprintf(pFile, "[%lld]", peer_list[i]);
+                }
+              }
+              fprintf(pFile, "\n");
+              for (short int i = 0; i < 49; i++) {
+                if (patch_array[i][0] > 0) {
+                  fprintf(pFile, "Patch Group #%2d [%5lld] to [%5lld]", i + 1, patch_array[i][1], patch_array[i][0]);
+                  fprintf(pFile, "\n");
+                }
+              }
               fclose(pFile);
               logtime = time(NULL) - 540;
               //logtime = time(NULL);
-			}
-			for (short int i = 0; i < 12; i++) {  //zero out peer_list
-				peer_list[i] = 0; }
-			for (short int i = 0; i < 49; i++) { //zero out patch_array
-				patch_array[i][0] = 0;
-				patch_array[i][1] = 0; }
+            }
+            for (short int i = 0; i < 12; i++) { //zero out peer_list
+              peer_list[i] = 0;
+            }
+            for (short int i = 0; i < 49; i++) { //zero out patch_array
+              patch_array[i][0] = 0;
+              patch_array[i][1] = 0;
+            }
             csvImport();
             tempsite_id = site_id;
           }
         }
-        if (command == ID_CMD && x_choice == 2){
-            site_id = (fr_1 & 0xFF000) >> 12;
-            if (site_id != tempsite_id) {
-              csvImport();
-              tempsite_id = site_id;
-              //continue;  
-            }
+        if (command == ID_CMD && x_choice == 2) {
+          site_id = (fr_1 & 0xFF000) >> 12;
+          if (site_id != tempsite_id) {
+            csvImport();
+            tempsite_id = site_id;
+          }
         }
         if (command == PATCH_CMD && (fr_1 & 0xFF00000000) == 0x5E00000000) //ADD LISTING 
         {
@@ -1042,367 +1015,352 @@ int main(int argc, char ** argv) {
           sourcep = ((fr_1 & 0xFFFF000) >> 12);
           //Make 2D array with Patches in it
           short int p = 0;
-			while (p < 49){
-				if (patch_array[p][0] > 0){
-					if (patch_array[p][0] == targetp){
-						break;}
-				}
-				if (patch_array[p][0] == 0){
-					patch_array[p][0] = targetp;
-					patch_array[p][1] = sourcep;
-					break;}
-			p++;
-			}
-          
+          while (p < 49) {
+            if (patch_array[p][0] > 0) {
+              //if (patch_array[p][0] == targetp){
+              if (patch_array[p][0] == targetp && patch_array[p][1] == sourcep) { //try checking by both values, and not just targetp
+                break;
+              }
+            }
+            if (patch_array[p][0] == 0) {
+              patch_array[p][0] = targetp;
+              patch_array[p][1] = sourcep;
+              break;
+            }
+            p++;
+          }
+
         }
         if (command == DATA_CMDX && (fr_1 & 0xFF00000000) == 0x5B00000000) //KICK LISTING 
         {
           kicked = (fr_4 & 0xFFFFF000) >> 12;
         }
-        if ((fr_1 & 0xFFF0000000) == 0x5880000000 && ((fr_1 & 0xFF000) >> 12) > 0){ //PEER Listing
-			peer = (fr_1 & 0xFF000) >> 12; 
-			peer_lcn = (fr_1 & 0x1F000000) >> 24;
-			//Make Small Array with Peers in it
-			short int p = 0;
-			while (p < 12){
-				if (peer_list[p] > 0){
-					if (peer_list[p] == peer){
-						break;}
-				}
-				if (peer_list[p] == 0){
-					peer_list[p] = peer;
-					break;}
-			p++;
-			}
-				
+        if ((fr_1 & 0xFFF0000000) == 0x5880000000 && ((fr_1 & 0xFF000) >> 12) > 0) { //PEER Listing
+          peer = (fr_1 & 0xFF000) >> 12;
+          peer_lcn = (fr_1 & 0x1F000000) >> 24;
+          //Make Small Array with Peers in it
+          short int p = 0;
+          while (p < 12) {
+            if (peer_list[p] > 0) {
+              if (peer_list[p] == peer) {
+                break;
+              }
+            }
+            if (peer_list[p] == 0) {
+              peer_list[p] = peer;
+              break;
+            }
+            p++;
+          }
+
         }
-        
-        if (x_choice == 1 && command == IDLE_CMD) //setting this to ID_FR to investigate these frames for now, remove later
-        {
-          ID_FR1 = fr_1;
-          ID_FR4 = fr_4;
-          if (((fr_4 >> 12) & 0x1F) != 0){
+
+        if (x_choice == 1 && command == IDLE_CMD) {
+
+          if (((fr_4 >> 12) & 0x1F) != 0) {
             CC_LCN = ((fr_4 >> 12) & 0x1F);
-            if (CC_LCN > lcn_tally){lcn_tally=CC_LCN;}
-          }
-        }
-
-        if (x_choice == 2 && command == 0xFD){
-          CC_LCN = (fr_1 & 0x1F000000) >> 24;}
-          
-        if (time(NULL) - resettime > 1215){ //reset lcn_tally, peers, patches after 20 minutes 15 seconds, give just enough time for 2 pandp logs
-			lcn_tally = 0;
-			for (short int i = 0; i < 12; i++) {  //zero out peer_list
-				peer_list[i] = 0; }
-			for (short int i = 0; i < 49; i++) { //zero out patch_array
-				patch_array[i][0] = 0;
-				patch_array[i][1] = 0; }
-			
-			resettime = time(NULL);}  
-		// log peers and patches after one minute of collection, then 10 minutes afterwards
-		if ( (time(NULL) - logtime > 600) && x_choice == 1){ 
-			FILE * pFile;
-            pFile = fopen("pandp.log", "a");
-            fprintf(pFile, "%s %s SITE %3lld Log Time\n", getDate(), getTime(), tempsite_id);
-            fprintf(pFile, "Peer Sites ");
-			for (short int i=0; i < 12; i++){ 
-				if (peer_list[i] > 0){ 
-					fprintf(pFile, "[%lld]", peer_list[i]); 
-				}
-			}
-			fprintf(pFile, "\n");
-			for (short int i=0; i < 49; i++){ 
-				if (patch_array[i][0] > 0){ 
-					fprintf(pFile, "Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
-					fprintf(pFile, "\n"); 
-				}
-			}
-            fclose(pFile);
-            logtime = time(NULL);
-		}	        
-		// Start AFC/PPM Adjustment testing code
-        if (adjust == 1) {
-          if (AFC < -1000) {
-          ppm = 1; //need to adjust to 0.1 instead, need to change type first
-          ppmAdjust(ppm); //on the PyEDACS side, this value is added to ppm value already asserted to dongle
-          sleep(3); //wait for adjustment to take effect, may need to use 2 instead
-          }
-          if (AFC > 1000) {
-          ppm = -1; //need to adjust to 0.1 instead, need to change type first
-          ppmAdjust(ppm); //on the PyEDACS side, this value is added to ppm value already asserted to dongle
-          sleep(3); //wait for adjustment to take effect, may need to use 2 instead
-          }
-        }
-      // End AFC/PPM Adjustment testing code, most likely will get axed if not working at some point soon
-      //-------------------------------------------------
-
-      last_sync_time = time(NULL); //set timestamp
-      print_timeri = print_timeri - 1; //primitive timer for printing out IDLE status updates
-      if (command == idcmd && print_timeri < 0 )//IDLE, try shortening print_timeri??
-      {
-
-        if (voice_to == 0) //1 for inactive (backwards, I know) 
-        {  //remove squelchSet IF dot detection is working, but leave hanguptime just in case??
-          //squelchSet(5000); //moving/adding to start of main to squelch in rtludp instance
-          voice_to = 1; //1 - idle
-        }
-        erase();
-        attron(COLOR_PAIR(1));
-        for (short int i = 0; i < 13; i++) {
-          printw("%s \n", FM_banner[i]);
-        }  
-        attroff(COLOR_PAIR(1));
-        printw("%s  AFC [%d]Hz\n", getTime(), AFC);
-        printw("Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
-        if (x_choice == 2) {
-            printw("Status Bits = ", status);
-            for (unsigned short int i = 0; i < 4; i++) {
-              signed short int buffer = (status >> 3 - i) & 0x1;
-              printw("[%1d] ", buffer);
-              
+            if (CC_LCN > lcn_tally) {
+              lcn_tally = CC_LCN;
             }
-            printw("\n");
-            //printw("SR_0 = %16llX \n", sr_0); //leaving here in case I need to do some more debugging
-            //printw("SR_1 = %10llX \n", sr_1);
-            //printw("FR_1 = %10llX \n", fr_1);
-            //printw("FR_4 = %10llX \n", fr_4);
-        }
-        if (x_choice == 1) {
-            printw("MT-1 ");
-            for (unsigned short int i = 0; i < 5; i++) {
-              signed short int buffer = (mt1 >> 4 - i) & 0x1;
-              printw("[%1d] ", buffer);
-            }
-            printw("\n");
-            printw("MT-2 ");
-            for (unsigned short int i = 0; i < 4; i++) {
-              signed short int buffer = (mt2 >> 3 - i) & 0x1;
-              printw("[%1d] ", buffer);
-            }
-        printw("\n");
-        }
-        for (short int i = 0; i < lcn_tally; i++) {
-          printw("LCN [%2d] ", lcn_tally - (lcn_tally-1) + i);
-          printw("[%lld]Hz ", LCN_list[i]);
-          if (x_choice == 1 && CC_LCN == (i+1)){
-              attron(COLOR_PAIR(1));
-              printw("Control Channel");
-              attroff(COLOR_PAIR(1));
           }
-         printw("\n");
         }
-        if (x_choice == 1){
-			printw("Peer Sites ");
-			for (short int i=0; i < 12; i++){ 
-				if (peer_list[i] > 0){ 
-					printw("[%lld]", peer_list[i]); 
-				}
-			}
-			printw("\n");
-		  }
-		if (x_choice == 1 && debug > 0){
-			printw("Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);}
-		if (x_choice == 1 && debug == 0){
-			printw("Patch Group [%lld] to [%lld]\n", sourcep, targetp); }
-        if (x_choice == 1 && debug > 0){
-			for (short int i=0; i < 49; i++){ 
-				if (patch_array[i][0] > 0){ 
-					printw("Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
-					printw("\n"); 
-				}
-			}
-		}
-        refresh(); 
-      } 
-      if (x_choice ==1 && (command == vcmd || command == 0xA8 || command == 0xB0 || command == 0x90) || (x_choice == 2 && (command == 0xEE || command == 0xEF ) ) ) { 
 
-        if ( (x_choice == 1 && lcn > lcn_tally && mt1 == 0x3) || ( lcn > lcn_tally && x_choice == 2) ) {lcn_tally=lcn;}  //only increment LCN channel list on 0x3 for testing, revert later when 0x2 and 0x1 are figured out properly
-        voice_to = 0;   //0-active
-        deny_flag = 0; //reset trip on deny_flag
-        allow = 0;     //reset trip on alow flag during universal denial
-        if (fr_1 == fr_3 && fr_4 == fr_6) //error detection for groupx, senderx, xstatus variables, probably redundant
+        if (x_choice == 2 && command == 0xFD) {
+          CC_LCN = (fr_1 & 0x1F000000) >> 24;
+        }
+
+        if (time(NULL) - resettime > 1215) { //reset lcn_tally, peers, patches after 20 minutes 15 seconds, give just enough time for 2 pandp logs
+          lcn_tally = 0;
+          for (short int i = 0; i < 12; i++) { //zero out peer_list
+            peer_list[i] = 0;
+          }
+          for (short int i = 0; i < 49; i++) { //zero out patch_array
+            patch_array[i][0] = 0;
+            patch_array[i][1] = 0;
+          }
+
+          resettime = time(NULL);
+        }
+        // log peers and patches after one minute of collection, then 10 minutes afterwards
+        if ((time(NULL) - logtime > 600) && x_choice == 1) {
+          FILE * pFile;
+          pFile = fopen("pandp.log", "a");
+          fprintf(pFile, "%s %s SITE %3lld Log Time\n", getDate(), getTime(), tempsite_id);
+          fprintf(pFile, "Peer Sites ");
+          for (short int i = 0; i < 12; i++) {
+            if (peer_list[i] > 0) {
+              fprintf(pFile, "[%lld]", peer_list[i]);
+            }
+          }
+          fprintf(pFile, "\n");
+          for (short int i = 0; i < 49; i++) {
+            if (patch_array[i][0] > 0) {
+              fprintf(pFile, "Patch Group #%2d [%5lld] to [%5lld]", i + 1, patch_array[i][1], patch_array[i][0]);
+              fprintf(pFile, "\n");
+            }
+          }
+          fclose(pFile);
+          logtime = time(NULL);
+        }
+        if (command == idcmd && print_timeri < 0) //IDLE, print_timeri just for the voice_to bs
         {
-          groupx = (fr_1 & 0xFFFF000) >> 12;
-          if (x_choice == 2){
-            groupx = afs;  
+          if (voice_to == 0) //1 for inactive (backwards, I know) 
+          {
+            voice_to = 1; //1 - idle
           }
-          if (tgroupx != groupx) {
-            tgroupx = groupx;
+        }
+        if (x_choice == 1 && (command == vcmd || command == 0xA8 || command == 0xB0 || command == 0x90) || (x_choice == 2 && (command == 0xEE || command == 0xEF))) {
+
+          if ((x_choice == 1 && lcn > lcn_tally && mt1 == 0x3) || (lcn > lcn_tally && x_choice == 2)) {
+            lcn_tally = lcn;
+          } //only increment LCN channel list on 0x3 for testing, revert later when 0x2 and 0x1 are figured out properly
+          voice_to = 0; //0-active
+          deny_flag = 0; //reset trip on deny_flag
+          allow = 0; //reset trip on alow flag during universal denial
+          if (fr_1 == fr_3 && fr_4 == fr_6) //error detection for groupx, senderx, xstatus variables, probably redundant
+          {
+            groupx = (fr_1 & 0xFFFF000) >> 12;
+            if (x_choice == 2) {
+              groupx = afs;
+            }
+            senderx = (fr_4 & 0xFFFFF000) >> 12;
+            group_matrix[lcn][0] = " "; //initialize with a space, otherwise is NULL if no value present in csv file
+            group_matrix[lcn][1] = " ";
             csvGroupImport();
-          }
+            //call_matrix testing
+            call_matrix[lcn][0] = time(NULL);
+            call_matrix[lcn][1] = groupx;
+            call_matrix[lcn][2] = senderx;
+            //call_matrix[lcn][3] = mt1;
+            if (x_choice == 1) {
+              call_matrix[lcn][3] = mt1;
+            }
+            if (x_choice == 2) {
+              call_matrix[lcn][3] = status;
+            }
+            //end call_matrix testing
 
-          senderx = (fr_4 & 0xFFFFF000) >> 12;
-          //if the sender isn't identical and 1 second last voice difference, test to see if this works correctly, may not log call if call occurs during startup
-          //if (tsenderx != senderx && (time(NULL) - last_voice_time > 1) && x_choice == 1 && site_id > 0) 
-          if (tsenderx != senderx && x_choice == 1 && site_id > 0) //more testing on logging voice calls
-          {
-            FILE * pFile;
-            pFile = fopen("voice.log", "a");
-            fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tTG %5lld \tRID %lld  \n", getDate(), getTime(), site_id, lcn, groupx, senderx);
-            fclose(pFile);
-            tsenderx = senderx;
-          }
-          //currently will not log same AFS using multiple LCNs in succession, weird splat happens in afs.log on startup <- may work better now?
-          //if (tafs != afs && x_choice == 2 && site_id > 0 && (time(NULL) - last_voice_time > 1) ) 
-          if (tafs != afs && x_choice == 2 && site_id > 0)
-          {
-            FILE * pFile;
-            pFile = fopen("afs.log", "a");
-            
-            if (status == 0xF){
+            //if the sender isn't identical and 1 second last voice difference, test to see if this works correctly, may not log call if call occurs during startup
+            //if (tsenderx != senderx && (time(NULL) - last_voice_time > 1) && x_choice == 1 && site_id > 0) 
+            if (tsenderx != senderx && x_choice == 1 && site_id > 0) //more testing on logging voice calls
+            {
+              FILE * pFile;
+              pFile = fopen("voice.log", "a");
+              fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tTG %5lld \tRID %lld  \n", getDate(), getTime(), site_id, lcn, groupx, senderx);
+              fclose(pFile);
+              tsenderx = senderx;
+            }
+            //currently will not log same AFS using multiple LCNs in succession, weird splat happens in afs.log on startup <- may work better now?
+            //if (tafs != afs && x_choice == 2 && site_id > 0 && (time(NULL) - last_voice_time > 1) ) 
+            if (tafs != afs && x_choice == 2 && site_id > 0) {
+              FILE * pFile;
+              pFile = fopen("afs.log", "a");
+
+              if (status == 0xF) {
                 fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tDigital\n", getDate(), getTime(), site_id, lcn, afs, agency, fleet, subfleet);
-            }
-            if (status == 0xE){
+              }
+              if (status == 0xE) {
                 fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tAnalog\n", getDate(), getTime(), site_id, lcn, afs, agency, fleet, subfleet);
+              }
+              fclose(pFile);
+              tafs = afs;
             }
-            fclose(pFile);
-            tafs = afs;
-          }
 
+            //}
+            if (lcn == current_lcn) //lcn==current_lcn
+            {
+              last_voice_time = time(NULL);
+
+            }
+            print_timeri = 20;
+
+            mode_a = "DE"; //Digital Encrypted from csv, blocking
+            mode_b = mode;
+            modecompare = strcmp(mode_a, mode_b);
+            if (modecompare == 0) {
+              deny_flag = 1;
+              current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
+            }
+            mode_a = "B"; //Blocked Group from csv
+            modecompare = strcmp(mode_a, mode_b);
+            if (modecompare == 0) {
+              deny_flag = 1;
+              current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
+            }
+            if (udeny == 0 && deny_flag == 0 && lcn != current_lcn && voice_to == 0) //tune to LCN if lcn didn't change and voice_to is active
+            {
+              tune(LCN_list[lcn - 1]);
+              current_lcn = lcn;
+              squelchSet(0); //unmute
+              //voice_to=0; // voice_to = 0 is for active
+              hanguptime = time(NULL); // trying this really quick
+            }
+
+            mode_a = "A"; //Allow Group from csv
+            modecompare = strcmp(mode_a, mode_b);
+            if (modecompare == 0) {
+              allow = 1;
+              current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
+
+            }
+            if (udeny == 1 && allow == 1) //tune to LCN if if univeral denial active and allowed group
+            {
+              tune(LCN_list[lcn - 1]);
+              current_lcn = lcn;
+              squelchSet(0); //unmute
+              hanguptime = time(NULL); // trying this really quick
+              //voice_to=0; // voice_to = 0 is for active
+            }
+
+          } //this one closes redundant fr_1 == fr_3 && fr_4 == fr_6 if condition on vcmd currently
+        } //this once closes vcmd 
+      } //this one closes big overarcing fr_1 == fr_3 && fr_4 == fr_6
+      //-------------------------------------------------
+      //singular printw area
+      last_sync_time = time(NULL); //set timestamp, does this still go here?
+      print_timeri = print_timeri - 1; //primitive timer for printing out IDLE status updates
+      erase();
+      attron(COLOR_PAIR(1));
+      for (short int i = 0; i < 13; i++) {
+        printw("%s \n", FM_banner[i]);
+      }
+      attroff(COLOR_PAIR(1));
+      printw("%s %s AFC [%d]Hz\n", getDate(), getTime(), AFC);
+      printw("Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
+      if (x_choice == 2 && debug > 0) { //changing to debug since its not really usable as fast as it goes
+		attron(COLOR_PAIR(4));  
+        printw("Status Bits = ", status);
+        for (unsigned short int i = 0; i < 4; i++) {
+          signed short int buffer = (status >> 3 - i) & 0x1;
+          printw("[%1d] ", buffer);
         }
-        if (lcn == current_lcn) //lcn==current_lcn
-        {
-          last_voice_time = time(NULL);
-
-        } 
-          print_timeri = 50;
-          erase();
+        printw("\n");
+        //printw("SR_0 = %16llX \n", sr_0); //leaving here in case I need to do some more debugging
+        //printw("SR_1 = %16llX \n", sr_1);
+        //printw("FR_1 = %10llX \n", fr_1);
+        //printw("FR_4 = %10llX \n", fr_4);
+        attroff(COLOR_PAIR(4));
+      }
+      if (x_choice == 1) {
+        printw("Peer Sites ");
+        for (short int i = 0; i < 12; i++) {
+          if (peer_list[i] > 0) {
+            printw("[%lld]", peer_list[i]);
+          }
+        }
+        printw("\n");
+      }
+      if (x_choice == 1 && debug > 0) {
+		attron(COLOR_PAIR(4));
+        printw("Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);
+        attroff(COLOR_PAIR(4));
+      }
+      if (x_choice == 1 && debug > 0) { //changing to debug since its not really usable as fast as it goes
+		attron(COLOR_PAIR(4));  
+        printw("MT-1 ");
+        for (unsigned short int i = 0; i < 5; i++) {
+          signed short int buffer = (mt1 >> 4 - i) & 0x1;
+          printw("[%1d] ", buffer);
+        }
+        printw("\n");
+        printw("MT-2 ");
+        for (unsigned short int i = 0; i < 4; i++) {
+          signed short int buffer = (mt2 >> 3 - i) & 0x1;
+          printw("[%1d] ", buffer);
+        }
+        printw("\n");
+        attroff(COLOR_PAIR(4));
+      }
+      for (short int i = 0; i < lcn_tally; i++) {
+        printw("LCN [%2d] ", lcn_tally - (lcn_tally - 1) + i);
+        printw("[%lld]Hz ", LCN_list[i]);
+        //if (x_choice == 1 && CC_LCN == (i+1)){
+        if (CC_LCN == (i + 1)) {
+          attron(COLOR_PAIR(1));
+          printw("Control Channel");
+          attroff(COLOR_PAIR(1));
+        }
+        //start call_matrix display testing
+        if (x_choice == 1 && (time(NULL) - call_matrix[i + 1][0] < 2) && call_matrix[i + 1][1] > 0) {
           attron(COLOR_PAIR(3));
-          for (short int i = 0; i < 13; i++) {
-            printw("%s \n", FM_banner[i]);
-          }  
+          printw("RID [%lld] TG [%lld] [%s] [%s] ", call_matrix[i + 1][2], call_matrix[i + 1][1], group_matrix[i + 1][0], group_matrix[i + 1][1]); //group_matrix testing
+          if (call_matrix[i + 1][3] == 0x3) {
+            printw("Digital");
+          }
+          if (call_matrix[i + 1][3] == 0x2) {
+            printw("Data");
+          }
+          if (call_matrix[i + 1][3] == 0x1) {
+            printw("TDMA");
+          }
+          if (call_matrix[i + 1][3] == 0x4) {
+            printw("Analog"); //putting 0x4 for now, find out what Analog should be, if it exists
+          }
           attroff(COLOR_PAIR(3));
-          printw("%s  AFC [%d]Hz\n", getTime(), AFC);
-          printw("Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
-          if (x_choice == 2) {
-            printw("Status Bits = ", status);
-            for (unsigned short int i = 0; i < 4; i++) {
-              signed short int buffer = (status >> 3 - i) & 0x1;
-              printw("[%1d] ", buffer);
-              
-            }
-            printw("\n");
+        }
+        if (x_choice == 1 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
+          attron(COLOR_PAIR(2));
+          printw("RID [%lld] TG [%lld] [%s] [%s] ", call_matrix[i + 1][2], call_matrix[i + 1][1], group_matrix[i + 1][0], group_matrix[i + 1][1]); //group_matrix testing
+          if (call_matrix[i + 1][3] == 0x3) {
+            printw("Digital");
           }
-          if (x_choice == 1) {
-            printw("MT-1 ");
-            for (unsigned short int i = 0; i < 5; i++) {
-              signed short int buffer = (mt1 >> 4 - i) & 0x1;
-              printw("[%1d] ", buffer);
-            }
-            printw("\n");
-            printw("MT-2 ");
-            for (unsigned short int i = 0; i < 4; i++) {
-              signed short int buffer = (mt2 >> 3 - i) & 0x1;
-              printw("[%1d] ", buffer);
-              
-            }
-            printw("\n");
+          if (call_matrix[i + 1][3] == 0x2) {
+            printw("Data");
           }
-          for (short int i = 0; i < lcn_tally; i++) {
-            printw("LCN [%2d] ", lcn_tally - (lcn_tally-1) + i);
-            printw("[%lld]Hz ", LCN_list[i]);
-            if (CC_LCN == (i+1)){
-              attron(COLOR_PAIR(1));  
-              printw("Control Channel");}
-              attroff(COLOR_PAIR(1));
-            if (x_choice == 1 && lcn == (i+1)){
-                attron(COLOR_PAIR(3));
-                printw("RID [%lld] TG [%lld] [%s] [%s] ", senderx, groupx, groupx_name, mode);
-                if (mt1 == 0x3){
-                    printw("Digital");
-                }
-                if (mt1 == 0x2){
-                    printw("Data");
-                }
-                if (mt1 == 0x1){
-                    printw("TDMA");
-                }
-                if (mt1 == 0x4){
-                    printw("Analog"); //putting 0x4 for now, find out what Analog should be, if it exists
-                }
-                attroff(COLOR_PAIR(3));
-            }
-            if (x_choice == 2 && lcn == (i+1)){
-                attron(COLOR_PAIR(3));
-                printw("AFS[%lld] [%d-%d-%d] [%s] [%s] ", afs, agency, fleet, subfleet, groupx_name, mode);
-                if (status == 0xE){
-                  printw("Analog");}
-                if (status == 0xF){
-                  printw("Digital");} 
-                attroff(COLOR_PAIR(3));
-            }
-            printw("\n");
+          if (call_matrix[i + 1][3] == 0x1) {
+            printw("TDMA");
           }
-          if (x_choice == 1){
-			printw("Peer Sites ");
-			for (short int i=0; i < 12; i++){ 
-				if (peer_list[i] > 0){ 
-					printw("[%lld]", peer_list[i]); 
-				}
-			}
-			printw("\n");
-		  }
-		  if (x_choice == 1 && debug > 0){
-			printw("Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);}
-		  if (x_choice == 1 && debug == 0){
-			printw("Patch Group [%lld] to [%lld]\n", sourcep, targetp); }
-		  if (x_choice == 1 && debug > 0){
-			for (short int i=0; i < 49; i++){ 
-				if (patch_array[i][0] > 0){ 
-					printw("Patch Group #%2d [%5lld] to [%5lld]", i+1, patch_array[i][1], patch_array[i][0]);
-					printw("\n"); 
-				}
-			}
-		  }
-          refresh();
-          //add more modes for blocking, block groups, may have to just skip allow only groups until universal deny thing exists again  
-          mode_a = "DE"; //Digital Encrypted from csv, blocking
-          mode_b = mode;
-          modecompare = strcmp(mode_a, mode_b);
-          if (modecompare == 0) {
-            deny_flag = 1;
-            current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
+          if (call_matrix[i + 1][3] == 0x4) {
+            printw("Analog"); //putting 0x4 for now, find out what Analog should be, if it exists
           }
-          mode_a = "B"; //Blocked Group from csv
-          modecompare = strcmp(mode_a, mode_b);
-          if (modecompare == 0) {
-            deny_flag = 1;
-            current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
+          attroff(COLOR_PAIR(2));
+        }
+        if (x_choice == 2 && (time(NULL) - call_matrix[i + 1][0] < 2) && call_matrix[i + 1][1] > 0) {
+          attron(COLOR_PAIR(3));
+          printw("AFS[%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
+          if (call_matrix[i + 1][3] == 0xE) {
+            printw("Analog");
           }
-          if (udeny == 0 && deny_flag == 0 && lcn != current_lcn && voice_to == 0) //tune to LCN if lcn didn't change and voice_to is active
-          {
-            tune(LCN_list[lcn - 1]);
-            current_lcn = lcn;
-            squelchSet(0); //unmute
-            //voice_to=0; // voice_to = 0 is for active
-            hanguptime = time(NULL); // trying this really quick
+          if (call_matrix[i + 1][3] == 0xF) {
+            printw("Digital");
           }
-          
-          mode_a = "A"; //Allow Group from csv
-          modecompare = strcmp(mode_a, mode_b);
-          if (modecompare == 0) {
-            allow = 1;
-            current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
-            
+          attroff(COLOR_PAIR(3));
+        }
+        if (x_choice == 2 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
+          attron(COLOR_PAIR(2));
+          printw("AFS[%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
+          if (call_matrix[i + 1][3] == 0xE) {
+            printw("Analog");
           }
-          if (udeny == 1 && allow == 1) //tune to LCN if if univeral denial active and allowed group
-          {
-            tune(LCN_list[lcn - 1]);
-            current_lcn = lcn;
-            squelchSet(0); //unmute
-            hanguptime = time(NULL); // trying this really quick
-            //voice_to=0; // voice_to = 0 is for active
+          if (call_matrix[i + 1][3] == 0xF) {
+            printw("Digital");
           }
-          
+          attroff(COLOR_PAIR(2));
+        }
+        //leaving this here for reference, its used in the AFS bits printw instead of needlessly expanding the array to cram it in
+        //agency =  ((call_matrix[i+1][1] & a_mask) >> (11 - a_len)); 
+        //fleet =    ((call_matrix[i+1][1] & f_mask) >> s_len); 
+        //subfleet =  (call_matrix[i+1][1] & s_mask);
+        printw("\n");
+      }
 
-        refresh();
-      } //this once closes vcmd
-    } //this one closes the fr_1 == fr_3 && fr_4 == fr_6 if condition, make sure it stays that way
-
-    } //this one closes the sync frame if statement, make sure it stays that way
+      //if (x_choice == 1 && debug == 0){
+      //printw("Patch Group [%lld] to [%lld]\n", sourcep, targetp); }
+      if (x_choice == 1 && debug > 0) {
+		attron(COLOR_PAIR(4));  
+        for (short int i = 0; i < 49; i++) {
+          if (patch_array[i][0] > 0) {
+            printw("Patch Group #%2d [%5lld] to [%5lld]", i + 1, patch_array[i][1], patch_array[i][0]);
+            printw("\n");
+          }
+        }
+        attroff(COLOR_PAIR(4));
+      }
+      refresh();
+    } //this one closes sync frame
     else {} //no idea why I have this one, not sure if I need it or not
-  }
+  } //this one terminates while loop
 
-  endwin(); //terminae NCURSES screen
+  endwin(); //terminate NCURSES screen
   return 0;
-}
+} //terminates main

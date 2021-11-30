@@ -1,3 +1,27 @@
+2021.12.01
+Clean up or delete tons of unused variables, reorganized code
+speed up code, made singular printw screen based on the frame sync
+lots of random under the hood stuff
+another round through the c beautifier to clean up my terrible indentation scheme
+rearragne layout slightly, added date and moved peer sites to top just under site id info
+moved status bits and mt-1 mt-2 bits to verbose mode only, 
+reassign colors slightly, amber/yellow for control/frame sync, for magenta for no signal/sync, green for active call, red for disconnect call, cyan for debug info/patches
+completely removed edacs standard/network "sender" or "radio id", not sure it co-exists with AFS and can't reliably produce it with my current knowledge
+
+ideas:  on/off bit in call_matrix, log when 0 and not 1? find way to log only once? per-call log and not based on LCN?
+todo: add print usage back into it, completely removed 
+idea2: experiment with windows builds, had a little luck before, but obstacles too. Need to learn how to use cross-compiling tools or get v** studio c++ and try that?
+
+Time to take a break from this project! Enjoy Life!
+
+2021.11.29
+change patch_array building to test for already containing sourcep and targetp; instead of just targetp
+call_matrix and group_matrix coded, allows for displaying multiple calls at once
+ended voice calls turn red in the display and persist for 5 seconds
+
+lowered print_timeri value; would remove but screen flickers
+(may experiment with using just one print and not two seperate for call and idle commands)
+
 2021.11.28
 Increase Peer List to 12, not sure how many peers a very large site would usually have
 
