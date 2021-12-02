@@ -1,3 +1,13 @@
+2021.12.02
+Make Patch Array print in 2 columns in ncurses window to fit more in the space provided without overflowing at the bottom, gave it a nice fence too
+Added FR_1 and FR_4 ncurses print to debug mode
+Make Call Matrix print, much like Patch Array does in verbosity mode, used as a sort of 'Call History' but overwritten each pass on an LCN
+Clean up little odd and end commented out bits
+
+2021.11.30
+idea: get rid of voice_to; use call_matrix? keep calls from flip flopping when one is active already? may tie into logging as well.
+investigate hanguptime hanging up calls in progress that exceed 15 seconds, observed once, just speculating.
+
 2021.12.01
 Clean up or delete tons of unused variables, reorganized code
 speed up code, made singular printw screen based on the frame sync

@@ -141,7 +141,7 @@ signed long long int senderx = 0;
 unsigned long long int groupx = 0;
 signed long long int sourcep = 0;
 signed long long int targetp = 0;
-signed long long int patch_array[50][2];
+signed long long int patch_array[51][2]; //bump to 51 just in case
 signed long long kicked = 0;
 signed long long int tsenderx = 0;
 unsigned long long tafs = 999;
@@ -1271,10 +1271,16 @@ int main(int argc, char ** argv) {
         printw("\n");
         attroff(COLOR_PAIR(4));
       }
+      
+      if (debug > 0) {
+		attron(COLOR_PAIR(4));
+		printw("FR_1 = %10llX \n", fr_1);
+        printw("FR_4 = %10llX \n", fr_4);
+        attroff(COLOR_PAIR(4));
+	  }  
       for (short int i = 0; i < lcn_tally; i++) {
         printw("LCN [%2d] ", lcn_tally - (lcn_tally - 1) + i);
         printw("[%lld]Hz ", LCN_list[i]);
-        //if (x_choice == 1 && CC_LCN == (i+1)){
         if (CC_LCN == (i + 1)) {
           attron(COLOR_PAIR(1));
           printw("Control Channel");
@@ -1317,7 +1323,7 @@ int main(int argc, char ** argv) {
         }
         if (x_choice == 2 && (time(NULL) - call_matrix[i + 1][0] < 2) && call_matrix[i + 1][1] > 0) {
           attron(COLOR_PAIR(3));
-          printw("AFS[%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
+          printw("AFS [%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
           if (call_matrix[i + 1][3] == 0xE) {
             printw("Analog");
           }
@@ -1328,7 +1334,7 @@ int main(int argc, char ** argv) {
         }
         if (x_choice == 2 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
           attron(COLOR_PAIR(2));
-          printw("AFS[%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
+          printw("AFS [%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
           if (call_matrix[i + 1][3] == 0xE) {
             printw("Analog");
           }
@@ -1343,24 +1349,47 @@ int main(int argc, char ** argv) {
         //subfleet =  (call_matrix[i+1][1] & s_mask);
         printw("\n");
       }
-
-      //if (x_choice == 1 && debug == 0){
-      //printw("Patch Group [%lld] to [%lld]\n", sourcep, targetp); }
-      if (x_choice == 1 && debug > 0) {
-		attron(COLOR_PAIR(4));  
-        for (short int i = 0; i < 49; i++) {
-          if (patch_array[i][0] > 0) {
-            printw("Patch Group #%2d [%5lld] to [%5lld]", i + 1, patch_array[i][1], patch_array[i][0]);
-            printw("\n");
+      printw("\n"); //nice line break between makes it easier on the eyes
+      if (x_choice == 1 && debug > 0) { //Print Call_Matrix "History" for EA
+		attron(COLOR_PAIR(4));
+		printw("--Call Matrix--------------------------------------------------------------\n"); //making a fence  
+        for (short int i = 0; i < 32; i++) {
+          if (call_matrix[i][0] > 0) {
+            printw("| LCN [%2lld] RID [%6lld] TG [%5lld] [%17s] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], group_matrix[i][0], (time(NULL) - call_matrix[i][0]) );
           }
         }
+        printw("---------------------------------------------------------------------------\n"); //making a fence  
+        attroff(COLOR_PAIR(4));
+      }
+      if (x_choice == 2 && debug > 0) { //Print Call_Matrix "History" for AFS
+		attron(COLOR_PAIR(4));
+		printw("--Call Matrix--------------------------------------------------------------\n"); //making a fence  
+        for (short int i = 0; i < 32; i++) {
+          if (call_matrix[i][0] > 0) {
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [%19s] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), group_matrix[i][0], (time(NULL) - call_matrix[i][0]) );
+          }
+        }
+        printw("---------------------------------------------------------------------------\n"); //making a fence  
+        attroff(COLOR_PAIR(4));
+      }
+      if (x_choice == 1 && debug > 0) { //Print Pretty Patch Array
+		attron(COLOR_PAIR(4));
+		printw("--Patch Groups-------------------------------------------------------------\n"); //making a fence  
+        //for (short int i = 0; i < 49; i++) {
+        for (short int i = 0; i < 48;) {
+          if (patch_array[i][0] > 0) {
+            printw("| Patch Group #%2d [%5lld] to [%5lld] | ", i + 1, patch_array[i][1], patch_array[i][0]);
+            printw("Patch Group #%2d [%5lld] to [%5lld] |\n", i + 2, patch_array[i+1][1], patch_array[i+1][0]);
+          }
+          i = i + 2;
+        }
+        printw("---------------------------------------------------------------------------\n"); //making a fence  
         attroff(COLOR_PAIR(4));
       }
       refresh();
     } //this one closes sync frame
     else {} //no idea why I have this one, not sure if I need it or not
   } //this one terminates while loop
-
   endwin(); //terminate NCURSES screen
   return 0;
 } //terminates main
