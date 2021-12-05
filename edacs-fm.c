@@ -641,7 +641,7 @@ bool ParseInputOptions(int argc, char ** argv) {
       break;
     case 't':
       sync_timeout = atol(optarg);
-      printf("Sync Timeout = [%d] seconds\n", sync_timeout);
+      printf("Sync Timeout = [%lld] seconds\n", sync_timeout);
       break;  
     case 'd':
       udeny = 1;
