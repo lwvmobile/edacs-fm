@@ -1,3 +1,12 @@
+2021.12.04
+Noticed an ESK site rolling with its ESK turned off, had to impelement an Extended Addressing option minus the ESK
+Also, had some values hard coded for EA-ESK, decided to switch all Extended Addressing to soley use mt1 and mt2 values instead of commands.
+get rid of defined hard static commands, wasn't really using any of them aside from ID_CMD, switched to variable idcmd
+update startup scripts to include new user definable settings
+
+2021.12.03
+turn static SYNC_TIMEOUT into user definable sync_timeout variable with -t seconds, default 3 seconds
+
 2021.12.02
 Make Patch Array print in 2 columns in ncurses window to fit more in the space provided without overflowing at the bottom, gave it a nice fence too
 Added FR_1 and FR_4 ncurses print to debug mode
