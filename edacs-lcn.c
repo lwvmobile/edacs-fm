@@ -15,14 +15,13 @@
  * Many thanks to SP5WWP for permission to use and modify this software
  * 
  * LWVMOBILE  
- * 2021-11 Version 1.0 EDACS-LCN Florida Man Edition
+ * 2021-12 Version EDACS-LCN Florida Man Edition
  *-----------------------------------------------------------------------------*/
-//#define _DEFAULT_SOURCE  //_BSD_SOURCE not sure why this exactly?
+
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <unistd.h>
 #include <limits.h>
-
 #include <string.h>
 #include <stdlib.h>
 #include <arpa/inet.h>
@@ -35,10 +34,7 @@
 #define UDP_BUFLEN		5				//maximum UDP buffer length
 #define SRV_IP 			"127.0.0.1"		//IP
 #define UDP_PORT 		6020			//UDP port
-
-#define	SAMP_NUM		1000*3*2
-#define	DOTTING			0xAAAAAA		//C71C71
-#define	D_MASK			0xFFFFFF
+#define SAMP_NUM		    1000*3*2
 
 unsigned char samples[SAMP_NUM];				//8-bit samples from rtl_fm (or rtl_udp)
 signed short int raw_stream[SAMP_NUM/2];		//16-bit signed int samples
@@ -167,6 +163,5 @@ int main(void)
                     
 		}
 	}
-	//endwin();
 	return 0;
 }

@@ -1,3 +1,8 @@
+2021.12.05
+Minor Cleanup of comments in code and clarifying what does what in the code
+Minor Cleanup on edacs-lcn.c, removing unused static values, 
+Extend hanguptime to 30 seconds for super annoying long winded callers
+
 2021.12.04
 Noticed an ESK site rolling with its ESK turned off, had to impelement an Extended Addressing option minus the ESK
 Also, had some values hard coded for EA-ESK, decided to switch all Extended Addressing to soley use mt1 and mt2 values instead of commands.

@@ -15,7 +15,7 @@
  * Many thanks to SP5WWP for permission to use and modify this software
  * 
  * LWVMOBILE  
- * 2021-12 Version 1.1 EDACS-FM Florida Man Edition
+ * 2021-12 Version EDACS-FM Florida Man Edition
  *-----------------------------------------------------------------------------*/
 #define _GNU_SOURCE
 
@@ -655,14 +655,14 @@ bool ParseInputOptions(int argc, char ** argv) {
       printf("Extended Addressing with ESK Mode Enabled \n");
       x_mask = 0xA0; //XOR for ESK
       idcmd = 0xFD;
-      vcmd = 0x18;
+      vcmd = 0xB8; //not using commands anymore for EA, but correcting this anyways
       x_choice = 1;
       break;
     case 'E':
       printf("Extended Addressing Mode Enabled \n"); //Extended Addressing without ESK, noticed a new trend lately
       x_mask = 0x0; 
       idcmd = 0xFD;
-      vcmd = 0x18;
+      vcmd = 0xB8;
       x_choice = 1;
       break;
     case 'e':
@@ -784,13 +784,13 @@ int main(int argc, char ** argv) {
     initscr(); //Initialize NCURSES screen window
     start_color();
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);      //Yellow/Amber for frame sync/control channel, NV style
-    init_pair(2, COLOR_RED, COLOR_BLACK);        //Red Voice LCN disconnect
-    init_pair(3, COLOR_GREEN, COLOR_BLACK);     //Green for Active Digital Call
+    init_pair(2, COLOR_RED, COLOR_BLACK);        //Red for Terminated Calls
+    init_pair(3, COLOR_GREEN, COLOR_BLACK);     //Green for Active Calls
     init_pair(4, COLOR_CYAN, COLOR_BLACK);     //Cyan for Patches or any Debug Info
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK); //Magenta for no frame sync/signal
     noecho();
     cbreak();
-    if ((time(NULL) - hanguptime) > 15) { //extending to 15 seconds just in case dot detection doesn't catch
+    if ((time(NULL) - hanguptime) > 30) { //extending to 30 seconds just in case dot detection doesn't catch, or long winded caller
       squelchSet(5000);
     }
 
@@ -944,7 +944,7 @@ int main(int argc, char ** argv) {
           subfleet = (afs & s_mask);
         }
 
-        if (mt1 == 0x1f && mt2 == 0xA) //SITE ID
+        if (x_choice == 1 && mt1 == 0x1f && mt2 == 0xA) //SITE ID for EA systems
         {
           site_id = ((fr_1 & 0x1F000) >> 12) | ((fr_1 & 0x1F000000) >> 19);
           if (site_id != tempsite_id) {
@@ -982,14 +982,14 @@ int main(int argc, char ** argv) {
             tempsite_id = site_id;
           }
         }
-        if (command == idcmd && x_choice == 2) {
+        if (command == idcmd && x_choice == 2) { //SITE ID for Standard/Networked
           site_id = (fr_1 & 0xFF000) >> 12;
           if (site_id != tempsite_id) {
             csvImport();
             tempsite_id = site_id;
           }
         }
-        if (mt1 == 0x1F && mt2 == 0xC) //PATCH LISTING
+        if (mt1 == 0x1F && mt2 == 0xC) //PATCH LISTING for EA Systems
         {
           patch_site = ((fr_4 & 0xFF00000000) >> 32); //I don't even remember or know if this is valid info
           targetp = ((fr_4 & 0xFFFF000) >> 12);
@@ -1011,12 +1011,12 @@ int main(int argc, char ** argv) {
           }
         }
         
-        if (mt1 == 0x1F && mt2 == 0xB) //KICK LISTING
+        if (x_choice == 1 && mt1 == 0x1F && mt2 == 0xB) //KICK LISTING for EA systems
         {
           kicked = (fr_4 & 0xFFFFF000) >> 12;
         }
         
-        if (mt1 == 0x1F && mt2 == 0x1 && ((fr_1 & 0xFF000) >> 12) > 0) { //PEER LISTING
+        if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x1 && ((fr_1 & 0xFF000) >> 12) > 0) { //PEER LISTING on EA systems
           peer = (fr_1 & 0xFF000) >> 12;
           peer_lcn = (fr_1 & 0x1F000000) >> 24;
           //Make Small Array with Peers in it
@@ -1036,7 +1036,7 @@ int main(int argc, char ** argv) {
 
         }
         
-        if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x8){
+        if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x8){ //Find Control Channel LCN on EA systems
 
           if (((fr_4 >> 12) & 0x1F) != 0) {
             CC_LCN = ((fr_4 >> 12) & 0x1F);
@@ -1046,7 +1046,7 @@ int main(int argc, char ** argv) {
           }
         }
 
-        if (x_choice == 2 && command == 0xFD) {
+        if (x_choice == 2 && command == 0xFD) { //Find Control Channel LCN on Standard/Networked
           CC_LCN = (fr_1 & 0x1F000000) >> 24;
         }
 
@@ -1062,7 +1062,7 @@ int main(int argc, char ** argv) {
 
           resettime = time(NULL);
         }
-        // log peers and patches after one minute of collection, then 10 minutes afterwards
+        // log peers and patches after one minute of collection, then 10 minutes afterwards, logtime initialized with +540 seconds on startup
         if ((time(NULL) - logtime > 600) && x_choice == 1) {
           FILE * pFile;
           pFile = fopen("pandp.log", "a");
@@ -1100,14 +1100,14 @@ int main(int argc, char ** argv) {
           voice_to = 0; //0-active
           deny_flag = 0; //reset trip on deny_flag
           allow = 0; //reset trip on alow flag during universal denial
-          if (fr_1 == fr_3 && fr_4 == fr_6) //error detection for groupx, senderx, xstatus variables, probably redundant
+          if (fr_1 == fr_3 && fr_4 == fr_6) //error detection for groupx, senderx, xstatus variables, extrememly redundant
           {
             groupx = (fr_1 & 0xFFFF000) >> 12;
             if (x_choice == 2) {
               groupx = afs;
             }
             senderx = (fr_4 & 0xFFFFF000) >> 12;
-            group_matrix[lcn][0] = " "; //initialize with a space, otherwise is NULL if no value present in csv file
+            group_matrix[lcn][0] = " "; //initialize with a space, otherwise printw is NULL if no value present in csv file
             group_matrix[lcn][1] = " ";
             csvGroupImport();
 
@@ -1146,7 +1146,6 @@ int main(int argc, char ** argv) {
               tafs = afs;
             }
 
-            //}
             if (lcn == current_lcn) //lcn==current_lcn
             {
               last_voice_time = time(NULL);
