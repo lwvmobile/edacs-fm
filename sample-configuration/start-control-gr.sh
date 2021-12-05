@@ -13,6 +13,7 @@ echo Which type of System?
 echo l EDACS Standard or Networked
 echo e EDACS Standard or Networked with ESK
 echo x EDACS Extended Adressing with ESK
+echo E EDACS Extended Addressing without ESK
 read type
 TYPE1='l'
 TYPE2='e'
