@@ -1,7 +1,9 @@
 # EDACS-FM Florida Man Edition
 EDACS 9600 Trunk Tracking software for Linux, *Nix, BSD systems (and maybe others) using two RTL2838 dongles(or anything supported by gnuradio with a little tweaking).
 
-![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/screenshot.png)(https://www.youtube.com/watch?v=jCS7RBdyDZg)
+![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/screenshot.png)
+
+https://www.youtube.com/watch?v=jCS7RBdyDZg
 
 Continuation of the LEDACS-ESK project, originally forked from LEDACS, appropriate links below:
 
