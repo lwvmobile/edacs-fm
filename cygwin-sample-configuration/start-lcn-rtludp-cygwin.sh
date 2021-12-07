@@ -1,0 +1,1 @@
+./rtl_udp -d 1 -f 850000000 -s 28.8k -p -2.0 -g 46 2> /dev/null | tee >(sox -t raw -b 16 -e signed-integer -r 28800 -c 1 - -t raw - 2> /dev/null | play -t raw -r 28800 -es -b 16 -c 1 - 2> /dev/null ) | ./edacs-lcn
