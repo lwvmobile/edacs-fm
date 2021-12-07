@@ -1,5 +1,5 @@
 # EDACS-FM Florida Man Edition
-EDACS 9600 Trunk Tracking software for Linux, *Nix, BSD systems (and maybe others) using two RTL2838 dongles(or anything supported by gnuradio with a little tweaking).
+EDACS 9600 Trunk Tracking software for Linux, *Nix, BSD systems, Cygwin (and maybe others) using two RTL2838 dongles for decoding and tuning or decoding with SDR++ and GQRX UDP Sink sources.
 
 ![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/screenshot.png)
 
@@ -90,4 +90,8 @@ Samples can be uploaded to https://ufile.io/ free of charge without making a mem
 
 Thanks for your help.
 
+----
+Cygwin Installs
+
+Cygwin has limited support by me as far as I can test things on my own personal set up, but currently it can be built in Cygwin with the right prerequisites installed. Check the cygwin-build.sh file for the necessary packages to install in Cygwin prior to building. 
 
