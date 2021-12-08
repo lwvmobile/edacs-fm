@@ -1092,6 +1092,10 @@ int main(int argc, char ** argv) {
         }
         //0x3 is Digital group voice call, 0x2 Group Data Channel, 0x1 TDMA call, 0xE Standard/Networked Analog, 0xF Standard/Networked Digital
         if ( (x_choice == 1 && mt1 >= 0x1 && mt1 <= 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS
+        //using mt1 values 0x2 and 0x1 produce lots of hits on higher LCN channels, not sure if this is a logical data call, or bogus.
+        //bad decoding also results in printing tons of bogus LCN channels, not sure if a fix can be made for this aside from BCH
+        //most all bad decodes occur from GR sadly, really need to retool that or scrap it 
+        //if ( (x_choice == 1 && mt1 == 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS
 			
 		  //only increment LCN channel list on 0x3 for testing, revert later when 0x2 and 0x1 are figured out properly
           if ((x_choice == 1 && lcn > lcn_tally && mt1 == 0x3) || (lcn > lcn_tally && x_choice == 2)) {
@@ -1204,24 +1208,12 @@ int main(int argc, char ** argv) {
         printw("%s \n", FM_banner[i]);
       }
       attroff(COLOR_PAIR(1));
-      printw("%s %s AFC [%d]Hz\n", getDate(), getTime(), AFC);
-      printw("Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
-      if (x_choice == 2 && debug > 0) { //changing to debug since its not really usable as fast as it goes
-		attron(COLOR_PAIR(4));  
-        printw("Status Bits = ", status);
-        for (unsigned short int i = 0; i < 4; i++) {
-          signed short int buffer = (status >> 3 - i) & 0x1;
-          printw("[%1d] ", buffer);
-        }
-        printw("\n");
-        //printw("SR_0 = %16llX \n", sr_0); //leaving here in case I need to do some more debugging
-        //printw("SR_1 = %16llX \n", sr_1);
-        //printw("FR_1 = %10llX \n", fr_1);
-        //printw("FR_4 = %10llX \n", fr_4);
-        attroff(COLOR_PAIR(4));
-      }
+      printw("--Site Info----------------------------------------------------------------\n"); //making a fence 
+      printw("| %s %s AFC [%d]Hz\n", getDate(), getTime(), AFC);
+      printw("| Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
+      
       if (x_choice == 1) {
-        printw("Peer Sites ");
+        printw("| Peer Sites ");
         for (short int i = 0; i < 12; i++) {
           if (peer_list[i] > 0) {
             printw("[%lld]", peer_list[i]);
@@ -1229,20 +1221,35 @@ int main(int argc, char ** argv) {
         }
         printw("\n");
       }
+      printw("---------------------------------------------------------------------------\n"); //making a fence 
       if (x_choice == 1 && debug > 0) {
 		attron(COLOR_PAIR(4));
-        printw("Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);
+		printw("--Site Extra---------------------------------------------------------------\n"); //making a fence 
+        printw("| Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);
+        attroff(COLOR_PAIR(4));
+      }
+      
+      
+      if (x_choice == 2 && debug > 0) { //changing to debug since its not really usable as fast as it goes
+		attron(COLOR_PAIR(4));  
+		printw("--Site Extra---------------------------------------------------------------\n"); //making a fence
+        printw("| Status Bits = ", status);
+        for (unsigned short int i = 0; i < 4; i++) {
+          signed short int buffer = (status >> 3 - i) & 0x1;
+          printw("[%1d] ", buffer);
+        }
+        printw("\n");
         attroff(COLOR_PAIR(4));
       }
       if (x_choice == 1 && debug > 0) { //changing to debug since its not really usable as fast as it goes
 		attron(COLOR_PAIR(4));  
-        printw("MT-1 ");
+        printw("| MT-1 ");
         for (unsigned short int i = 0; i < 5; i++) {
           signed short int buffer = (mt1 >> 4 - i) & 0x1;
           printw("[%1d] ", buffer);
         }
         printw("\n");
-        printw("MT-2 ");
+        printw("| MT-2 ");
         for (unsigned short int i = 0; i < 4; i++) {
           signed short int buffer = (mt2 >> 3 - i) & 0x1;
           printw("[%1d] ", buffer);
@@ -1253,12 +1260,14 @@ int main(int argc, char ** argv) {
       
       if (debug > 0) {
 		attron(COLOR_PAIR(4));
-		printw("FR_1 = %10llX \n", fr_1);
-        printw("FR_4 = %10llX \n", fr_4);
+		printw("| FR-1 [%10llX] \n", fr_1);
+        printw("| FR-4 [%10llX] \n", fr_4);
+        printw("---------------------------------------------------------------------------\n"); //making a fence 
         attroff(COLOR_PAIR(4));
-	  }  
+	  }
+	  printw("--Call Info----------------------------------------------------------------\n"); //making a fence  
       for (short int i = 0; i < lcn_tally; i++) {
-        printw("LCN [%2d] ", lcn_tally - (lcn_tally - 1) + i);
+        printw("| LCN [%2d] ", lcn_tally - (lcn_tally - 1) + i);
         printw("[%lld]Hz ", LCN_list[i]);
         if (CC_LCN == (i + 1)) {
           attron(COLOR_PAIR(1));
@@ -1315,6 +1324,7 @@ int main(int argc, char ** argv) {
             printw("Digital");
           }
           attroff(COLOR_PAIR(2));
+         
         }
         //leaving this here for reference, its used in the AFS bits printw instead of needlessly expanding the array to cram it in
         //agency =  ((call_matrix[i+1][1] & a_mask) >> (11 - a_len)); 
@@ -1322,7 +1332,8 @@ int main(int argc, char ** argv) {
         //subfleet =  (call_matrix[i+1][1] & s_mask);
         printw("\n");
       }
-      printw("\n"); //nice line break between makes it easier on the eyes
+      //printw("\n"); //nice line break between makes it easier on the eyes
+      printw("---------------------------------------------------------------------------\n"); //making a fence
       if (x_choice == 1 && debug > 0) { //Print Call_Matrix "History" for EA
 		attron(COLOR_PAIR(4));
 		printw("--Call Matrix--------------------------------------------------------------\n"); //making a fence  

@@ -1,3 +1,10 @@
+2021.12.07
+Add 'fences' to areas of the terminal printw area to make it a little easier on the eye and label each area
+Make an initial Cygwin build script with example uses for Cygwin/Windows users
+Current issue with Cygwin build: All log files have garbled date string, not sure why, something between cywgin gcc locale and encoding?
+Little tweaks/cleanup
+New Screenshot for updates look with fenced areas
+
 2021.12.05
 Minor Cleanup of comments in code and clarifying what does what in the code
 Minor Cleanup on edacs-lcn.c, removing unused static values, 
