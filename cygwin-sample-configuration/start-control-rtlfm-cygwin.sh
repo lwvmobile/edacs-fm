@@ -111,8 +111,8 @@ echo Copy and paste into sh file if you do not wish to answer everytime.
 echo
 echo "#! /bin/bash"
 echo "ulimit -s 16384"
-STRING="rtl_fm -d ${DEVICE} -f ${FREQ} -s 28.8k -p ${PPM} -g ${GAIN} | ./edacs-fm -${type} ${SCSV} ${GCSV} -a ${A} -f ${F} ${EXTRA} ${PATCH} ${CALL} ${VLOG} ${PLOG}"
+STRING="./rtl_fm -d ${DEVICE} -f ${FREQ} -s 28.8k -p ${PPM} -g ${GAIN} | ./edacs-fm -${type} ${SCSV} ${GCSV} -a ${A} -f ${F} ${EXTRA} ${PATCH} ${CALL} ${VLOG} ${PLOG}"
 echo $STRING
 echo
 read -p "Press Enter key to start"
-rtl_fm -d $DEVICE -f $FREQ -s 28.8k -p $PPM -g $GAIN | ./edacs-fm -$type $SCSV $GCSV -a $A -f $F $EXTRA $PATCH $CALL $VLOG $PLOG
+./rtl_fm -d $DEVICE -f $FREQ -s 28.8k -p $PPM -g $GAIN | ./edacs-fm -$type $SCSV $GCSV -a $A -f $F $EXTRA $PATCH $CALL $VLOG $PLOG
