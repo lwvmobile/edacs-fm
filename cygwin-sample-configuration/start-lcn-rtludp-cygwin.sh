@@ -27,4 +27,5 @@ echo "#! /bin/bash"
 echo $STRING
 echo
 read -p "Press Enter key to start"
+clear
 ./rtl_udp -d $DEVICE -f 850M -s 28.8k -p $PPM -g $GAIN 2> /dev/null | tee >(sox -t raw -b 16 -e signed-integer -r 28800 -c 1 - -t raw - 2> /dev/null | play -t raw -r 28800 -es -b 16 -c 1 - 2> /dev/null ) | ./edacs-lcn
