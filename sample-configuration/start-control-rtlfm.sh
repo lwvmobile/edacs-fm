@@ -112,6 +112,7 @@ fi
 echo   
 echo Script below crafted from answers to above questions. 
 echo Copy and paste into sh file if you do not wish to answer everytime.
+echo Set sh file executable with command chmod +x example.sh
 echo
 echo "#! /bin/bash"
 echo "ulimit -s 16384"
