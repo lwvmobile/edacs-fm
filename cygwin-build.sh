@@ -12,6 +12,7 @@ wget https://ftp.osmocom.org/binaries/windows/rtl-sdr/rtl-sdr-64bit-20211205.zip
 unzip rtl-sdr-64bit-20211205.zip
 cp rtl-sdr-64bit-20211205/l* ./
 cp rtl-sdr-64bit-20211205/rtl_fm.exe rtl_fm.exe
+cp rtl-sdr-64bit-20211205/rtl_test.exe rtl_test.exe
 rm -rf rtl-sdr-64bit-20211205
 
 tar -xvf rtl-sdr-master-udp.tar.xz
