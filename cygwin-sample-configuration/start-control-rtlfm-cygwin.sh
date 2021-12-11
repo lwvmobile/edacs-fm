@@ -6,7 +6,7 @@ echo Which Frequency would you like to monitor?
 echo Example 851800000 or 851.8M
 read FREQ
 echo
-rtl_test -t
+./rtl_test -t
 echo
 echo Device Listing Complete. 
 echo
