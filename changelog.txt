@@ -1,3 +1,16 @@
+2021.12.10
+Add new CLI options S C P Q L, removed these options from -V or debug > 0
+-S: Display Site Extra in printw area
+-C: Display Call Matrix in printw area
+-P: Display Patches in printw area
+-Q: Enable logging of peers and patches
+-L: Enable voice call logging
+
+Updated Sample Configuration scripts to be completely interactive at start up, asking for frequency, device, gain, PPM, csv files, etc
+and which display and logging options the user will want to use, advanced users can still make their own start up skipping all questions
+
+Add rtl_test.exe to cygwin builds for device indexing on startup script.
+
 2021.12.07
 Add 'fences' to areas of the terminal printw area to make it a little easier on the eye and label each area
 Make an initial Cygwin build script with example uses for Cygwin/Windows users

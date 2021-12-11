@@ -194,6 +194,13 @@ signed long long int peer_list[12];
 signed long long int peer = 0;
 unsigned long long int peer_lcn = 0;
 
+//new CLI options for Site Extra, Call Matrix, Patches, and Logging
+short int S = 0; //Display Site Extra in printw area
+short int C = 0; //Display Call Matrix in printw area
+short int P = 0; //Display Patches in printw area
+short int Q = 0; //Enable logging of peers and patches
+short int L = 0; //Enable voice call logging
+
 signed int debug = 0; //debug value for printing out status and data on different command codes, etc
 
 signed short int print_timeri = 10;
@@ -612,12 +619,17 @@ bool ParseInputOptions(int argc, char ** argv) {
       {"group",                 required_argument,0,'g'},
       {"RF gain",               required_argument,0,'r'},
       {"ppm-auto-adjustments",  no_argument,0,'p'},
+      {"Site Extra",            no_argument,0,'S'},
+      {"Call Matrix",           no_argument,0,'C'},
+      {"Patches",               no_argument,0,'P'},
+      {"P Log",                 no_argument,0,'Q'},
+      {"Call Log",              no_argument,0,'L'},
       {0,0,0,0}
     };
     /* getopt_long stores the option index here. */
     int option_index = 0;
 
-    c = getopt_long(argc, argv, "t: d v l e E x a:f:s:c:g:r:p",
+    c = getopt_long(argc, argv, "t: d v l e E x a:f:s:c:g:r:p S C P Q L",
       long_options, & option_index);
 
     // warning: need to use : after required arguments, no colon for optional ones
@@ -719,6 +731,26 @@ bool ParseInputOptions(int argc, char ** argv) {
       adjust = 1;
       printf("AFC/PPM auto adjust enabled - warning, highly temperamental \n");
       break;
+    case 'S':
+      S = 1;
+      printf("Site Extra Display Enabled \n");
+      break;
+    case 'C':
+      C = 1;
+      printf("Call Matrix Display Enabled \n");
+      break;
+    case 'P':
+      P = 1;
+      printf("Patch Display Enabled \n");
+      break;
+    case 'Q':
+      Q = 1;
+      printf("Patch and Peers Logging Enabled \n");
+      break;
+    case 'L':
+      L = 1;
+      printf("Voice Call Logging Enabled \n");
+      break;
     }
   }
 }
@@ -786,7 +818,7 @@ int main(int argc, char ** argv) {
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);      //Yellow/Amber for frame sync/control channel, NV style
     init_pair(2, COLOR_RED, COLOR_BLACK);        //Red for Terminated Calls
     init_pair(3, COLOR_GREEN, COLOR_BLACK);     //Green for Active Calls
-    init_pair(4, COLOR_CYAN, COLOR_BLACK);     //Cyan for Patches or any Debug Info
+    init_pair(4, COLOR_CYAN, COLOR_BLACK);     //Cyan for Patches or any Extra Info
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK); //Magenta for no frame sync/signal
     noecho();
     cbreak();
@@ -809,7 +841,7 @@ int main(int argc, char ** argv) {
       sourcep = 0;
       peer = 0;
       //log peers and patches when signal time out
-      if (x_choice == 1 && patch_array[0][0] > 0) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
+      if (x_choice == 1 && patch_array[0][0] > 0 && Q == 1) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
         FILE * pFile;
         pFile = fopen("pandp.log", "a");
         fprintf(pFile, "%s %s SITE %3lld Signal Loss Logging \n", getDate(), getTime(), tempsite_id);
@@ -922,15 +954,16 @@ int main(int argc, char ** argv) {
         command = ((fr_1 & 0xFF00000000) >> 32) ^ x_mask;
         if (x_choice == 1) {
           lcn = (fr_1 & 0x3E0000000) >> 29; 
-          mt1 = command >> 3;
+          //mt1 = command >> 3;
+          mt1 = (command & 0xF8) >> 3;
           mt2 = (fr_1 & 0x780000000) >> 31;
 
         }
         //AFS and status for standard should all be moved to calling block eventually
         if (x_choice == 2) { //funky formatting is for easier visualizing on where to apply masking
-          status = (fr_1 & 0xF00000000) >> 32;
-             lcn = (fr_1 & 0xF8000000) >> 27;
-             afs =   (fr_1 & 0x7FF000) >> 12;
+          status  = (fr_1 & 0xF00000000) >> 32;
+             lcn  =  (fr_1 & 0xF8000000) >> 27;
+             afs  =    (fr_1 & 0x7FF000) >> 12;
           //leaving this for my personal reference
           //a_mask = 0x780; 4
           //f_mask = 0x078; 4 
@@ -951,7 +984,7 @@ int main(int argc, char ** argv) {
             lcn_tally = 0;
             peer = 0;
             //log peers and patches if site id changes suddenly and site_id not equal to 0 i.e. SDR++ or GQRX signal
-            if (site_id > 0 && tempsite_id != 999 && x_choice == 1 && patch_array[0][0] > 0) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
+            if (site_id > 0 && tempsite_id != 999 && x_choice == 1 && patch_array[0][0] > 0 && Q == 1) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
               FILE * pFile;
               pFile = fopen("pandp.log", "a");
               fprintf(pFile, "%s %s SITE %3lld Site ID changed to %3lld\n", getDate(), getTime(), tempsite_id, site_id);
@@ -1063,7 +1096,7 @@ int main(int argc, char ** argv) {
           resettime = time(NULL);
         }
         // log peers and patches after one minute of collection, then 10 minutes afterwards, logtime initialized with +540 seconds on startup
-        if ((time(NULL) - logtime > 600) && x_choice == 1) {
+        if ((time(NULL) - logtime > 600) && x_choice == 1 && Q == 1) {
           FILE * pFile;
           pFile = fopen("pandp.log", "a");
           fprintf(pFile, "%s %s SITE %3lld Log Time\n", getDate(), getTime(), tempsite_id);
@@ -1094,7 +1127,7 @@ int main(int argc, char ** argv) {
         if ( (x_choice == 1 && mt1 >= 0x1 && mt1 <= 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS
         //using mt1 values 0x2 and 0x1 produce lots of hits on higher LCN channels, not sure if this is a logical data call, or bogus.
         //bad decoding also results in printing tons of bogus LCN channels, not sure if a fix can be made for this aside from BCH
-        //most all bad decodes occur from GR sadly, really need to retool that or scrap it 
+        //most all bad decodes occur from GR sadly, really need to tweak GNURadio GR files
         //if ( (x_choice == 1 && mt1 == 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS
 			
 		  //only increment LCN channel list on 0x3 for testing, revert later when 0x2 and 0x1 are figured out properly
@@ -1126,7 +1159,7 @@ int main(int argc, char ** argv) {
               call_matrix[lcn][3] = status;
             }
 
-            if (tsenderx != senderx && x_choice == 1 && site_id > 0) 
+            if (tsenderx != senderx && x_choice == 1 && site_id > 0 && L == 1) 
             {
               FILE * pFile;
               pFile = fopen("voice.log", "a");
@@ -1136,7 +1169,7 @@ int main(int argc, char ** argv) {
             }
             
             //weird splat happens in afs.log on startup 
-            if (tafs != afs && x_choice == 2 && site_id > 0) {
+            if (tafs != afs && x_choice == 2 && site_id > 0 && L == 1) {
               FILE * pFile;
               pFile = fopen("afs.log", "a");
 
@@ -1212,7 +1245,7 @@ int main(int argc, char ** argv) {
       printw("| %s %s AFC [%d]Hz\n", getDate(), getTime(), AFC);
       printw("| Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
       
-      if (x_choice == 1) {
+      if (x_choice == 1) { //testing to see if any peers come in on Standard/Networked
         printw("| Peer Sites ");
         for (short int i = 0; i < 12; i++) {
           if (peer_list[i] > 0) {
@@ -1222,7 +1255,7 @@ int main(int argc, char ** argv) {
         printw("\n");
       }
       printw("---------------------------------------------------------------------------\n"); //making a fence 
-      if (x_choice == 1 && debug > 0) {
+      if (x_choice == 1 && S == 1) {
 		attron(COLOR_PAIR(4));
 		printw("--Site Extra---------------------------------------------------------------\n"); //making a fence 
         printw("| Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);
@@ -1230,7 +1263,7 @@ int main(int argc, char ** argv) {
       }
       
       
-      if (x_choice == 2 && debug > 0) { //changing to debug since its not really usable as fast as it goes
+      if (x_choice == 2 && S == 1) { //changing to S == 1
 		attron(COLOR_PAIR(4));  
 		printw("--Site Extra---------------------------------------------------------------\n"); //making a fence
         printw("| Status Bits = ", status);
@@ -1241,7 +1274,7 @@ int main(int argc, char ** argv) {
         printw("\n");
         attroff(COLOR_PAIR(4));
       }
-      if (x_choice == 1 && debug > 0) { //changing to debug since its not really usable as fast as it goes
+      if (x_choice == 1 && S == 1) { //changing to S == 1
 		attron(COLOR_PAIR(4));  
         printw("| MT-1 ");
         for (unsigned short int i = 0; i < 5; i++) {
@@ -1258,7 +1291,7 @@ int main(int argc, char ** argv) {
         attroff(COLOR_PAIR(4));
       }
       
-      if (debug > 0) {
+      if (S == 1) { //changing to S == 1
 		attron(COLOR_PAIR(4));
 		printw("| FR-1 [%10llX] \n", fr_1);
         printw("| FR-4 [%10llX] \n", fr_4);
@@ -1334,7 +1367,7 @@ int main(int argc, char ** argv) {
       }
       //printw("\n"); //nice line break between makes it easier on the eyes
       printw("---------------------------------------------------------------------------\n"); //making a fence
-      if (x_choice == 1 && debug > 0) { //Print Call_Matrix "History" for EA
+      if (x_choice == 1 && C == 1) { //Print Call_Matrix "History" for EA
 		attron(COLOR_PAIR(4));
 		printw("--Call Matrix--------------------------------------------------------------\n"); //making a fence  
         for (short int i = 0; i < 32; i++) {
@@ -1345,7 +1378,7 @@ int main(int argc, char ** argv) {
         printw("---------------------------------------------------------------------------\n"); //making a fence  
         attroff(COLOR_PAIR(4));
       }
-      if (x_choice == 2 && debug > 0) { //Print Call_Matrix "History" for AFS
+      if (x_choice == 2 && C == 1) { //Print Call_Matrix "History" for AFS
 		attron(COLOR_PAIR(4));
 		printw("--Call Matrix--------------------------------------------------------------\n"); //making a fence  
         for (short int i = 0; i < 32; i++) {
@@ -1356,7 +1389,8 @@ int main(int argc, char ** argv) {
         printw("---------------------------------------------------------------------------\n"); //making a fence  
         attroff(COLOR_PAIR(4));
       }
-      if (x_choice == 1 && debug > 0) { //Print Pretty Patch Array
+      //if (x_choice == 1 && P == 1) { //Print Pretty Patch Array
+	  if (P == 1) { //Print Pretty Patch Array, see if this works on Standard/Networked
 		attron(COLOR_PAIR(4));
 		printw("--Patch Groups-------------------------------------------------------------\n"); //making a fence  
         //for (short int i = 0; i < 49; i++) {
