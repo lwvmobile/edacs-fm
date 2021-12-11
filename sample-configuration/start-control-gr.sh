@@ -36,8 +36,8 @@ echo
 echo Which type of System?
 echo l EDACS Standard or Networked
 echo e EDACS Standard or Networked with ESK
-echo x EDACS Extended Adressing with ESK
-echo E EDACS Extended Adressing without ESK
+echo x EDACS Extended Addressing with ESK
+echo E EDACS Extended Addressing without ESK
 read type
 TYPE1='l'
 TYPE2='e'
@@ -101,6 +101,7 @@ fi
 echo   
 echo Script below crafted from answers to above questions. 
 echo Copy and paste into sh file if you do not wish to answer everytime.
+echo Set sh file executable with command chmod +x example.sh
 echo
 echo "#! /bin/bash"
 echo "ulimit -s 16384"
