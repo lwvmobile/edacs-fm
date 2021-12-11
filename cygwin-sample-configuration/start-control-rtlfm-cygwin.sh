@@ -6,10 +6,10 @@ echo Which Frequency would you like to monitor?
 echo Example: 851800000 or 851.8M
 read FREQ
 echo
-./rtl_test -t
-echo
-echo Device Listing Complete. 
-echo
+#./rtl_test -t
+#echo rtl_test.exe does strange things, makes dongles not work in Win7 VM, disabling for now
+#echo Device Listing Complete. 
+#echo
 echo Which Device Number would you like to use?
 read DEVICE
 echo
