@@ -3,7 +3,7 @@ clear
 echo EDACS-FM Florida Man Edition - Control Channel Interactive Startup for RTL_FM devices.
 echo 
 echo Which Frequency would you like to monitor?
-echo Example 851800000 or 851.8M
+echo Example: 851800000 or 851.8M
 read FREQ
 echo
 ./rtl_test -t
