@@ -154,7 +154,7 @@ int main(void)
 			raw_stream[0] = 0; //zero out everything else too
 			raw_stream[1] = 0;
 			raw_stream[2] = 0;
-			usleep(5*1000); //wait so it doesn't keep squelching
+			//usleep(5*1000); //wait so it doesn't keep squelching, disabling due to delay causing new voice grant to hang up immediately.
 		}
 
 		else /*  */

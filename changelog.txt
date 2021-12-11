@@ -1,3 +1,11 @@
+2021.12.11
+Workaround for bug involving overzealous squelching by:
+Disable hangup time for constantly sending Squelch and
+Disabling usleep in lcn for making extra delay
+Bug didn't effect Linux installs, but was more noticeable in Cygwin builds.
+Channels may still hangup early IF dotting sequence is detected right when the LCN channel grant changes to a new channel.
+a.k.a. these stupid radio operators need to wait a half second before keying up and replying.
+
 2021.12.10
 Add new CLI options S C P Q L, removed these options from -V or debug > 0
 -S: Display Site Extra in printw area
