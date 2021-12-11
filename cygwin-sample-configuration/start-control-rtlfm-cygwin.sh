@@ -108,6 +108,7 @@ fi
 echo   
 echo Script below crafted from answers to above questions. 
 echo Copy and paste into sh file if you do not wish to answer everytime.
+echo Set sh file executable with command chmod +x example.sh
 echo
 echo "#! /bin/bash"
 STRING="./rtl_fm -d ${DEVICE} -f ${FREQ} -s 28.8k -p ${PPM} -g ${GAIN} | ./edacs-fm -${type} ${SCSV} ${GCSV} -a ${A} -f ${F} ${EXTRA} ${PATCH} ${CALL} ${VLOG} ${PLOG}"
