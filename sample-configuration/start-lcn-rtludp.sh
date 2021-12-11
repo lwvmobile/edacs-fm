@@ -2,7 +2,7 @@
 clear
 echo EDACS-FM Florida Man Edition - LCN Channel using RTL_UDP.
 echo 
-./rtl_test -t
+rtl_test -t
 echo Device Listing Complete. 
 echo
 echo Which Device Number would you like to use?
