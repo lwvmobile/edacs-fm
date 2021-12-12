@@ -1,6 +1,5 @@
 2021.12.11
 Workaround for bug involving overzealous squelching by:
-Disable hangup time for constantly sending Squelch and
 Disabling usleep in lcn for making extra delay
 Bug didn't effect Linux installs, but was more noticeable in Cygwin builds.
 Channels may still hangup early IF dotting sequence is detected right when the LCN channel grant changes to a new channel.

@@ -823,7 +823,7 @@ int main(int argc, char ** argv) {
     noecho();
     cbreak();
     if ((time(NULL) - hanguptime) > 30) { //extending to 30 seconds just in case dot detection doesn't catch, or long winded caller
-      //squelchSet(5000); //disabling until overzealous squelch in edacs-fm is permanently fixed
+      squelchSet(5000); //re-enabled, overzealous squelch not due to this
     }
 
     if ((time(NULL) - last_sync_time) > sync_timeout) //Check to see if control channel is still there
