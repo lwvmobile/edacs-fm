@@ -1,3 +1,9 @@
+2021.12.13
+Initial BCH calculation implementation for error detection 
+currently just discards bad ECC messages, accuracy up significantly
+Eliminate Patch Dups (target and source are same)
+Rearrange printw yet again, mostly due to AFC values causing eye strain due to rapid change, moved to Site Extra
+
 2021.12.11
 Workaround for bug involving overzealous squelching by:
 Disabling usleep in lcn for making extra delay

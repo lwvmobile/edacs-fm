@@ -14,6 +14,10 @@
  * 30 IV 2016
  * Many thanks to SP5WWP for permission to use and modify this software
  * 
+ * Encoder/decoder for binary BCH codes in C (Version 3.1)
+ * Robert Morelos-Zaragoza
+ * 1994-7
+ * 
  * LWVMOBILE  
  * 2021-12 Version EDACS-FM Florida Man Edition
  *-----------------------------------------------------------------------------*/
@@ -65,6 +69,8 @@
 
 #include <locale.h>
 
+#include "bch3.h" //experimental BCH support
+
 #define BSIZE 999
 #define UDP_BUFLEN 5 //maximum UDP buffer length
 #define SRV_IP "127.0.0.1" //IP
@@ -95,6 +101,18 @@ unsigned long long fr_3 = 0; //two messages per frame
 unsigned long long fr_4 = 0xFFFFFFFFFF; //These are the human readable versions for debugging etc
 unsigned long long fr_5 = 0;
 unsigned long long fr_6 = 0;
+//new BCH stuff
+long long int fr_1m = 0xFFFFFFF; //28-bit 7X message portion to pass to bch handler
+long long int fr_1p = 0xFFF; //12-bit bch polynomial
+long long int fr_1t = 0xFFFFFFFFFF; //combined fr_1m and fr_1p
+long long int fr_4m = 0xFFFFFFF; //28-bit 7X message portion to pass to bch handler
+long long int fr_4p = 0xFFF; //12-bit bch polynomial
+long long int fr_4t = 0xFFFFFFFFFF; //combined fr_4m and fr_4p
+
+double good = 1;
+double bad = 1; //don't set as 0 so we won't accidentally divide by 0 and blow up the universe
+double gbr = 1;
+//end new BCH stuff
 
 unsigned short a_len = 4; //AFS allocation type
 unsigned short f_len = 4; //bit lengths
@@ -186,7 +204,7 @@ char * FM_banner[14] = {
   "||---||- _ -||---|| ██╔══╝░░██║╚██╔╝██║    EricCottrell      ",
   "||--_||_____||_--|| ██║░░░░░██║░╚═╝░██║    JSTARS03          ",
   "||)-| S243-F3 |-(|| ╚═╝░░░░░╚═╝░░░░░╚═╝    blantonl          ",
-  "|| | ||     |||  ||     ...and the radioreference.com forums "
+  "|| | ||     |||  ||  ...and Robert Morelos-Zaragoza          "
 };
 
 signed int peer_counter = 0;
@@ -759,6 +777,11 @@ bool ParseInputOptions(int argc, char ** argv) {
 int main(int argc, char ** argv) {
   setlocale(LC_ALL, "");
   FM();
+  read_p();               /* Read m */
+  generate_gf();          /* Construct the Galois Field GF(2**m) */	
+  gen_poly();			  /* Compute the generator polynomial of BCH code */
+  printf("Galois Field GF(2**m) Constructed. Generator Polynomial Computed.\n"); 
+  printf("40-28-6-2 BCH Scheme for Error Detection and Correction.\n");
   cc = 0;
   groupcsv = "group.csv";
   sitecsv = "site.csv";
@@ -792,7 +815,7 @@ int main(int argc, char ** argv) {
   }
   init_udp();
 
-  sleep(1); //patience is a virtue	
+  sleep(1); //patience is a virtue
   //if gain specified by user, then change gain in PyEDACS from default value
   squelchSet(5000);
   if (rfgain > 0) {
@@ -840,6 +863,9 @@ int main(int argc, char ** argv) {
       targetp = 0;
       sourcep = 0;
       peer = 0;
+      good = 1;
+      bad = 1;
+      gbr = 1; //zero out good bad and gbr
       //log peers and patches when signal time out
       if (x_choice == 1 && patch_array[0][0] > 0 && Q == 1) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
         FILE * pFile;
@@ -949,8 +975,24 @@ int main(int argc, char ** argv) {
       fr_4 = ((sr_2 & 0xFFFFFF) << 16) | ((sr_3 & 0xFFFF000000000000) >> 48);
       fr_5 = ((sr_3 & 0xFFFFFFFFFF00) >> 8);
       fr_6 = ((sr_3 & 0xFF) << 32) | ((sr_4 & 0xFFFFFFFF00000000) >> 32);
-      if (fr_1 == fr_3 && fr_4 == fr_6) //error detection up top to trickle down
+      //new BCH Stuff
+      fr_1m = (fr_1 & 0xFFFFFFF000) >> 12; //message portion to send to bch to calc polynomial
+	  BCH(fr_1m); //send through the bch currently named farts
+	  fr_1t = messagepp & 0xFFFFFFFFFF; //return from the bch 
+	  
+	  fr_4m = (fr_4 & 0xFFFFFFF000) >> 12; //message portion to send to bch to calc polynomial
+	  BCH(fr_4m); //send through the bch currently named farts
+	  fr_4t = messagepp & 0xFFFFFFFFFF; //return from the bch 
+	  //end new BCH Stuff
+      //if (fr_1 == fr_3 && fr_4 == fr_6) //error detection up top to trickle down
+      if (fr_1 != fr_1t || fr_4 != fr_4t)
       {
+		  bad = bad + 1; //makeshift SNR counter for good / good + bad
+	  }
+      if (fr_1 == fr_1t && fr_4 == fr_4t) //both fr_1 and fr_4 have to pass poly test
+      {
+		good = good + 1; //makeshift SNR counter ratio top for good / good + bad
+		gbr = ( good / (good + bad) );
         command = ((fr_1 & 0xFF00000000) >> 32) ^ x_mask;
         if (x_choice == 1) {
           lcn = (fr_1 & 0x3E0000000) >> 29; 
@@ -1031,7 +1073,7 @@ int main(int argc, char ** argv) {
           short int p = 0;
           while (p < 49) {
             if (patch_array[p][0] > 0) {
-              if (patch_array[p][0] == targetp && patch_array[p][1] == sourcep) { //try checking by both values, and not just targetp
+              if (patch_array[p][0] == targetp && patch_array[p][1] == sourcep && targetp != sourcep) { //try checking by both values, and not just targetp
                 break;
               }
             }
@@ -1240,11 +1282,13 @@ int main(int argc, char ** argv) {
       for (short int i = 0; i < 13; i++) {
         printw("%s \n", FM_banner[i]);
       }
-      attroff(COLOR_PAIR(1));
-      printw("--Site Info----------------------------------------------------------------\n"); //making a fence 
-      printw("| %s %s AFC [%d]Hz\n", getDate(), getTime(), AFC);
-      printw("| Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
       
+      attroff(COLOR_PAIR(1));
+      
+      printw("--Site Info----------------------------------------------------------------\n"); //making a fence 
+      printw("| Date: %s Time: %s \n", getDate(), getTime());
+      printw("| Site ID [%3lld][%2llX] SNR [%2.0f] Location: %s\n", site_id, site_id, (gbr * 100), location_name);
+
       if (x_choice == 1) { //testing to see if any peers come in on Standard/Networked
         printw("| Peer Sites ");
         for (short int i = 0; i < 12; i++) {
@@ -1254,6 +1298,8 @@ int main(int argc, char ** argv) {
         }
         printw("\n");
       }
+      //printw("| SNR [%2.0f] Pct  -  AFC [%d]Hz \n", (gbr * 100), AFC); //Signal to Noise Ratio, or good frames vs total frames 
+      
       printw("---------------------------------------------------------------------------\n"); //making a fence 
       if (x_choice == 1 && S == 1) {
 		attron(COLOR_PAIR(4));
@@ -1293,8 +1339,15 @@ int main(int argc, char ** argv) {
       
       if (S == 1) { //changing to S == 1
 		attron(COLOR_PAIR(4));
-		printw("| FR-1 [%10llX] \n", fr_1);
-        printw("| FR-4 [%10llX] \n", fr_4);
+		//printw("| FR-1 [%10llX] \n", fr_1);
+        //printw("| FR-4 [%10llX] \n", fr_4);
+        printw("| FR-1 [%10llX]\n", fr_1t);
+        printw("| FR-4 [%10llX]\n", fr_4t);
+        //printw("| FR-1m [%7llX] \n", fr_1m);
+        //printw("| FR-1t [%10llX] \n", fr_1t); //hope this thing works
+        //printw("| Good Frames [%7.0f] ", good); //hope this thing works
+        //printw("Bad Frames [%7.0f]\n ", bad); //hope this thing works
+        //printw("| SNR  [%2.2f]Percent - AFC [%d]Hz  - Frames [%8.0f] \n", (gbr * 100), AFC, (good+bad) ); //hope this thing works
         printw("---------------------------------------------------------------------------\n"); //making a fence 
         attroff(COLOR_PAIR(4));
 	  }
