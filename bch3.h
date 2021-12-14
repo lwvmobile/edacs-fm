@@ -3,7 +3,7 @@
  * Title:   Encoder/decoder for binary BCH codes in C (Version 3.1)
  * Author:  Robert Morelos-Zaragoza
  * Date:    August 1994-June 13, 1997
- * Moded:   December 13, 2021, for EDACS-FM BCH Polynomial Error Detection/Correction
+ * Moded:   December 14, 2021, for EDACS-FM BCH Polynomial Error Generation and Detection
  * Source:  www.eccpage.com
  * 
  * ===============  Encoder/Decoder for binary BCH codes in C =================
@@ -488,7 +488,7 @@ long int BCH(long int message)
 	//read_p();               /* Read m */
 	//generate_gf();          /* Construct the Galois Field GF(2**m) */
 	//gen_poly();             /* Compute the generator polynomial of BCH code */
-	  //test shows this works, but output from program is that the poly is backwards, not sure if it corrects okay though
+	//test shows this works, but output from program is that the poly is backwards, not sure if it corrects okay though
 	  for (i = 0; i < k; i++){
 		  ddata[i] = ( (message >> i) & 0x1 ); //loaded up backwards? or just outputs backwards?
 	  }
@@ -508,18 +508,19 @@ long int BCH(long int message)
 		messagepp = (messagepp << 1) | recd[39-i]; //get it in the correct direction
 	}
 
-	numerr = 0;
+	//numerr = 0;
 
-	/*
-	 * recd[] are the coefficients of r(x) = c(x) + e(x)
-	 */
+
+	//recd[] are the coefficients of r(x) = c(x) + e(x)
+
+/* //disablign all decode and error correction parts, only generating poly and comparing to original
 	for (i = 0; i < numerr; i++)
 		//scanf("%d", &errpos[i]);
 	if (numerr)
 		for (i = 0; i < numerr; i++)
 			recd[errpos[i]] ^= 1;
 
-	decode_bch();             /* DECODE received codeword recv[] */
+	decode_bch(); //DECODE received codeword recv[] 
 
 	long int data_hex = 0x0;
 	for (i = 0; i < k; i++) {
@@ -531,13 +532,13 @@ long int BCH(long int message)
 		recovered_hex = (recovered_hex << 1) | ddata[27-i]; //get it in the correct direction
 	}
 
-	/*
-	 * DECODING ERRORS? we compare only the data portion
-	 */
+
+	//DECODING ERRORS? we compare only the data portion
+
 	for (i = length - k; i < length; i++)
 		if (ddata[i - length + k] != recd[i])
 			decerror++;
-
+*/
 }
 
 

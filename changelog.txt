@@ -1,8 +1,18 @@
+2021.12.14
+Minor cleanup, clean up commented areas
+comment/disable portions of bch3.h that aren't used currently
+Switch over to using fr_1t and fr_4t for all values (error checked, pass poly test)
+Add mt1 and mt2 to EA logging; pin point which call type triggers high LCN values, remove when done
+Attempt disable extra super redundant fr_1 == fr_3 after BCH check, disable fr_2, fr_3, fr_5, fr_6
+Adjust indentation after removing redundant check if statements
+Remove "Shadow" affect from ASCII art, tweak banner thanks.
+
 2021.12.13
 Initial BCH calculation implementation for error detection 
 currently just discards bad ECC messages, accuracy up significantly
 Eliminate Patch Dups (target and source are same)
-Rearrange printw yet again, mostly due to AFC values causing eye strain due to rapid change, moved to Site Extra
+Rearrange printw yet again, mostly due to AFC values causing eye strain due to rapid change
+removed AFC in favor of using SNR - "Signal to Noise Ration", basically good frames / total frames processed
 
 2021.12.11
 Workaround for bug involving overzealous squelching by:

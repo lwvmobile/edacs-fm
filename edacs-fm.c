@@ -96,19 +96,19 @@ unsigned long long sr_3 = 0; //
 unsigned long long sr_4 = 0; //
 
 unsigned long long fr_1 = 0xFFFFFFFFFF; //40-bit shift registers for pushing decoded binary data
-unsigned long long fr_2 = 0; //each is a 40 bit message that repeats 3 times
-unsigned long long fr_3 = 0; //two messages per frame
+//unsigned long long fr_2 = 0; //each is a 40 bit message that repeats 3 times
+//unsigned long long fr_3 = 0; //two messages per frame
 unsigned long long fr_4 = 0xFFFFFFFFFF; //These are the human readable versions for debugging etc
-unsigned long long fr_5 = 0;
-unsigned long long fr_6 = 0;
+//unsigned long long fr_5 = 0;
+//unsigned long long fr_6 = 0;
+
 //new BCH stuff
 long long int fr_1m = 0xFFFFFFF; //28-bit 7X message portion to pass to bch handler
-long long int fr_1p = 0xFFF; //12-bit bch polynomial
+//long long int fr_1p = 0xFFF; //12-bit bch polynomial
 long long int fr_1t = 0xFFFFFFFFFF; //combined fr_1m and fr_1p
 long long int fr_4m = 0xFFFFFFF; //28-bit 7X message portion to pass to bch handler
-long long int fr_4p = 0xFFF; //12-bit bch polynomial
+//long long int fr_4p = 0xFFF; //12-bit bch polynomial
 long long int fr_4t = 0xFFFFFFFFFF; //combined fr_4m and fr_4p
-
 double good = 1;
 double bad = 1; //don't set as 0 so we won't accidentally divide by 0 and blow up the universe
 double gbr = 1;
@@ -192,18 +192,18 @@ unsigned long long int logtime = 0;
 
 char * FM_banner[14] = {
 
-  "||   ||     ||   || ███████╗██████╗░░█████╗░░█████╗░░██████╗ ", 
+  "||   ||     ||   || ███████╗██████╗  █████╗  █████╗  ██████╗ ", 
   "||   ||, , ,||   || ██╔════╝██╔══██╗██╔══██╗██╔══██╗██╔════╝ ", 
-  "||  (||/|/(|||/  || █████╗░░██║░░██║███████║██║░░╚═╝╚█████╗░ ", 
-  "||  ||| _'_`|||  || ██╔══╝░░██║░░██║██╔══██║██║░░██╗░╚═══██╗ ",
-  "||   || o o ||   || ███████╗██████╔╝██║░░██║╚█████╔╝██████╔╝ ",
-  "||  (||  - `||)  || ╚══════╝╚═════╝░╚═╝░░╚═╝░╚════╝░╚═════╝░ ",
-  "||   ||  =  ||   || ███████╗███╗░░░███╗  Florida Man Edition ",
-  "||   || (_) ||   || ██╔════╝████╗░████║  Thanks to:          ",
-  "||___||) , (||___|| █████╗░░██╔████╔██║    sp5wwp            ",
-  "||---||- _ -||---|| ██╔══╝░░██║╚██╔╝██║    EricCottrell      ",
-  "||--_||_____||_--|| ██║░░░░░██║░╚═╝░██║    JSTARS03          ",
-  "||)-| S243-F3 |-(|| ╚═╝░░░░░╚═╝░░░░░╚═╝    blantonl          ",
+  "||  (||/|/(|||/  || █████╗  ██║  ██║███████║██║  ╚═╝╚█████╗  ", 
+  "||  ||| _'_`|||  || ██╔══╝  ██║  ██║██╔══██║██║  ██╗ ╚═══██╗ ",
+  "||   || o o ||   || ███████╗██████╔╝██║  ██║╚█████╔╝██████╔╝ ",
+  "||  (||  - `||)  || ╚══════╝╚═════╝ ╚═╝  ╚═╝ ╚════╝ ╚═════╝  ",
+  "||   ||  =  ||   || ███████╗███╗   ███╗  Florida Man Edition ",
+  "||   || (_) ||   || ██╔════╝████╗ ████║  Thanks to:          ",
+  "||___||) , (||___|| █████╗  ██╔████╔██║    sp5wwp            ",
+  "||---||- _ -||---|| ██╔══╝  ██║╚██╔╝██║    EricCottrell      ",
+  "||--_||_____||_--|| ██║     ██║ ╚═╝ ██║    JSTARS03          ",
+  "||)- |batdude| -(|| ╚═╝     ╚═╝     ╚═╝    blantonl          ",
   "|| | ||     |||  ||  ...and Robert Morelos-Zaragoza          "
 };
 
@@ -777,9 +777,9 @@ bool ParseInputOptions(int argc, char ** argv) {
 int main(int argc, char ** argv) {
   setlocale(LC_ALL, "");
   FM();
-  read_p();               /* Read m */
-  generate_gf();          /* Construct the Galois Field GF(2**m) */	
-  gen_poly();			  /* Compute the generator polynomial of BCH code */
+  read_p();               //Read m 
+  generate_gf();          //Construct the Galois Field GF(2**m)	
+  gen_poly();			  //Compute the generator polynomial of BCH code 
   printf("Galois Field GF(2**m) Constructed. Generator Polynomial Computed.\n"); 
   printf("40-28-6-2 BCH Scheme for Error Detection and Correction.\n");
   cc = 0;
@@ -846,7 +846,7 @@ int main(int argc, char ** argv) {
     noecho();
     cbreak();
     if ((time(NULL) - hanguptime) > 30) { //extending to 30 seconds just in case dot detection doesn't catch, or long winded caller
-      squelchSet(5000); //re-enabled, overzealous squelch not due to this
+      squelchSet(5000); 
     }
 
     if ((time(NULL) - last_sync_time) > sync_timeout) //Check to see if control channel is still there
@@ -865,8 +865,8 @@ int main(int argc, char ** argv) {
       peer = 0;
       good = 1;
       bad = 1;
-      gbr = 1; //zero out good bad and gbr
-      //log peers and patches when signal time out
+      gbr = 1; //"zero" out good bad and gbr
+      //reset log peers and patches when signal time out
       if (x_choice == 1 && patch_array[0][0] > 0 && Q == 1) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
         FILE * pFile;
         pFile = fopen("pandp.log", "a");
@@ -954,7 +954,6 @@ int main(int argc, char ** argv) {
 
     }
     //--------------------------------------
-
     //pushing data into shift registers
     sr_0 = (sr_0 << 1) | (sr_1 >> 63);
     sr_1 = (sr_1 << 1) | (sr_2 >> 63);
@@ -969,43 +968,42 @@ int main(int argc, char ** argv) {
     if ((sr_0 & SYNC_MASK) == SYNC_FRAME) //extract data after receiving the sync frame
     {
       //put sr data in human readable/easier to work with fr 40 bit (10 hex) messages
+      //disabling all but fr_1 and fr_4 due to BCH enabled, no need for extra redundancy
+      //will leave these values here for future reference, or if needed
       fr_1 = ((sr_0 & 0xFFFF) << 24) | ((sr_1 & 0xFFFFFF0000000000) >> 40);
-      fr_2 = sr_1 & 0xFFFFFFFFFF;
-      fr_3 = (sr_2 & 0xFFFFFFFFFF000000) >> 24;
+      //fr_2 = sr_1 & 0xFFFFFFFFFF;
+      //fr_3 = (sr_2 & 0xFFFFFFFFFF000000) >> 24;
       fr_4 = ((sr_2 & 0xFFFFFF) << 16) | ((sr_3 & 0xFFFF000000000000) >> 48);
-      fr_5 = ((sr_3 & 0xFFFFFFFFFF00) >> 8);
-      fr_6 = ((sr_3 & 0xFF) << 32) | ((sr_4 & 0xFFFFFFFF00000000) >> 32);
+      //fr_5 = ((sr_3 & 0xFFFFFFFFFF00) >> 8);
+      //fr_6 = ((sr_3 & 0xFF) << 32) | ((sr_4 & 0xFFFFFFFF00000000) >> 32);
+      
       //new BCH Stuff
-      fr_1m = (fr_1 & 0xFFFFFFF000) >> 12; //message portion to send to bch to calc polynomial
-	  BCH(fr_1m); //send through the bch currently named farts
-	  fr_1t = messagepp & 0xFFFFFFFFFF; //return from the bch 
-	  
+      fr_1m = (fr_1 & 0xFFFFFFF000) >> 12;    //message portion to send to bch to calc polynomial
+	  BCH(fr_1m);                            //send through the bch
+	  fr_1t = messagepp & 0xFFFFFFFFFF;     //return from the bch 
 	  fr_4m = (fr_4 & 0xFFFFFFF000) >> 12; //message portion to send to bch to calc polynomial
-	  BCH(fr_4m); //send through the bch currently named farts
-	  fr_4t = messagepp & 0xFFFFFFFFFF; //return from the bch 
+	  BCH(fr_4m);                         //send through the bch 
+	  fr_4t = messagepp & 0xFFFFFFFFFF;  //return from the bch 
 	  //end new BCH Stuff
-      //if (fr_1 == fr_3 && fr_4 == fr_6) //error detection up top to trickle down
-      if (fr_1 != fr_1t || fr_4 != fr_4t)
-      {
-		  bad = bad + 1; //makeshift SNR counter for good / good + bad
-	  }
+
+      if (fr_1 != fr_1t || fr_4 != fr_4t){ //BCH error detection up top to trickle down
+		bad = bad + 1; } //tally number of bad frames
+		
       if (fr_1 == fr_1t && fr_4 == fr_4t) //both fr_1 and fr_4 have to pass poly test
       {
-		good = good + 1; //makeshift SNR counter ratio top for good / good + bad
-		gbr = ( good / (good + bad) );
-        command = ((fr_1 & 0xFF00000000) >> 32) ^ x_mask;
+		good = good + 1; //tally number of good frames
+		gbr = ( good / (good + bad) ); //makeshift SNR counter for good / good + bad
+        command = ((fr_1t & 0xFF00000000) >> 32) ^ x_mask;
         if (x_choice == 1) {
-          lcn = (fr_1 & 0x3E0000000) >> 29; 
-          //mt1 = command >> 3;
+          lcn = (fr_1t & 0x3E0000000) >> 29; 
           mt1 = (command & 0xF8) >> 3;
-          mt2 = (fr_1 & 0x780000000) >> 31;
-
+          mt2 = (fr_1t & 0x780000000) >> 31;
         }
         //AFS and status for standard should all be moved to calling block eventually
         if (x_choice == 2) { //funky formatting is for easier visualizing on where to apply masking
-          status  = (fr_1 & 0xF00000000) >> 32;
-             lcn  =  (fr_1 & 0xF8000000) >> 27;
-             afs  =    (fr_1 & 0x7FF000) >> 12;
+          status  = (fr_1t & 0xF00000000) >> 32;
+             lcn  =  (fr_1t & 0xF8000000) >> 27;
+             afs  =    (fr_1t & 0x7FF000) >> 12;
           //leaving this for my personal reference
           //a_mask = 0x780; 4
           //f_mask = 0x078; 4 
@@ -1021,7 +1019,7 @@ int main(int argc, char ** argv) {
 
         if (x_choice == 1 && mt1 == 0x1f && mt2 == 0xA) //SITE ID for EA systems
         {
-          site_id = ((fr_1 & 0x1F000) >> 12) | ((fr_1 & 0x1F000000) >> 19);
+          site_id = ((fr_1t & 0x1F000) >> 12) | ((fr_1t & 0x1F000000) >> 19);
           if (site_id != tempsite_id) {
             lcn_tally = 0;
             peer = 0;
@@ -1057,18 +1055,20 @@ int main(int argc, char ** argv) {
             tempsite_id = site_id;
           }
         }
+        
         if (command == idcmd && x_choice == 2) { //SITE ID for Standard/Networked
-          site_id = (fr_1 & 0xFF000) >> 12;
+          site_id = (fr_1t & 0xFF000) >> 12;
           if (site_id != tempsite_id) {
             csvImport();
             tempsite_id = site_id;
           }
         }
+        
         if (mt1 == 0x1F && mt2 == 0xC) //PATCH LISTING for EA Systems
         {
-          patch_site = ((fr_4 & 0xFF00000000) >> 32); //I don't even remember or know if this is valid info
-          targetp = ((fr_4 & 0xFFFF000) >> 12);
-          sourcep = ((fr_1 & 0xFFFF000) >> 12);
+          patch_site = ((fr_4t & 0xFF00000000) >> 32); //I don't even remember or know if this is valid info
+          targetp = ((fr_4t & 0xFFFF000) >> 12);
+          sourcep = ((fr_1t & 0xFFFF000) >> 12);
           //Make 2D array with Patches in it
           short int p = 0;
           while (p < 49) {
@@ -1088,12 +1088,12 @@ int main(int argc, char ** argv) {
         
         if (x_choice == 1 && mt1 == 0x1F && mt2 == 0xB) //KICK LISTING for EA systems
         {
-          kicked = (fr_4 & 0xFFFFF000) >> 12;
+          kicked = (fr_4t & 0xFFFFF000) >> 12;
         }
         
         if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x1 && ((fr_1 & 0xFF000) >> 12) > 0) { //PEER LISTING on EA systems
-          peer = (fr_1 & 0xFF000) >> 12;
-          peer_lcn = (fr_1 & 0x1F000000) >> 24;
+          peer = (fr_1t & 0xFF000) >> 12;
+          peer_lcn = (fr_1t & 0x1F000000) >> 24;
           //Make Small Array with Peers in it
           short int p = 0;
           while (p < 12) {
@@ -1108,13 +1108,12 @@ int main(int argc, char ** argv) {
             }
             p++;
           }
-
         }
         
         if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x8){ //Find Control Channel LCN on EA systems
 
-          if (((fr_4 >> 12) & 0x1F) != 0) {
-            CC_LCN = ((fr_4 >> 12) & 0x1F);
+          if (((fr_4t >> 12) & 0x1F) != 0) {
+            CC_LCN = ((fr_4t >> 12) & 0x1F);
             if (CC_LCN > lcn_tally) {
               lcn_tally = CC_LCN;
             }
@@ -1122,7 +1121,7 @@ int main(int argc, char ** argv) {
         }
 
         if (x_choice == 2 && command == 0xFD) { //Find Control Channel LCN on Standard/Networked
-          CC_LCN = (fr_1 & 0x1F000000) >> 24;
+          CC_LCN = (fr_1t & 0x1F000000) >> 24;
         }
 
         if (time(NULL) - resettime > 1215) { //reset lcn_tally, peers, patches after 20 minutes 15 seconds, give just enough time for 2 pandp logs
@@ -1158,6 +1157,7 @@ int main(int argc, char ** argv) {
           fclose(pFile);
           logtime = time(NULL);
         }
+        
         if (command == idcmd && print_timeri < 0) //IDLE, print_timeri just for the voice_to bs
         {
           if (voice_to == 0) //1 for inactive (backwards, I know) 
@@ -1165,13 +1165,14 @@ int main(int argc, char ** argv) {
             voice_to = 1; //1 - idle
           }
         }
+        
         //0x3 is Digital group voice call, 0x2 Group Data Channel, 0x1 TDMA call, 0xE Standard/Networked Analog, 0xF Standard/Networked Digital
         if ( (x_choice == 1 && mt1 >= 0x1 && mt1 <= 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS
+		//if ( (x_choice == 1 && mt1 == 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS	
         //using mt1 values 0x2 and 0x1 produce lots of hits on higher LCN channels, not sure if this is a logical data call, or bogus.
-        //bad decoding also results in printing tons of bogus LCN channels, not sure if a fix can be made for this aside from BCH
-        //most all bad decodes occur from GR sadly, really need to tweak GNURadio GR files
-        //if ( (x_choice == 1 && mt1 == 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS
-			
+        //going to see if high LCN values still occur with BCH enabled, if so, and not MT-1 0x3, then possible issues on CC or something.
+        //most all bad decodes occur from GR sadly, really need to tweak GNURadio GR files, BCH tosses lots of those frames out
+
 		  //only increment LCN channel list on 0x3 for testing, revert later when 0x2 and 0x1 are figured out properly
           if ((x_choice == 1 && lcn > lcn_tally && mt1 == 0x3) || (lcn > lcn_tally && x_choice == 2)) {
             lcn_tally = lcn;
@@ -1179,98 +1180,92 @@ int main(int argc, char ** argv) {
           voice_to = 0; //0-active
           deny_flag = 0; //reset trip on deny_flag
           allow = 0; //reset trip on alow flag during universal denial
-          if (fr_1 == fr_3 && fr_4 == fr_6) //error detection for groupx, senderx, xstatus variables, extrememly redundant
+          groupx = (fr_1t & 0xFFFF000) >> 12;
+          if (x_choice == 2) {
+            groupx = afs;
+          }
+          senderx = (fr_4t & 0xFFFFF000) >> 12;
+          group_matrix[lcn][0] = " "; //initialize with a space, otherwise printw is NULL if no value present in csv file
+          group_matrix[lcn][1] = " ";
+          csvGroupImport();
+
+          call_matrix[lcn][0] = time(NULL);
+          call_matrix[lcn][1] = groupx;
+          call_matrix[lcn][2] = senderx;
+
+          if (x_choice == 1) {
+            call_matrix[lcn][3] = mt1;
+          }
+          if (x_choice == 2) {
+            call_matrix[lcn][3] = status;
+          }
+
+          if (tsenderx != senderx && x_choice == 1 && site_id > 0 && L == 1) 
           {
-            groupx = (fr_1 & 0xFFFF000) >> 12;
-            if (x_choice == 2) {
-              groupx = afs;
-            }
-            senderx = (fr_4 & 0xFFFFF000) >> 12;
-            group_matrix[lcn][0] = " "; //initialize with a space, otherwise printw is NULL if no value present in csv file
-            group_matrix[lcn][1] = " ";
-            csvGroupImport();
-
-            call_matrix[lcn][0] = time(NULL);
-            call_matrix[lcn][1] = groupx;
-            call_matrix[lcn][2] = senderx;
-
-            if (x_choice == 1) {
-              call_matrix[lcn][3] = mt1;
-            }
-            if (x_choice == 2) {
-              call_matrix[lcn][3] = status;
-            }
-
-            if (tsenderx != senderx && x_choice == 1 && site_id > 0 && L == 1) 
-            {
-              FILE * pFile;
-              pFile = fopen("voice.log", "a");
-              fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tTG %5lld \tRID %lld  \n", getDate(), getTime(), site_id, lcn, groupx, senderx);
-              fclose(pFile);
-              tsenderx = senderx;
-            }
+            FILE * pFile;
+            pFile = fopen("voice.log", "a");
+            fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tTG %5lld \tRID %lld \n", getDate(), getTime(), site_id, lcn, groupx, senderx);
+            //fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tTG %5lld \tRID %lld [0x%2llX][0x%1llX] \n", getDate(), getTime(), site_id, lcn, groupx, senderx, mt1, mt2);
+            fclose(pFile);
+            tsenderx = senderx;
+          }
             
-            //weird splat happens in afs.log on startup 
-            if (tafs != afs && x_choice == 2 && site_id > 0 && L == 1) {
-              FILE * pFile;
-              pFile = fopen("afs.log", "a");
-
-              if (status == 0xF) {
-                fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tDigital\n", getDate(), getTime(), site_id, lcn, afs, agency, fleet, subfleet);
-              }
-              if (status == 0xE) {
-                fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tAnalog\n", getDate(), getTime(), site_id, lcn, afs, agency, fleet, subfleet);
-              }
-              fclose(pFile);
-              tafs = afs;
+          //weird splat happens in afs.log on startup 
+          if (tafs != afs && x_choice == 2 && site_id > 0 && L == 1) {
+            FILE * pFile;
+            pFile = fopen("afs.log", "a");
+            if (status == 0xF) {
+              fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tDigital\n", getDate(), getTime(), site_id, lcn, afs, agency, fleet, subfleet);
             }
-
-            if (lcn == current_lcn) //lcn==current_lcn
-            {
-              last_voice_time = time(NULL);
-
+            if (status == 0xE) {
+              fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tAnalog\n", getDate(), getTime(), site_id, lcn, afs, agency, fleet, subfleet);
             }
-            print_timeri = 20;
+            fclose(pFile);
+            tafs = afs;
+          }
 
-            mode_a = "DE"; //Digital Encrypted from csv, blocking
-            mode_b = mode;
-            modecompare = strcmp(mode_a, mode_b);
-            if (modecompare == 0) {
-              deny_flag = 1;
-              current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
-            }
-            mode_a = "B"; //Blocked Group from csv
-            modecompare = strcmp(mode_a, mode_b);
-            if (modecompare == 0) {
-              deny_flag = 1;
-              current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
-            }
-            if (udeny == 0 && deny_flag == 0 && lcn != current_lcn && voice_to == 0) //tune to LCN if lcn didn't change and voice_to is active
-            {
-              tune(LCN_list[lcn - 1]);
-              current_lcn = lcn;
-              squelchSet(0); //unmute
-              //voice_to=0; // voice_to = 0 is for active
-              hanguptime = time(NULL); // trying this really quick
-            }
+          if (lcn == current_lcn) //lcn==current_lcn
+          {
+            last_voice_time = time(NULL);
+          }
+          print_timeri = 20;
 
-            mode_a = "A"; //Allow Group from csv
-            modecompare = strcmp(mode_a, mode_b);
-            if (modecompare == 0) {
-              allow = 1;
-              current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
+          mode_a = "DE"; //Digital Encrypted from csv, blocking
+          mode_b = mode;
+          modecompare = strcmp(mode_a, mode_b);
+          if (modecompare == 0) {
+            deny_flag = 1;
+            current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
+          }
+          mode_a = "B"; //Blocked Group from csv
+          modecompare = strcmp(mode_a, mode_b);
+          if (modecompare == 0) {
+            deny_flag = 1;
+            current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
+          }
+          if (udeny == 0 && deny_flag == 0 && lcn != current_lcn && voice_to == 0) //tune to LCN if lcn didn't change and voice_to is active
+          {
+            tune(LCN_list[lcn - 1]);
+            current_lcn = lcn;
+            squelchSet(0); //unmute
+            //voice_to=0; // voice_to = 0 is for active
+            hanguptime = time(NULL); // trying this really quick
+          }
 
-            }
-            if (udeny == 1 && allow == 1) //tune to LCN if if univeral denial active and allowed group
-            {
-              tune(LCN_list[lcn - 1]);
-              current_lcn = lcn;
-              squelchSet(0); //unmute
-              hanguptime = time(NULL); // trying this really quick
-              //voice_to=0; // voice_to = 0 is for active
-            }
-
-          }//this one closes redundant fr_1 == fr_3 && fr_4 == fr_6 if condition on vcmd currently
+          mode_a = "A"; //Allow Group from csv
+          modecompare = strcmp(mode_a, mode_b);
+          if (modecompare == 0) {
+            allow = 1;
+            current_lcn = lcn; //not sure if should use this or not, will test <- initial tests seem good, continue to test
+          }
+          if (udeny == 1 && allow == 1) //tune to LCN if if univeral denial active and allowed group
+          {
+            tune(LCN_list[lcn - 1]);
+            current_lcn = lcn;
+            squelchSet(0); //unmute
+            hanguptime = time(NULL); // trying this really quick
+            //voice_to=0; // voice_to = 0 is for active
+          }
         }//this once closes vcmd 
       } //this one closes big overarcing fr_1 == fr_3 && fr_4 == fr_6
        //-------------------------------------------------
@@ -1298,8 +1293,6 @@ int main(int argc, char ** argv) {
         }
         printw("\n");
       }
-      //printw("| SNR [%2.0f] Pct  -  AFC [%d]Hz \n", (gbr * 100), AFC); //Signal to Noise Ratio, or good frames vs total frames 
-      
       printw("---------------------------------------------------------------------------\n"); //making a fence 
       if (x_choice == 1 && S == 1) {
 		attron(COLOR_PAIR(4));
@@ -1307,8 +1300,6 @@ int main(int argc, char ** argv) {
         printw("| Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);
         attroff(COLOR_PAIR(4));
       }
-      
-      
       if (x_choice == 2 && S == 1) { //changing to S == 1
 		attron(COLOR_PAIR(4));  
 		printw("--Site Extra---------------------------------------------------------------\n"); //making a fence
@@ -1336,18 +1327,13 @@ int main(int argc, char ** argv) {
         printw("\n");
         attroff(COLOR_PAIR(4));
       }
-      
       if (S == 1) { //changing to S == 1
 		attron(COLOR_PAIR(4));
 		//printw("| FR-1 [%10llX] \n", fr_1);
         //printw("| FR-4 [%10llX] \n", fr_4);
         printw("| FR-1 [%10llX]\n", fr_1t);
         printw("| FR-4 [%10llX]\n", fr_4t);
-        //printw("| FR-1m [%7llX] \n", fr_1m);
-        //printw("| FR-1t [%10llX] \n", fr_1t); //hope this thing works
-        //printw("| Good Frames [%7.0f] ", good); //hope this thing works
-        //printw("Bad Frames [%7.0f]\n ", bad); //hope this thing works
-        //printw("| SNR  [%2.2f]Percent - AFC [%d]Hz  - Frames [%8.0f] \n", (gbr * 100), AFC, (good+bad) ); //hope this thing works
+        //printw("| SNR  [%2.2f]Percent - AFC [%d]Hz  - Frames [%8.0f] \n", (gbr * 100), AFC, (good+bad) ); //this line is ugly
         printw("---------------------------------------------------------------------------\n"); //making a fence 
         attroff(COLOR_PAIR(4));
 	  }
@@ -1418,7 +1404,6 @@ int main(int argc, char ** argv) {
         //subfleet =  (call_matrix[i+1][1] & s_mask);
         printw("\n");
       }
-      //printw("\n"); //nice line break between makes it easier on the eyes
       printw("---------------------------------------------------------------------------\n"); //making a fence
       if (x_choice == 1 && C == 1) { //Print Call_Matrix "History" for EA
 		attron(COLOR_PAIR(4));
@@ -1442,11 +1427,9 @@ int main(int argc, char ** argv) {
         printw("---------------------------------------------------------------------------\n"); //making a fence  
         attroff(COLOR_PAIR(4));
       }
-      //if (x_choice == 1 && P == 1) { //Print Pretty Patch Array
-	  if (P == 1) { //Print Pretty Patch Array, see if this works on Standard/Networked
+      if (x_choice == 1 && P == 1) { //Print Pretty Patch Array
 		attron(COLOR_PAIR(4));
 		printw("--Patch Groups-------------------------------------------------------------\n"); //making a fence  
-        //for (short int i = 0; i < 49; i++) {
         for (short int i = 0; i < 48;) {
           if (patch_array[i][0] > 0) {
             printw("| Patch Group #%2d [%5lld] to [%5lld] | ", i + 1, patch_array[i][1], patch_array[i][0]);
@@ -1459,7 +1442,7 @@ int main(int argc, char ** argv) {
       }
       refresh();
     } //this one closes sync frame
-    else {} //no idea why I have this one, not sure if I need it or not
+     //else {} //no idea why I have this one, not sure if I need it or not
   } //this one terminates while loop
   endwin(); //terminate NCURSES screen
   return 0;
