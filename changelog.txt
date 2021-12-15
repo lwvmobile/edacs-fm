@@ -1,3 +1,8 @@
+2021.12.15
+Move SNR to old AFC location, wasn't originally here due to weird printw glitch with getDate string,
+Fixed afs.log splat by seperating date and time fprintf strings from other fprintf functions
+Corrupt dates in log in cygwin builds still persists, needs more research
+
 2021.12.14
 Minor cleanup, clean up commented areas
 comment/disable portions of bch3.h that aren't used currently

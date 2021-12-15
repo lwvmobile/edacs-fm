@@ -1210,15 +1210,16 @@ int main(int argc, char ** argv) {
             tsenderx = senderx;
           }
             
-          //weird splat happens in afs.log on startup 
+          //fixed splat in afs.log on startup by seperating getDate and getTime from the rest
           if (tafs != afs && x_choice == 2 && site_id > 0 && L == 1) {
             FILE * pFile;
             pFile = fopen("afs.log", "a");
+            fprintf(pFile, "%s %s", getDate(), getTime() );
             if (status == 0xF) {
-              fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tDigital\n", getDate(), getTime(), site_id, lcn, afs, agency, fleet, subfleet);
+              fprintf(pFile, "\tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tDigital\n", site_id, lcn, afs, agency, fleet, subfleet);
             }
             if (status == 0xE) {
-              fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tAnalog\n", getDate(), getTime(), site_id, lcn, afs, agency, fleet, subfleet);
+              fprintf(pFile, "\tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tAnalog\n", site_id, lcn, afs, agency, fleet, subfleet);
             }
             fclose(pFile);
             tafs = afs;
@@ -1281,10 +1282,11 @@ int main(int argc, char ** argv) {
       attroff(COLOR_PAIR(1));
       
       printw("--Site Info----------------------------------------------------------------\n"); //making a fence 
-      printw("| Date: %s Time: %s \n", getDate(), getTime());
-      printw("| Site ID [%3lld][%2llX] SNR [%2.0f] Location: %s\n", site_id, site_id, (gbr * 100), location_name);
+      printw("| %s %s ", getDate(), getTime()); //keep date and time seperate, or strange things happen sometimes
+      printw("SNR [%2.0f] \n", (gbr * 100) );
+      printw("| Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
 
-      if (x_choice == 1) { //testing to see if any peers come in on Standard/Networked
+      if (x_choice == 1) { 
         printw("| Peer Sites ");
         for (short int i = 0; i < 12; i++) {
           if (peer_list[i] > 0) {
