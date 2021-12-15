@@ -95,3 +95,4 @@ Cygwin Installs
 
 Cygwin has limited support by me as far as I can test things on my own personal set up, but currently it can be built in Cygwin with the right prerequisites installed. Check the cygwin-build.sh file for the necessary packages to install in Cygwin prior to building. 
 
+[Cygwin Build Video](https://www.youtube.com/watch?v=FFKR3b4qcTY)
