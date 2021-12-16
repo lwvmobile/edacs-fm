@@ -9,6 +9,7 @@ chmod +x *.sh
 gcc -o edacs-fm edacs-fm.c -lncurses -Wl,--stack,900000000
 gcc -o edacs-lcn edacs-lcn.c
 wget https://github.com/pbatard/libwdi/releases/download/v1.4.1/zadig-2.7.exe
+chmod +x zadig*
 wget https://ftp.osmocom.org/binaries/windows/rtl-sdr/rtl-sdr-64bit-20211205.zip
 unzip rtl-sdr-64bit-20211205.zip
 cp rtl-sdr-64bit-20211205/l* ./
