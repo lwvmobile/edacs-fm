@@ -32,6 +32,7 @@ if [[ $Y == $GROUP ]]; then
 else
 	GCSV="-g ${GROUP}"
 fi
+Y='y'
 echo
 echo Universal Denial Mode? - Only Groups with Mode [A] in csv file allowed voice grant.
 echo y/N
