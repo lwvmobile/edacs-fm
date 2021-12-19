@@ -116,13 +116,13 @@ double gbr = 1;
 
 unsigned short a_len = 4; //AFS allocation type
 unsigned short f_len = 4; //bit lengths
-unsigned short s_len = 3; //
+unsigned short s_len = 3; //AFS bits default to 443 scheme by default if not specified 
 unsigned short a_mask = 0x0; //and corresponding masks, set to 0 by default or they will accumulate when shifting
 unsigned short f_mask = 0x0; //
 unsigned short s_mask = 0x0; //
 
-unsigned short x_mask = 0xA0;
-unsigned short x_choice = 1;
+unsigned short x_mask = 0x0;
+unsigned short x_choice = 0;
 
 unsigned long long afs = 0; //AFS 11-bit info
 unsigned long long int patch_site = 0;
@@ -160,8 +160,10 @@ int adjust = 0; //next on the chopping block
 int cyclecc = 0;
 signed int ppm = 0;
 
-unsigned int vcmd = 0x00; //voice command variable set by argument
-unsigned int idcmd = 0x00;
+unsigned int vcmd = 0xEE; //voice command variable set by argument
+unsigned int idcmd = 0xFD;
+unsigned int peercmd = 0xF88; //using for EA detection test
+unsigned int netcmd = 0xF3; //using for Networked Test
 unsigned char command = 0; //read from control channel
 unsigned char lcn = 0;
 unsigned char lcn_tally = 0;
@@ -218,6 +220,7 @@ short int C = 0; //Display Call Matrix in printw area
 short int P = 0; //Display Patches in printw area
 short int Q = 0; //Enable logging of peers and patches
 short int L = 0; //Enable voice call logging
+short int A = 0; //Enable Autodetection for EDACS Type
 
 signed int debug = 0; //debug value for printing out status and data on different command codes, etc
 
@@ -642,12 +645,13 @@ bool ParseInputOptions(int argc, char ** argv) {
       {"Patches",               no_argument,0,'P'},
       {"P Log",                 no_argument,0,'Q'},
       {"Call Log",              no_argument,0,'L'},
+      {"Autodetect",            no_argument,0,'A'},
       {0,0,0,0}
     };
     /* getopt_long stores the option index here. */
     int option_index = 0;
 
-    c = getopt_long(argc, argv, "t: d v l e E x a:f:s:c:g:r:p S C P Q L",
+    c = getopt_long(argc, argv, "t: d v l e E x a:f:s:c:g:r:p S C P Q L A",
       long_options, & option_index);
 
     // warning: need to use : after required arguments, no colon for optional ones
@@ -678,7 +682,7 @@ bool ParseInputOptions(int argc, char ** argv) {
       printf("Universal Denial Mode Set - Only groups with mode [A] will be granted voice channel\n");
       break;
     case 'v':
-      debug = 3;
+      debug = 1;
       printf("Verbosity Mode Enabled - Debug set to 3 \n");
       break;
     case 'x':
@@ -769,6 +773,11 @@ bool ParseInputOptions(int argc, char ** argv) {
       L = 1;
       printf("Voice Call Logging Enabled \n");
       break;
+    case 'A':
+      A = 1;
+      printf("Autodetect EDACS Type - Experimental \n");
+      printf("AFS set to 4-4-3 when using Autodetect \n");
+      break;
     }
   }
 }
@@ -790,7 +799,7 @@ int main(int argc, char ** argv) {
   ParseInputOptions(argc, argv);
   signed int avg = 0; //sample average
   s_len = 11 - (a_len + f_len);
-  if (x_choice == 2) {
+  if (x_choice == 2 || A == 1) {
     printf("Subfleet bit setting = [%X] bits \n", s_len);
     for (unsigned short int i = 0; i < a_len; i++) //A
     {
@@ -845,6 +854,8 @@ int main(int argc, char ** argv) {
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK); //Magenta for no frame sync/signal
     noecho();
     cbreak();
+    if (x_choice == 0){ //if x_choice value not set at start, set to automatic
+		A = 1; }
     if ((time(NULL) - hanguptime) > 30) { //extending to 30 seconds just in case dot detection doesn't catch, or long winded caller
       squelchSet(5000); 
     }
@@ -985,7 +996,31 @@ int main(int argc, char ** argv) {
 	  BCH(fr_4m);                         //send through the bch 
 	  fr_4t = messagepp & 0xFFFFFFFFFF;  //return from the bch 
 	  //end new BCH Stuff
-
+	  
+	  //Experimental ESK on/off detection
+	  if ( (((fr_1t & 0xF000000000) >> 36) != 0xB)  && (((fr_1 & 0xF000000000) >> 36) != 0x1) && (((fr_1 & 0xFF00000000) >> 32) != 0xF3) && A == 1 )
+	  {
+		if ( (((fr_1t & 0xF000000000) >> 36) <= 0x8 )){ //experimenting with values here, not too high, and not too low
+		  x_mask = 0xA0; }
+		  
+		if ( (((fr_1t & 0xF000000000) >> 36) > 0x8 ) ){ //
+		  x_mask = 0x0; }
+	  }
+	  //End Experimental ESK on/off detector for EA
+	  
+	  //EA Auto detection
+	  //if ( ((fr_1t >> 28)& 0xFF8 == (peercmd || peercmd ^ 0xA00) ) && A == 1){
+	  if (fr_1t >> 28 == peercmd && A == 1 || fr_1t >> 28 == (peercmd ^ 0xA00) && A == 1){//peercmd is 0xF88 peer site relay 0xFF80000000 >> 28
+		  x_choice = 1;
+	  }
+	  //End EA Auto detecion
+	  
+	  //Standard/Networked Auto Detection
+	  if (command == netcmd && A == 1){ //netcmd is F3 Unknown Command in Networked
+		  x_choice = 2;
+	  }
+	  //End Standard/Networked Auto Detection
+	  
       if (fr_1 != fr_1t || fr_4 != fr_4t){ //BCH error detection up top to trickle down
 		bad = bad + 1; } //tally number of bad frames
 		
@@ -1166,10 +1201,11 @@ int main(int argc, char ** argv) {
           }
         }
         
-        //0x3 is Digital group voice call, 0x2 Group Data Channel, 0x1 TDMA call, 0xE Standard/Networked Analog, 0xF Standard/Networked Digital
-        if ( (x_choice == 1 && mt1 >= 0x1 && mt1 <= 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS
-		//if ( (x_choice == 1 && mt1 == 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS	
+        //0x3 is Digital group voice call, 0x2 Group Data Channel, 0x1 TDMA call, 0xEE Standard/Networked Analog, 0xEF Standard/Networked Digital
+        //if ( (x_choice == 1 && mt1 >= 0x1 && mt1 <= 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS
+		if ( (x_choice == 1 && mt1 == 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS, only digital group for EA	
         //using mt1 values 0x2 and 0x1 produce lots of hits on higher LCN channels, not sure if this is a logical data call, or bogus.
+        //turns out, those calls on LCN 28 were an MT-1 0x3 call, so there's that tidbit
         //going to see if high LCN values still occur with BCH enabled, if so, and not MT-1 0x3, then possible issues on CC or something.
         //most all bad decodes occur from GR sadly, really need to tweak GNURadio GR files, BCH tosses lots of those frames out
 
@@ -1283,9 +1319,22 @@ int main(int argc, char ** argv) {
       
       printw("--Site Info----------------------------------------------------------------\n"); //making a fence 
       printw("| %s %s ", getDate(), getTime()); //keep date and time seperate, or strange things happen sometimes
-      printw("SNR [%2.0f] \n", (gbr * 100) );
+      printw("SNR [%2.0f] AFC [%d]Hz", (gbr * 100), AFC );
+      	
+	  printw("\n");  
       printw("| Site ID [%3lld][%2llX] Location: %s\n", site_id, site_id, location_name);
-
+      if (A == 1){
+		  printw("| Auto: ");}
+	  if (A == 0){
+		  printw("| Manual: ");}
+	  if (x_choice == 1){
+		  printw(" Extended Addressing");}
+	  if (x_choice == 2){
+		  printw(" Standard/Networked");}
+      if (x_mask == 0xA0){
+		  printw(" w/  ESK \n");}
+	  if (x_mask == 0x0 ){
+		  printw(" w/o ESK \n");}
       if (x_choice == 1) { 
         printw("| Peer Sites ");
         for (short int i = 0; i < 12; i++) {
@@ -1331,11 +1380,8 @@ int main(int argc, char ** argv) {
       }
       if (S == 1) { //changing to S == 1
 		attron(COLOR_PAIR(4));
-		//printw("| FR-1 [%10llX] \n", fr_1);
-        //printw("| FR-4 [%10llX] \n", fr_4);
         printw("| FR-1 [%10llX]\n", fr_1t);
         printw("| FR-4 [%10llX]\n", fr_4t);
-        //printw("| SNR  [%2.2f]Percent - AFC [%d]Hz  - Frames [%8.0f] \n", (gbr * 100), AFC, (good+bad) ); //this line is ugly
         printw("---------------------------------------------------------------------------\n"); //making a fence 
         attroff(COLOR_PAIR(4));
 	  }

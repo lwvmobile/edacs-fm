@@ -1,3 +1,13 @@
+2021.12.19
+Change EA to only open MT-1 0x3 [0][0][0][1][1] Calls due to false positives on calls with 0x1 and 0x2 call types
+Experiment with auto detecting ESK on and off (A == 1) using F88 for peer site relay
+Experiment with auto detect Standard/Network/EA <- using F3 Unknown on Networked
+When prompted for EDACS type, enter A for Autodetect
+If System type not specified on launch, will default to auto now instead of EA w/ ESK
+Add printw line in Site Info to indicate which type of system was auto detected or manually set, and to which system type
+Put AFC back to being just right on SNR, seems to not be so bad on the eye when its on the far end.
+Update Scripts to include Auto option and also if user wants universal denial mode
+
 2021.12.15
 Move SNR to old AFC location, wasn't originally here due to weird printw glitch with getDate string,
 Fixed afs.log splat by seperating date and time fprintf strings from other fprintf functions
