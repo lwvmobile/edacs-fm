@@ -799,6 +799,8 @@ int main(int argc, char ** argv) {
   ParseInputOptions(argc, argv);
   signed int avg = 0; //sample average
   s_len = 11 - (a_len + f_len);
+  if (x_choice == 0){ //if x_choice value not set at start, set to automatic
+		A = 1; }
   if (x_choice == 2 || A == 1) {
     printf("Subfleet bit setting = [%X] bits \n", s_len);
     for (unsigned short int i = 0; i < a_len; i++) //A
@@ -854,8 +856,7 @@ int main(int argc, char ** argv) {
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK); //Magenta for no frame sync/signal
     noecho();
     cbreak();
-    if (x_choice == 0){ //if x_choice value not set at start, set to automatic
-		A = 1; }
+    
     if ((time(NULL) - hanguptime) > 30) { //extending to 30 seconds just in case dot detection doesn't catch, or long winded caller
       squelchSet(5000); 
     }
