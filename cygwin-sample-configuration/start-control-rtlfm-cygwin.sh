@@ -38,22 +38,39 @@ if [[ $Y == $GROUP ]]; then
 	GCSV=''
 else
 	GCSV="-g ${GROUP}"
+fi
+Y='y'
+echo
+echo Universal Denial Mode? - Only Groups with Mode [A] in csv file allowed voice grant.
+echo y/N
+read D
+if [[ $Y == $D ]]; then
+	DENY='-d'
+else
+	DENY=''
 fi	
 echo
 echo Which type of System?
 echo l EDACS Standard or Networked
 echo e EDACS Standard or Networked with ESK
-echo x EDACS Extended Adressing with ESK
-echo E EDACS Extended Adressing without ESK
+echo x EDACS Extended Addressing with ESK
+echo E EDACS Extended Addressing without ESK
+echo A EDACS Auto Detect - Experimental
 read type
 TYPE1='l'
 TYPE2='e'
+TYPE3='A'
 if [[ $type == $TYPE1 ]]; then
     echo Agency bit length? Default 4
     read A
     echo Fleet bit length? Default 4
     read F
 elif [[ $type == $TYPE2 ]]; then
+    echo Agency bit length? Default 4
+    read A
+    echo Fleet bit length? Default 4
+    read F
+elif [[ $type == $TYPE3 ]]; then
     echo Agency bit length? Default 4
     read A
     echo Fleet bit length? Default 4
@@ -111,8 +128,8 @@ echo Copy and paste into sh file if you do not wish to answer everytime.
 echo Set sh file executable with command chmod +x example.sh
 echo
 echo "#! /bin/bash"
-STRING="./rtl_fm -d ${DEVICE} -f ${FREQ} -s 28.8k -p ${PPM} -g ${GAIN} | ./edacs-fm -${type} ${SCSV} ${GCSV} -a ${A} -f ${F} ${EXTRA} ${PATCH} ${CALL} ${VLOG} ${PLOG}"
+STRING="./rtl_fm -d ${DEVICE} -f ${FREQ} -s 28.8k -p ${PPM} -g ${GAIN} | ./edacs-fm -${type} ${SCSV} ${GCSV} -a ${A} -f ${F} ${EXTRA} ${PATCH} ${CALL} ${VLOG} ${PLOG} ${DENY}"
 echo $STRING
 echo
 read -p "Press Enter key to start"
-./rtl_fm -d $DEVICE -f $FREQ -s 28.8k -p $PPM -g $GAIN | ./edacs-fm -$type $SCSV $GCSV -a $A -f $F $EXTRA $PATCH $CALL $VLOG $PLOG
+./rtl_fm -d $DEVICE -f $FREQ -s 28.8k -p $PPM -g $GAIN | ./edacs-fm -$type $SCSV $GCSV -a $A -f $F $EXTRA $PATCH $CALL $VLOG $PLOG $DENY
