@@ -70,5 +70,5 @@ fi
 echo All Display and Logging Enabled 
 echo
 read -p "Press Enter key to start"
-socat stdio udp-listen:7355 | sox -t raw -b 16 -e signed-integer -r 48000 -c 1 - -t raw - rate 28800 | ./edacs-fm -$type $SCSV $GCSV -a $A -f $F -S -C -P -Q -L
+socat stdio udp-listen:7355 | sox -t raw -b 16 -e signed-integer -r 48000 -c 1 - -t raw - rate 28800 | ./edacs-fm -$type $SCSV $GCSV -a $A -f $F -S -C -P -Q -L $DENY
 
