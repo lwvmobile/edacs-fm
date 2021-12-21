@@ -1,3 +1,6 @@
+2021.12.21-2
+Fix gcc warning, change %d to %lld on afs.log
+
 2021.12.21
 Improved Call Activation - Won't attempt to tune multiple active calls at the same time.
 set active = 0/1 for determining if call is currently active and not to retune during open call

@@ -1319,7 +1319,7 @@ int main(int argc, char ** argv) {
 			  for (short int i = 1; i <= lcn_tally; i++) { 
 				  if (call_matrix[i][4] == 1 && i != CC_LCN){ //[4] will be 0 for not written, 1 for pending, 2 for written
 					fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
-					fprintf(pFile, "  SITE %3lld LCN %2d AFS[%4lld][%2d - %2d - %2d] ", site_id, i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask));
+					fprintf(pFile, "  SITE %3lld LCN %2d AFS[%4lld][%2lld - %2lld - %2lld] ", site_id, i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask));
 					if (call_matrix[i][3] == 0xE){
 					  fprintf(pFile, "Analog\n"); }
 					if (call_matrix[i][3] == 0xF){
