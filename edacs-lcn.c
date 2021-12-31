@@ -15,7 +15,7 @@
  * Many thanks to SP5WWP for permission to use and modify this software
  * 
  * LWVMOBILE  
- * 2021-12 Version EDACS-LCN Florida Man Edition
+ * 2022-01 Version EDACS-LCN Florida Man Edition
  *-----------------------------------------------------------------------------*/
 
 #define _GNU_SOURCE
@@ -59,7 +59,7 @@ char * FM_banner[13] = {
 "███████╗██████╔╝██║  ██║╚██████╗███████║  ",
 "╚══════╝╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝  ",
 "LCN CHANNEL   ██╗      ██████╗███╗   ██╗",
-" with         ██║     ██╔════╝████╗  ██║",
+" with(out)    ██║     ██╔════╝████╗  ██║",
 "  Dotting     ██║     ██║     ██╔██╗ ██║",
 "   Sequence   ██║     ██║     ██║╚██╗██║",
 "    Detection ███████╗╚██████╗██║ ╚████║",

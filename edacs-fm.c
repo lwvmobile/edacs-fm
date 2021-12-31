@@ -19,7 +19,7 @@
  * 1994-7
  * 
  * LWVMOBILE  
- * 2021-12 Version EDACS-FM Florida Man Edition
+ * 2022-01 Version EDACS-FM Florida Man Edition
  *-----------------------------------------------------------------------------*/
 #define _GNU_SOURCE
 
@@ -69,23 +69,23 @@
 
 #include <locale.h>
 
-#include "bch3.h" //experimental BCH support
+#include "bch3.h" //BCH support
 
 #define BSIZE 999
 #define UDP_BUFLEN 5 //maximum UDP buffer length
 #define SRV_IP "127.0.0.1" //IP
 #define UDP_PORT 6020 //UDP port
 
-#define SAMP_NUM (48 + 6 * 40) * 2 * 3 //EDACS96 288-bit cycle
+#define SAMP_NUM (48 + 6 * 40) * 2 * 3          //EDACS96 288-bit cycle
 #define SYNC_FRAME 0x555557125555 << (64 - 48) //EDACS96 synchronization frame (12*4=48bit)
 #define SYNC_MASK 0xFFFFFFFFFFFF << (64 - 48) //EDACS96 synchronization frame mask
 
 unsigned long long sync_timeout = 3; //making sync_timeout a user definable variable now, default 3 seconds
-unsigned char samples[SAMP_NUM]; //8-bit samples from rtl_fm (or rtl_udp)
+unsigned char samples[SAMP_NUM];    //8-bit samples from rtl_fm (or rtl_udp)
 signed short int raw_stream[SAMP_NUM / 2]; //16-bit signed int samples
 
 signed int AFC = 2400; //Auto Frequency Control -> DC offset
-signed int min = SHRT_MAX, max = SHRT_MIN; //min and max sample values
+signed int min = SHRT_MAX, max = SHRT_MIN;   //min and max sample values
 signed short int avg_arr[SAMP_NUM / 2 / 3]; //array containing 16-bit samples
 unsigned int avg_cnt = 0; //avg array index variable
 
@@ -102,7 +102,7 @@ unsigned long long fr_4 = 0xFFFFFFFFFF; //These are the human readable versions 
 //unsigned long long fr_5 = 0;
 //unsigned long long fr_6 = 0;
 
-//new BCH stuff
+//BCH stuff
 long long int fr_1m = 0xFFFFFFF; //28-bit 7X message portion to pass to bch handler
 long long int fr_1t = 0xFFFFFFFFFF; //40 bit return from BCH with poly attached
 long long int fr_4m = 0xFFFFFFF; //28-bit 7X message portion to pass to bch handler
@@ -110,7 +110,7 @@ long long int fr_4t = 0xFFFFFFFFFF; //40 bit return from BCH with poly attached
 double good = 1;
 double bad = 1; //don't set as 0 so we won't accidentally divide by 0 and blow up the universe
 double gbr = 1;
-//end new BCH stuff
+//end BCH stuff
 
 unsigned short a_len = 4; //AFS allocation type
 unsigned short f_len = 4; //bit lengths
@@ -205,7 +205,7 @@ char * FM_banner[14] = {
   "||---||- _ -||---|| ██╔══╝  ██║╚██╔╝██║    EricCottrell      ",
   "||--_||_____||_--|| ██║     ██║ ╚═╝ ██║    JSTARS03          ",
   "||)- |batdude| -(|| ╚═╝     ╚═╝     ╚═╝    blantonl          ",
-  "|| | ||     |||  ||  ...and Robert Morelos-Zaragoza          "
+  "||   ||     ||   ||  ...and Robert Morelos-Zaragoza          "
 };
 
 signed int peer_counter = 0;
@@ -213,7 +213,7 @@ signed long long int peer_list[12];
 signed long long int peer = 0;
 unsigned long long int peer_lcn = 0;
 
-//new CLI options for Site Extra, Call Matrix, Patches, and Logging
+//CLI options for Site Extra, Call Matrix, Patches, and Logging
 short int S = 0; //Display Site Extra in printw area
 short int C = 0; //Display Call Matrix in printw area
 short int P = 0; //Display Patches in printw area
@@ -727,7 +727,7 @@ bool ParseInputOptions(int argc, char ** argv) {
       printf("Site CSV File name = %s \n", sitecsv);
       break;
     case 'c':
-      start_site_id = atol(optarg); //need to change to same as 's' type to prevent segfault when not specified argument
+      start_site_id = atol(optarg); 
       printf("Site ID CC to Hunt For = [%lld] \n", start_site_id);
       break;
     case 'g':
@@ -847,7 +847,7 @@ int main(int argc, char ** argv) {
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);      //Yellow/Amber for frame sync/control channel, NV style
     init_pair(2, COLOR_RED, COLOR_BLACK);        //Red for Terminated Calls
     init_pair(3, COLOR_GREEN, COLOR_BLACK);     //Green for Active Calls
-    init_pair(4, COLOR_CYAN, COLOR_BLACK);     //Cyan for Patches or any Extra Info
+    init_pair(4, COLOR_CYAN, COLOR_BLACK);     //Cyan for Site Extra and Patches
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK); //Magenta for no frame sync/signal
     noecho();
     cbreak();
@@ -874,7 +874,7 @@ int main(int argc, char ** argv) {
       good = 1;
       bad = 1;
       gbr = 1; //"zero" out good bad and gbr
-      //active = 0; //temp disable to check behavior now that we are testing signal loss events, don't want leave channel open 
+      //active = 0; //disable to check behavior now that we are testing signal loss events, don't want leave channel open without dot detection
       current_lcn = 0;
       //reset log peers and patches when signal time out
       if (x_choice == 1 && patch_array[0][0] > 0 && Q == 1) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
@@ -1122,7 +1122,7 @@ int main(int argc, char ** argv) {
           kicked = (fr_4t & 0xFFFFF000) >> 12;
         }
         
-        if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x1 && ((fr_1 & 0xFF000) >> 12) > 0) { //PEER LISTING on EA systems
+        if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x1 && ((fr_1 & 0xFF000) >> 12) > 0) { //PEER LISTING on EA systems, need to fix to fr_1t value instead
           peer = (fr_1t & 0xFF000) >> 12;
           peer_lcn = (fr_1t & 0x1F000000) >> 24;
           //Make Small Array with Peers in it
@@ -1140,6 +1140,50 @@ int main(int argc, char ** argv) {
             p++;
           }
         }
+        
+        //experimental peer list for standard/networked
+        /*
+        if (x_choice == 2 && (fr_4t & 0xFF00000000) == 0x5C00000000)  { //PEER LISTING on Networked systems, still need to figure out pattern
+          //peer = (fr_1t & 0xFF000) >> 12;
+          //peer = (fr_4t & 0x07C0000000) >> 30;
+          peer_lcn = (fr_4t & 0x1F000000) >> 24;
+          //Make Small Array with Peers in it
+          short int p = 0;
+          while (p < 12) {
+            if (peer_list[p] > 0) {
+              if (peer_list[p] == peer) {
+                break;
+              }
+            }
+            if (peer_list[p] == 0) {
+              peer_list[p] = peer;
+              break;
+            }
+            p++;
+          }
+        }
+        
+        if (x_choice == 2 && (fr_1t & 0xFF00000000) == 0x5C00000000)  { //PEER LISTING on Networked systems, still need to figure out pattern
+          //peer = (fr_1t & 0xFF000) >> 12;
+          peer = (fr_1t & 0x7C0000000) >> 30;
+          peer_lcn = (fr_1t & 0x1F000000) >> 24;
+          //Make Small Array with Peers in it
+          short int p = 0;
+          while (p < 12) {
+            if (peer_list[p] > 0) {
+              if (peer_list[p] == peer) {
+                break;
+              }
+            }
+            if (peer_list[p] == 0) {
+              peer_list[p] = peer;
+              break;
+            }
+            p++;
+          }
+        }
+        */
+        //end experimental peer list for standard/networked
         
         if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x8){ //Find Control Channel LCN on EA systems
 
@@ -1191,14 +1235,13 @@ int main(int argc, char ** argv) {
 
         //0x3 is Digital group voice call, 0x2 Group Data Channel, 0x1 TDMA call, 0xEE Standard/Networked Analog, 0xEF Standard/Networked Digital
         if ( (x_choice == 1 && mt1 >= 0x1 && mt1 <= 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS
-		//if ( (x_choice == 1 && mt1 == 0x3) || (x_choice == 2 && (command == 0xEE || command == 0xEF)) ){ //LCN CALLS, only digital group for EA	
 
-		  //only increment LCN channel list on 0x3 for now, other mt values may be logical calls to radio
-          if ((x_choice == 1 && lcn > lcn_tally && mt1 == 0x3) || (lcn > lcn_tally && x_choice == 2)) {
+          //LCNs above 25 used for radio status messages like busy, queued, downlink, reserved, and convert
+		  if ( (lcn < 26 && x_choice == 1 && lcn > lcn_tally) || (lcn < 26 && lcn > lcn_tally && x_choice == 2)) {   
             lcn_tally = lcn;
           } 
           deny_flag = 0; //reset trip on deny_flag
-          allow = 0; //reset trip on allow flag during universal denial
+          allow = 0;   //reset trip on allow flag during universal denial
           groupx = (fr_1t & 0xFFFF000) >> 12;
           if (x_choice == 2) {
             groupx = afs;
@@ -1211,44 +1254,13 @@ int main(int argc, char ** argv) {
           call_matrix[lcn][0] = time(NULL);
           call_matrix[lcn][1] = groupx;
           call_matrix[lcn][2] = senderx;
-          
-
+          call_matrix[lcn][4] = 0; //log written bit, 0 for not written
           if (x_choice == 1) {
             call_matrix[lcn][3] = mt1;
           }
           if (x_choice == 2) {
             call_matrix[lcn][3] = status;
           }
-          call_matrix[lcn][4] = 0; //log written bit, 0 for not written
-          
-		  //new logging WAS here, moved out of call loop
-		  //old logging style below, going to leave this here for a while just in case	
-		  /*   
-          if (tsenderx != senderx && x_choice == 1 && site_id > 0 && L == 1) 
-          {
-            FILE * pFile;
-            pFile = fopen("voice.log", "a");
-            fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tTG %5lld \tRID %lld \n", getDate(), getTime(), site_id, lcn, groupx, senderx);
-            //fprintf(pFile, "%s %s \tSITE %3lld \tLCN %2d \tTG %5lld \tRID %lld [0x%2llX][0x%1llX] \n", getDate(), getTime(), site_id, lcn, groupx, senderx, mt1, mt2);
-            fclose(pFile);
-            tsenderx = senderx;
-          }
-            
-          //fixed splat in afs.log on startup by seperating getDate and getTime from the rest
-          if (tafs != afs && x_choice == 2 && site_id > 0 && L == 1) {
-            FILE * pFile;
-            pFile = fopen("afs.log", "a");
-            fprintf(pFile, "%s %s", getDate(), getTime() );
-            if (status == 0xF) {
-              fprintf(pFile, "\tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tDigital\n", site_id, lcn, afs, agency, fleet, subfleet);
-            }
-            if (status == 0xE) {
-              fprintf(pFile, "\tSITE %3lld \tLCN %2d \tAFS[%4lld][%d-%d-%d]\tAnalog\n", site_id, lcn, afs, agency, fleet, subfleet);
-            }
-            fclose(pFile);
-            tafs = afs;
-          }
-		  */
 		  
           mode_a = "DE"; //Digital Encrypted from csv, blocking
           mode_b = mode;
@@ -1261,7 +1273,8 @@ int main(int argc, char ** argv) {
           if (modecompare == 0) {
             deny_flag = 1;
           }
-          if (udeny == 0 && deny_flag == 0 && active == 0) //tune to LCN if lcn didn't change and active == 0
+
+          if (udeny == 0 && deny_flag == 0 && active == 0 && lcn < 26) //tune to LCN if lcn didn't change and active == 0 and lcn is less than 26
           {
             tune(LCN_list[lcn - 1]);
             squelchSet(0); 
@@ -1276,7 +1289,8 @@ int main(int argc, char ** argv) {
           if (modecompare == 0) {
             allow = 1;
           }
-          if (udeny == 1 && allow == 1 && active == 0) //tune to LCN if if univeral denial active and allowed group and active == 0
+
+          if (udeny == 1 && allow == 1 && active == 0 && lcn < 26) //tune to LCN if if univeral denial active and allowed group and active == 0 and lcn is less than 26
           {
             tune(LCN_list[lcn - 1]);
             squelchSet(0); 
@@ -1292,45 +1306,72 @@ int main(int argc, char ** argv) {
 		  squelchSet(5000); //hangup LCN, see if this works better than dotting sequence detector
 		  hangup = 1;      //same as above, remove these two lines if not working well
 		}
-		
-		//experimental better log testing zone
-          if (site_id > 0 && L == 1 && x_choice == 1){
-			  FILE * pFile;
-			  pFile = fopen("voice.log", "a");
-			  for (short int i = 1; i <= lcn_tally; i++) { 
-				  if (call_matrix[i][4] == 1 && i != CC_LCN){ //[4] will be 0 for not written, 1 for pending, 2 for written
-					fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
-					fprintf(pFile, "  SITE %3lld LCN %2d TG %5lld RID %7lld ", site_id, i, call_matrix[i][1], call_matrix[i][2]);
-					if (call_matrix[i][3] == 0x1){
-					  fprintf(pFile, "TDMA\n"); }
-					if (call_matrix[i][3] == 0x2){
-					  fprintf(pFile, "Data\n"); }
-					if (call_matrix[i][3] == 0x3){
-					  fprintf(pFile, "Digital\n"); }
-					call_matrix[i][4] = 2; //log written bit, 2 for written
-				  }
+
+        if (site_id > 0 && L == 1 && x_choice == 1){
+		  FILE * pFile;
+		  pFile = fopen("voice.log", "a");
+		  for (short int i = 1; i <= lcn_tally; i++) { 
+			  if (call_matrix[i][4] == 1 && i != CC_LCN){ //[4] will be 0 for not written, 1 for pending, 2 for written
+				fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
+				fprintf(pFile, "  SITE %3lld LCN %2d TG %5lld RID %7lld ", site_id, i, call_matrix[i][1], call_matrix[i][2]);
+					
+				if (i == 0x1A){ //if LCN is 26, print 'Downlink' Status
+				  fprintf(pFile, "Downlink "); }
+				if (i == 0x1B){ //if LCN is 27, print 'Reserved' Status
+				  fprintf(pFile, "Reserved "); }
+				if (i == 0x1C){ //if LCN is 28, print 'Convert to Callee' Status
+				  fprintf(pFile, "Convert "); }
+				if (i == 0x1D){ //if LCN is 29, print 'Queued' Status
+				  fprintf(pFile, "Queued "); }
+				if (i == 0x1E){ //if LCN is 30, print 'System Busy' Status
+				  fprintf(pFile, "Busy "); }
+				if (i == 0x1F){ //if LCN is 31, print 'Denied Radio' Status
+				  fprintf(pFile, "Denied "); }
+				if (call_matrix[i][3] == 0x1){
+				  fprintf(pFile, "TDMA\n"); }
+				if (call_matrix[i][3] == 0x2){
+				  fprintf(pFile, "Data\n"); }
+				if (call_matrix[i][3] == 0x3){
+				  fprintf(pFile, "Digital\n"); }
+					  
+				call_matrix[i][4] = 2; //log written bit, 2 for written
 			  }
-			  fclose(pFile);
 		  }
+		  fclose(pFile);
+	  }
 		  
-		  if (site_id > 0 && L == 1 && x_choice == 2){
-			  FILE * pFile;
-			  pFile = fopen("afs.log", "a");
-			  for (short int i = 1; i <= lcn_tally; i++) { 
-				  if (call_matrix[i][4] == 1 && i != CC_LCN){ //[4] will be 0 for not written, 1 for pending, 2 for written
-					fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
-					fprintf(pFile, "  SITE %3lld LCN %2d AFS[%4lld][%2lld - %2lld - %2lld] ", site_id, i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask));
-					if (call_matrix[i][3] == 0xE){
-					  fprintf(pFile, "Analog\n"); }
-					if (call_matrix[i][3] == 0xF){
-					  fprintf(pFile, "Digital\n"); }
-					call_matrix[i][4] = 2; //log written bit, 2 for written
-				  }
-			  }
-			  fclose(pFile);
+	    if (site_id > 0 && L == 1 && x_choice == 2){
+	      FILE * pFile;
+		  pFile = fopen("afs.log", "a");
+		  for (short int i = 1; i <= lcn_tally; i++) { 
+		    if (call_matrix[i][4] == 1 && i != CC_LCN){ //[4] will be 0 for not written, 1 for pending, 2 for written
+		      fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
+			  fprintf(pFile, "  SITE %3lld LCN %2d AFS[%4lld][%2lld - %2lld - %2lld] ", site_id, i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask));
+					
+			  if (i == 0x1A){ //if LCN is 26, print 'Downlink' Status
+			    fprintf(pFile, "Downlink "); }
+			  if (i == 0x1B){ //if LCN is 27, print 'Reserved' Status
+			    fprintf(pFile, "Reserved "); }
+			  if (i == 0x1C){ //if LCN is 28, print 'Convert to Callee' Status
+			    fprintf(pFile, "Convert "); }
+			  if (i == 0x1D){ //if LCN is 29, print 'Queued' Status
+			    fprintf(pFile, "Queued "); }
+			  if (i == 0x1E){ //if LCN is 30, print 'System Busy' Status
+			    fprintf(pFile, "Busy "); }
+			  if (i == 0x1F){ //if LCN is 31, print 'Denied Radio' Status
+			    fprintf(pFile, "Denied "); }
+					
+			  if (call_matrix[i][3] == 0xE){
+			    fprintf(pFile, "Analog\n"); }
+			  if (call_matrix[i][3] == 0xF){
+			    fprintf(pFile, "Digital\n"); }
+			  call_matrix[i][4] = 2; //log written bit, 2 for written
+		    }
 		  }
-		  //end experimental better log testing zone
-      } //this one closes big overarcing fr_1 == fr_1t && fr_4 == fr_4t
+		  fclose(pFile);
+	    }
+
+       }//this one closes big overarching fr_1 == fr_1t && fr_4 == fr_4t
        //-------------------------------------------------
       //singular printw area
       erase();
@@ -1431,7 +1472,7 @@ int main(int argc, char ** argv) {
             printw("TDMA");
           }
           if ((i+1) == current_lcn){
-			  printw("*"); }//use asterisk to denote opened channel
+			  printw(" ***"); }//use asterisks to denote opened channel
           attroff(COLOR_PAIR(3));
         }
         if (x_choice == 1 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
@@ -1460,7 +1501,7 @@ int main(int argc, char ** argv) {
             printw("Digital");
           }
           if ( (i+1 == current_lcn) && current_lcn != 0){
-			  printw("*"); } //use asterisk to denote opened channel
+			  printw(" ***"); } //use asterisks to denote opened channel
           attroff(COLOR_PAIR(3));
         }
         if (x_choice == 2 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
