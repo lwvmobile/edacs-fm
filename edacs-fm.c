@@ -1306,7 +1306,16 @@ int main(int argc, char ** argv) {
 		  squelchSet(5000); //hangup LCN, see if this works better than dotting sequence detector
 		  hangup = 1;      //same as above, remove these two lines if not working well
 		}
-
+		
+		//move log pending to here out of loop, write for LCN 1-31 to get logical status LCNs to print to log
+		for (short i = 0; i < 31; i++){
+		  if ( ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
+			if (call_matrix[i+1][4] == 0){
+			  call_matrix[i+1][4] = 1;} //log written bit, 1 for pending since channel is no longer active
+		  }
+		}
+		//end log pending
+		
         if (site_id > 0 && L == 1 && x_choice == 1){
 		  FILE * pFile;
 		  pFile = fopen("voice.log", "a");
@@ -1478,8 +1487,8 @@ int main(int argc, char ** argv) {
           attroff(COLOR_PAIR(3));
         }
         if (x_choice == 1 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
-		  if (call_matrix[i+1][4] == 0){
-			call_matrix[i+1][4] = 1;} //log written bit, 1 for pending since channel is no longer active
+		  //if (call_matrix[i+1][4] == 0){
+			//call_matrix[i+1][4] = 1;} //log written bit, 1 for pending since channel is no longer active
           attron(COLOR_PAIR(2));
           printw("RID [%lld] TG [%lld] [%s] [%s] ", call_matrix[i + 1][2], call_matrix[i + 1][1], group_matrix[i + 1][0], group_matrix[i + 1][1]); //group_matrix testing
           if (call_matrix[i + 1][3] == 0x3) {
@@ -1507,8 +1516,8 @@ int main(int argc, char ** argv) {
           attroff(COLOR_PAIR(3));
         }
         if (x_choice == 2 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
-		  if (call_matrix[i+1][4] == 0){
-			call_matrix[i+1][4] = 1;} //log written bit, 1 for pending since channel is no longer active	
+		  //if (call_matrix[i+1][4] == 0){
+			//call_matrix[i+1][4] = 1;} //log written bit, 1 for pending since channel is no longer active	
           attron(COLOR_PAIR(2));
           printw("AFS [%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
           if (call_matrix[i + 1][3] == 0xE) {

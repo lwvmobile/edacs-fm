@@ -1,3 +1,8 @@
+2022.01.01-3
+Fixed an additional oversight preventing logical status LCN from printing to log
+needed to move logic for setting the write pending bit in the call matrix out of the printw area loop,
+make it its own mini for loop and iterating over 1-31 as opposed to the printw using lcn_tally
+
 2022.01.01-2
 Fix minor oversight in logging to actually print logical status LCNs, was implemented, but print loop only iterated lcns accumulated on lcn_tally
 had to change behavior to iterate on all 31 potential LCNs instead of on observed and tallied LCNs
