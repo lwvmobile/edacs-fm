@@ -1,3 +1,7 @@
+2022.01.01-2
+Fix minor oversight in logging to actually print logical status LCNs, was implemented, but print loop only iterated lcns accumulated on lcn_tally
+had to change behavior to iterate on all 31 potential LCNs instead of on observed and tallied LCNs
+
 2022.01.01
 implementing information regarding high LCN channel numbers found at:
   https://wiki.radioreference.com/index.php/EDACS#Technical_Information

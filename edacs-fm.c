@@ -1300,7 +1300,7 @@ int main(int argc, char ** argv) {
             current_lcn = lcn; //currently active LCN
           }
         }  //this once closes vcmd 
-        if (active == 1 && time(NULL) - call_matrix[current_lcn][0] > 1 ){ //check for active and mark as inactive after more than 1 sec since last seen
+        if (active == 1 && time(NULL) - call_matrix[current_lcn][0] > 1){ //check for active and mark as inactive after more than 1 sec since last seen
 		  active = 0;         //if time between call last seen is more than one second, mark LCN as inactive/ready
 		  current_lcn = 0;   //reset current_lcn back to 0 when inactive
 		  squelchSet(5000); //hangup LCN, see if this works better than dotting sequence detector
@@ -1310,7 +1310,8 @@ int main(int argc, char ** argv) {
         if (site_id > 0 && L == 1 && x_choice == 1){
 		  FILE * pFile;
 		  pFile = fopen("voice.log", "a");
-		  for (short int i = 1; i <= lcn_tally; i++) { 
+		  //for (short int i = 1; i <= lcn_tally; i++) {
+		  for (short int i = 1; i < 32; i++) { //change to go through 31 LCNs, otherwise, won't log logical status LCNs
 			  if (call_matrix[i][4] == 1 && i != CC_LCN){ //[4] will be 0 for not written, 1 for pending, 2 for written
 				fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
 				fprintf(pFile, "  SITE %3lld LCN %2d TG %5lld RID %7lld ", site_id, i, call_matrix[i][1], call_matrix[i][2]);
@@ -1343,7 +1344,8 @@ int main(int argc, char ** argv) {
 	    if (site_id > 0 && L == 1 && x_choice == 2){
 	      FILE * pFile;
 		  pFile = fopen("afs.log", "a");
-		  for (short int i = 1; i <= lcn_tally; i++) { 
+		  //for (short int i = 1; i <= lcn_tally; i++) { 
+		  for (short int i = 1; i < 32; i++) { //change to go through 31 LCNs, otherwise, won't log logical status LCNs
 		    if (call_matrix[i][4] == 1 && i != CC_LCN){ //[4] will be 0 for not written, 1 for pending, 2 for written
 		      fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
 			  fprintf(pFile, "  SITE %3lld LCN %2d AFS[%4lld][%2lld - %2lld - %2lld] ", site_id, i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask));
