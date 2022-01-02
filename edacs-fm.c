@@ -193,19 +193,19 @@ unsigned long long int logtime = 0;
 
 char * FM_banner[14] = {
 
-  "||   ||     ||   || ███████╗██████╗  █████╗  █████╗  ██████╗ ", 
-  "||   ||, , ,||   || ██╔════╝██╔══██╗██╔══██╗██╔══██╗██╔════╝ ", 
-  "||  (||/|/(|||/  || █████╗  ██║  ██║███████║██║  ╚═╝╚█████╗  ", 
-  "||  ||| _'_`|||  || ██╔══╝  ██║  ██║██╔══██║██║  ██╗ ╚═══██╗ ",
-  "||   || o o ||   || ███████╗██████╔╝██║  ██║╚█████╔╝██████╔╝ ",
-  "||  (||  - `||)  || ╚══════╝╚═════╝ ╚═╝  ╚═╝ ╚════╝ ╚═════╝  ",
-  "||   ||  =  ||   || ███████╗███╗   ███╗  Florida Man Edition ",
-  "||   || (_) ||   || ██╔════╝████╗ ████║  Thanks to:          ",
-  "||___||) , (||___|| █████╗  ██╔████╔██║    sp5wwp            ",
-  "||---||- _ -||---|| ██╔══╝  ██║╚██╔╝██║    EricCottrell      ",
-  "||--_||_____||_--|| ██║     ██║ ╚═╝ ██║    JSTARS03          ",
-  "||)- |batdude| -(|| ╚═╝     ╚═╝     ╚═╝    blantonl          ",
-  "||   ||     ||   ||  ...and Robert Morelos-Zaragoza          "
+  "||   ||     ||   ||███████╗██████╗  █████╗  █████╗  ██████╗||   ||     ||   ||", 
+  "||   ||, , ,||   ||██╔════╝██╔══██╗██╔══██╗██╔══██╗██╔════╝||   ||, , ,||   ||", 
+  "||  (||/|/(|||/  ||█████╗  ██║  ██║███████║██║  ╚═╝╚█████╗ ||  (||/|/(|||/  ||", 
+  "||  ||| _'_`|||  ||██╔══╝  ██║  ██║██╔══██║██║  ██╗ ╚═══██╗||  ||| _'_`|||  ||",
+  "||   || o o ||   ||███████╗██████╔╝██║  ██║╚█████╔╝██████╔╝||   || o o ||   ||",
+  "||  (||  - `||)  ||╚══════╝╚═════╝ ╚═╝  ╚═╝ ╚════╝ ╚═════╝ ||  (||  - `||)  ||",
+  "||   ||  =  ||   ||███████╗███╗   ███╗  Florida Man Edition||   ||  =  ||   ||",
+  "||   || (_) ||   ||██╔════╝████╗ ████║  Thanks to:         ||   || (_) ||   ||",
+  "||___||) , (||___||█████╗  ██╔████╔██║    sp5wwp           ||___||) , (||___||",
+  "||---||- _ -||---||██╔══╝  ██║╚██╔╝██║    EricCottrell     ||---||- _ -||---||",
+  "||--_||_____||_--||██║     ██║ ╚═╝ ██║    JSTARS03         ||--_||_____||_--||",
+  "||)- |batdude| -(||╚═╝     ╚═╝     ╚═╝    blantonl         ||)- |bravo14| -(||",
+  "||   ||     ||   || ...and Robert Morelos-Zaragoza         ||   ||     ||   ||"
 };
 
 signed int peer_counter = 0;
@@ -679,8 +679,8 @@ bool ParseInputOptions(int argc, char ** argv) {
       printf("Universal Denial Mode Set - Only groups with mode [A] will be granted voice channel\n");
       break;
     case 'v':
-      debug = 1;
-      printf("Verbosity Mode Enabled - Debug set to 3 \n");
+      debug = 0;
+      //printf("Verbosity Mode Enabled - Debug set to 3 \n");
       break;
     case 'x':
       printf("Extended Addressing with ESK Mode Enabled \n");
@@ -998,7 +998,7 @@ int main(int argc, char ** argv) {
 	  fr_4t = messagepp & 0xFFFFFFFFFF;  //return from the bch 
 	  
 	  //ESK on/off detection
-	  if ( (((fr_1t & 0xF000000000) >> 36) != 0xB)  && (((fr_1 & 0xF000000000) >> 36) != 0x1) && (((fr_1 & 0xFF00000000) >> 32) != 0xF3) && A == 1 )
+	  if ( (((fr_1t & 0xF000000000) >> 36) != 0xB)  && (((fr_1t & 0xF000000000) >> 36) != 0x1) && (((fr_1t & 0xFF00000000) >> 32) != 0xF3) && A == 1 ) //fixed all to fr_1t
 	  {
 		if ( (((fr_1t & 0xF000000000) >> 36) <= 0x8 )){ //experimenting with values here, not too high, and not too low
 		  x_mask = 0xA0; }
@@ -1122,7 +1122,7 @@ int main(int argc, char ** argv) {
           kicked = (fr_4t & 0xFFFFF000) >> 12;
         }
         
-        if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x1 && ((fr_1 & 0xFF000) >> 12) > 0) { //PEER LISTING on EA systems, need to fix to fr_1t value instead
+        if (x_choice == 1 && mt1 == 0x1F && mt2 == 0x1 && ((fr_1t & 0xFF000) >> 12) > 0) { //PEER LISTING on EA systems, changed from fr_1 to fr_1t
           peer = (fr_1t & 0xFF000) >> 12;
           peer_lcn = (fr_1t & 0x1F000000) >> 24;
           //Make Small Array with Peers in it
@@ -1200,10 +1200,12 @@ int main(int argc, char ** argv) {
         }
 
         if (time(NULL) - resettime > 1215) { //reset lcn_tally, peers, patches after 20 minutes 15 seconds, give just enough time for 2 pandp logs
-          lcn_tally = 0;
+          //lcn_tally = 0; 
+          /*
           for (short int i = 0; i < 12; i++) { //zero out peer_list
             peer_list[i] = 0;
           }
+          */
           for (short int i = 0; i < 49; i++) { //zero out patch_array
             patch_array[i][0] = 0;
             patch_array[i][1] = 0;
@@ -1307,36 +1309,36 @@ int main(int argc, char ** argv) {
 		  hangup = 1;      //same as above, remove these two lines if not working well
 		}
 		
-		//move log pending to here out of loop, write for LCN 1-31 to get logical status LCNs to print to log
+		//set log written bit to 1 (pending) if 2 seconds since last activity on CC
 		for (short i = 0; i < 31; i++){
-		  if ( ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
+		  if ( ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
 			if (call_matrix[i+1][4] == 0){
 			  call_matrix[i+1][4] = 1;} //log written bit, 1 for pending since channel is no longer active
 		  }
 		}
-		//end log pending
+		//end log written to pending 
 		
         if (site_id > 0 && L == 1 && x_choice == 1){
 		  FILE * pFile;
 		  pFile = fopen("voice.log", "a");
-		  //for (short int i = 1; i <= lcn_tally; i++) {
 		  for (short int i = 1; i < 32; i++) { //change to go through 31 LCNs, otherwise, won't log logical status LCNs
 			  if (call_matrix[i][4] == 1 && i != CC_LCN){ //[4] will be 0 for not written, 1 for pending, 2 for written
 				fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
-				fprintf(pFile, "  SITE %3lld LCN %2d TG %5lld RID %7lld ", site_id, i, call_matrix[i][1], call_matrix[i][2]);
+				fprintf(pFile, "  SITE %3lld LCN %2d RID %7lld TG %5lld ", site_id, i, call_matrix[i][2], call_matrix[i][1]);
 					
 				if (i == 0x1A){ //if LCN is 26, print 'Downlink' Status
 				  fprintf(pFile, "Downlink "); }
 				if (i == 0x1B){ //if LCN is 27, print 'Reserved' Status
 				  fprintf(pFile, "Reserved "); }
 				if (i == 0x1C){ //if LCN is 28, print 'Convert to Callee' Status
-				  fprintf(pFile, "Convert "); }
+				  fprintf(pFile, "Convert to Callee "); }
 				if (i == 0x1D){ //if LCN is 29, print 'Queued' Status
-				  fprintf(pFile, "Queued "); }
+				  fprintf(pFile, "Caller Queued "); }
 				if (i == 0x1E){ //if LCN is 30, print 'System Busy' Status
-				  fprintf(pFile, "Busy "); }
+				  fprintf(pFile, "System Busy "); }
 				if (i == 0x1F){ //if LCN is 31, print 'Denied Radio' Status
-				  fprintf(pFile, "Denied "); }
+				  fprintf(pFile, "Radio ID Denied "); }
+				  
 				if (call_matrix[i][3] == 0x1){
 				  fprintf(pFile, "TDMA\n"); }
 				if (call_matrix[i][3] == 0x2){
@@ -1353,7 +1355,6 @@ int main(int argc, char ** argv) {
 	    if (site_id > 0 && L == 1 && x_choice == 2){
 	      FILE * pFile;
 		  pFile = fopen("afs.log", "a");
-		  //for (short int i = 1; i <= lcn_tally; i++) { 
 		  for (short int i = 1; i < 32; i++) { //change to go through 31 LCNs, otherwise, won't log logical status LCNs
 		    if (call_matrix[i][4] == 1 && i != CC_LCN){ //[4] will be 0 for not written, 1 for pending, 2 for written
 		      fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
@@ -1364,18 +1365,19 @@ int main(int argc, char ** argv) {
 			  if (i == 0x1B){ //if LCN is 27, print 'Reserved' Status
 			    fprintf(pFile, "Reserved "); }
 			  if (i == 0x1C){ //if LCN is 28, print 'Convert to Callee' Status
-			    fprintf(pFile, "Convert "); }
-			  if (i == 0x1D){ //if LCN is 29, print 'Queued' Status
-			    fprintf(pFile, "Queued "); }
-			  if (i == 0x1E){ //if LCN is 30, print 'System Busy' Status
-			    fprintf(pFile, "Busy "); }
-			  if (i == 0x1F){ //if LCN is 31, print 'Denied Radio' Status
-			    fprintf(pFile, "Denied "); }
+				  fprintf(pFile, "Converted to Callee "); }
+				if (i == 0x1D){ //if LCN is 29, print 'Queued' Status
+				  fprintf(pFile, "Caller Queued "); }
+				if (i == 0x1E){ //if LCN is 30, print 'System Busy' Status
+				  fprintf(pFile, "System Busy "); }
+				if (i == 0x1F){ //if LCN is 31, print 'Denied Radio' Status
+				  fprintf(pFile, "Radio ID Denied "); }
 					
 			  if (call_matrix[i][3] == 0xE){
 			    fprintf(pFile, "Analog\n"); }
 			  if (call_matrix[i][3] == 0xF){
 			    fprintf(pFile, "Digital\n"); }
+			    
 			  call_matrix[i][4] = 2; //log written bit, 2 for written
 		    }
 		  }
@@ -1391,7 +1393,7 @@ int main(int argc, char ** argv) {
         printw("%s \n", FM_banner[i]);
       }
       attroff(COLOR_PAIR(1));
-      printw("--Site Info----------------------------------------------------------------\n"); //making a fence 
+      printw("--Site Info-------------------------------------------------------------------\n"); //making a fence 
       printw("| %s %s ", getDate(), getTime()); //keep date and time seperate, or strange things happen sometimes
       printw("SNR [%2.0f] AFC [%d]Hz", (gbr * 100), AFC );
 	  printw("\n");  
@@ -1417,17 +1419,17 @@ int main(int argc, char ** argv) {
         }
         printw("\n");
       }
-      printw("---------------------------------------------------------------------------\n"); //making a fence 
+      printw("------------------------------------------------------------------------------\n"); //making a fence 
       if (x_choice == 1 && S == 1) {
 		attron(COLOR_PAIR(4));
-		printw("--Site Extra---------------------------------------------------------------\n"); //making a fence 
+		printw("--Site Extra------------------------------------------------------------------\n"); //making a fence 
         printw("| Peer Site [%lld] on Control LCN [%lld]\n", peer, peer_lcn);
         printw("| Currently Active LCN [%d]\n", current_lcn);
         attroff(COLOR_PAIR(4));
       }
       if (x_choice == 2 && S == 1) { //changing to S == 1
 		attron(COLOR_PAIR(4));  
-		printw("--Site Extra---------------------------------------------------------------\n"); //making a fence
+		printw("--Site Extra------------------------------------------------------------------\n"); //making a fence
         printw("| Currently Active LCN [%d]\n", current_lcn);
         printw("| Status ", status);
         for (unsigned short int i = 0; i < 4; i++) {
@@ -1457,13 +1459,13 @@ int main(int argc, char ** argv) {
 		attron(COLOR_PAIR(4));
         printw("| FR-1 [%10llX]\n", fr_1t);
         printw("| FR-4 [%10llX]\n", fr_4t);
-        printw("---------------------------------------------------------------------------\n"); //making a fence 
+        printw("------------------------------------------------------------------------------\n"); //making a fence 
         attroff(COLOR_PAIR(4));
 	  }
-	  printw("--Call Info----------------------------------------------------------------\n"); //making a fence  
+	  printw("--Call Info-------------------------------------------------------------------\n"); //making a fence  
       for (short int i = 0; i < lcn_tally; i++) {
         printw("| LCN [%2d] ", lcn_tally - (lcn_tally - 1) + i);
-        printw("[%lld]Hz ", LCN_list[i]);
+        printw("[%9lld]Hz ", LCN_list[i]);
         if (CC_LCN == (i + 1)) {
           attron(COLOR_PAIR(1));
           printw("Control Channel");
@@ -1472,7 +1474,7 @@ int main(int argc, char ** argv) {
 
         if (x_choice == 1 && (time(NULL) - call_matrix[i + 1][0] < 2) && call_matrix[i + 1][1] > 0) {
           attron(COLOR_PAIR(3));
-          printw("RID [%lld] TG [%lld] [%s] [%s] ", call_matrix[i + 1][2], call_matrix[i + 1][1], group_matrix[i + 1][0], group_matrix[i + 1][1]); 
+          printw("RID [%7lld] TG [%5lld] [%13s] [%2s] ", call_matrix[i + 1][2], call_matrix[i + 1][1], group_matrix[i + 1][0], group_matrix[i + 1][1]); 
           if (call_matrix[i + 1][3] == 0x3) {
             printw("Digital");
           }
@@ -1483,14 +1485,12 @@ int main(int argc, char ** argv) {
             printw("TDMA");
           }
           if ((i+1) == current_lcn){
-			  printw(" ***"); }//use asterisks to denote opened channel
+			  printw("*"); }//use asterisks to denote opened channel
           attroff(COLOR_PAIR(3));
         }
         if (x_choice == 1 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
-		  //if (call_matrix[i+1][4] == 0){
-			//call_matrix[i+1][4] = 1;} //log written bit, 1 for pending since channel is no longer active
           attron(COLOR_PAIR(2));
-          printw("RID [%lld] TG [%lld] [%s] [%s] ", call_matrix[i + 1][2], call_matrix[i + 1][1], group_matrix[i + 1][0], group_matrix[i + 1][1]); //group_matrix testing
+          printw("RID [%7lld] TG [%5lld] [%13s] [%2s] ", call_matrix[i + 1][2], call_matrix[i + 1][1], group_matrix[i + 1][0], group_matrix[i + 1][1]); //group_matrix testing
           if (call_matrix[i + 1][3] == 0x3) {
             printw("Digital");
           }
@@ -1512,12 +1512,10 @@ int main(int argc, char ** argv) {
             printw("Digital");
           }
           if ( (i+1 == current_lcn) && current_lcn != 0){
-			  printw(" ***"); } //use asterisks to denote opened channel
+			  printw("*"); } //use asterisk to denote opened channel
           attroff(COLOR_PAIR(3));
         }
         if (x_choice == 2 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
-		  //if (call_matrix[i+1][4] == 0){
-			//call_matrix[i+1][4] = 1;} //log written bit, 1 for pending since channel is no longer active	
           attron(COLOR_PAIR(2));
           printw("AFS [%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
           if (call_matrix[i + 1][3] == 0xE) {
@@ -1535,40 +1533,76 @@ int main(int argc, char ** argv) {
         //subfleet =  (call_matrix[i+1][1] & s_mask);
         printw("\n");
       }
-      printw("---------------------------------------------------------------------------\n"); //making a fence
+      printw("------------------------------------------------------------------------------\n"); //making a fence
       if (x_choice == 1 && C == 1) { //Print Call_Matrix "History" for EA
 		attron(COLOR_PAIR(4));
-		printw("--Call Matrix--------------------------------------------------------------\n"); //making a fence  
+		printw("--Call Matrix-----------------------------------------------------------------\n"); //making a fence  
         for (short int i = 0; i < 32; i++) {
-          if (call_matrix[i][0] > 0) {
-            printw("| LCN [%2lld] RID [%6lld] TG [%5lld] [%17s] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], group_matrix[i][0], (time(NULL) - call_matrix[i][0]) );
+          if (call_matrix[i][0] > 0 && i < 26) { //1-25 for normal LCN calls
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [%19s] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], group_matrix[i][0], (time(NULL) - call_matrix[i][0]) );
           }
+          if (call_matrix[i][0] > 0 && i == 26) { //1-25 for normal LCN calls
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:   Downlink] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 27) { //1-25 for normal LCN calls
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:   Reserved] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 28) { //1-25 for normal LCN calls
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:  Converted] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 29) { //1-25 for normal LCN calls
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:     Queued] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 30) { //1-25 for normal LCN calls
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:   Sys-Busy] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 31) { //1-25 for normal LCN calls
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status: RID Denied] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          } 
         }
-        printw("---------------------------------------------------------------------------\n"); //making a fence  
+        printw("------------------------------------------------------------------------------\n"); //making a fence  
         attroff(COLOR_PAIR(4));
       }
       if (x_choice == 2 && C == 1) { //Print Call_Matrix "History" for AFS
 		attron(COLOR_PAIR(4));
-		printw("--Call Matrix--------------------------------------------------------------\n"); //making a fence  
+		printw("--Call Matrix-----------------------------------------------------------------\n"); //making a fence  
         for (short int i = 0; i < 32; i++) {
-          if (call_matrix[i][0] > 0) {
-            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [%19s] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), group_matrix[i][0], (time(NULL) - call_matrix[i][0]) );
+          if (call_matrix[i][0] > 0 && i < 26) {
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [%22s] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), group_matrix[i][0], (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 26) {
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:       Downlink] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 27) {
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:       Reserved] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 28) {
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:      Converted] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 29) {
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:         Queued] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 30) {
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:       Sys-Busy] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
+          }
+          if (call_matrix[i][0] > 0 && i == 31) {
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:     RID Denied] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
           }
         }
-        printw("---------------------------------------------------------------------------\n"); //making a fence  
+        printw("------------------------------------------------------------------------------\n"); //making a fence  
         attroff(COLOR_PAIR(4));
       }
       if (x_choice == 1 && P == 1) { //Print Pretty Patch Array
 		attron(COLOR_PAIR(4));
-		printw("--Patch Groups-------------------------------------------------------------\n"); //making a fence  
+		printw("--Patch Groups----------------------------------------------------------------\n"); //making a fence  
         for (short int i = 0; i < 48;) {
           if (patch_array[i][0] > 0) {
-            printw("| Patch Group #%2d [%5lld] to [%5lld] | ", i + 1, patch_array[i][1], patch_array[i][0]);
-            printw("Patch Group #%2d [%5lld] to [%5lld] |\n", i + 2, patch_array[i+1][1], patch_array[i+1][0]);
+            printw("| Patch Group #%2d [%5lld] to [%5lld]  | ", i + 1, patch_array[i][1], patch_array[i][0]);
+            printw(" Patch Group #%2d [%5lld] to [%5lld]  |\n", i + 2, patch_array[i+1][1], patch_array[i+1][0]);
           }
           i = i + 2;
         }
-        printw("---------------------------------------------------------------------------\n"); //making a fence  
+        printw("------------------------------------------------------------------------------\n"); //making a fence  
         attroff(COLOR_PAIR(4));
       }
       refresh();

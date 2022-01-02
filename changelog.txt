@@ -1,3 +1,24 @@
+2022.01.03
+General Cleanup and Clarifying Comments in code
+Add Special Logical LCN status (LCN > 25) to Call Matrix Display
+
+Test disabling lcn_tally and peers on resettime now that BCH is enabled and Logical Status LCNs sorted.
+Will still reset patches after 20 minutes due to presumtion that they may expire eventually
+
+Fix a few values/conditions still using fr_1 and not fr_1t 
+(Honestly, doesn't matter since its after poly test, but doing it for consistency)
+
+Change LCN to &9lld for uniformity and equal legnth on LCN in printw area
+Change RID to %7lld for uniformity and equal legnth on LCN in printw area
+Change other RID instances from %6lld to %7lld (20 bits can go as high as 7 decimal values high)
+Expand fences by 3 (total now 78 columns wide, just under standard 80)
+
+Squash Bug on Call Matrix display for Standard/Network blinking in and out of existence
+(Accidentally was using lcn and not i; forgot to change that on last update)
+
+Swap RID and TG in EA voice.log to be consistant with whats displayed in printw
+
+Small tweak/addition to ASCII art :), make it 78 columns wide
 2022.01.01-3
 Fixed an additional oversight preventing logical status LCN from printing to log
 needed to move logic for setting the write pending bit in the call matrix out of the printw area loop,
