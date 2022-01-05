@@ -1,3 +1,7 @@
+2022.01.04
+Fix Spacing issue on Logical LCN Status in Call Matrix Display area
+Tweak Status LCN Nomenclature Slightly
+
 2022.01.03
 General Cleanup and Clarifying Comments in code
 Add Special Logical LCN status (LCN > 25) to Call Matrix Display
@@ -19,6 +23,7 @@ Squash Bug on Call Matrix display for Standard/Network blinking in and out of ex
 Swap RID and TG in EA voice.log to be consistant with whats displayed in printw
 
 Small tweak/addition to ASCII art :), make it 78 columns wide
+
 2022.01.01-3
 Fixed an additional oversight preventing logical status LCN from printing to log
 needed to move logic for setting the write pending bit in the call matrix out of the printw area loop,

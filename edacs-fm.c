@@ -1471,8 +1471,8 @@ int main(int argc, char ** argv) {
           printw("Control Channel");
           attroff(COLOR_PAIR(1));
         }
-
-        if (x_choice == 1 && (time(NULL) - call_matrix[i + 1][0] < 2) && call_matrix[i + 1][1] > 0) {
+                                                              // < 2
+        if (x_choice == 1 && (time(NULL) - call_matrix[i + 1][0] < 2) && call_matrix[i + 1][1] > 0) { 
           attron(COLOR_PAIR(3));
           printw("RID [%7lld] TG [%5lld] [%13s] [%2s] ", call_matrix[i + 1][2], call_matrix[i + 1][1], group_matrix[i + 1][0], group_matrix[i + 1][1]); 
           if (call_matrix[i + 1][3] == 0x3) {
@@ -1487,8 +1487,8 @@ int main(int argc, char ** argv) {
           if ((i+1) == current_lcn){
 			  printw("*"); }//use asterisks to denote opened channel
           attroff(COLOR_PAIR(3));
-        }
-        if (x_choice == 1 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
+        }                                                                                                     // >= 2
+        if (x_choice == 1 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) { 
           attron(COLOR_PAIR(2));
           printw("RID [%7lld] TG [%5lld] [%13s] [%2s] ", call_matrix[i + 1][2], call_matrix[i + 1][1], group_matrix[i + 1][0], group_matrix[i + 1][1]); //group_matrix testing
           if (call_matrix[i + 1][3] == 0x3) {
@@ -1501,7 +1501,7 @@ int main(int argc, char ** argv) {
             printw("TDMA");
           }
           attroff(COLOR_PAIR(2));
-        }
+        }                                                     // < 2
         if (x_choice == 2 && (time(NULL) - call_matrix[i + 1][0] < 2) && call_matrix[i + 1][1] > 0) {
           attron(COLOR_PAIR(3));
           printw("AFS [%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
@@ -1514,7 +1514,7 @@ int main(int argc, char ** argv) {
           if ( (i+1 == current_lcn) && current_lcn != 0){
 			  printw("*"); } //use asterisk to denote opened channel
           attroff(COLOR_PAIR(3));
-        }
+        }                                                                                                     // >= 2
         if (x_choice == 2 && ((time(NULL) - call_matrix[i + 1][0]) < 5) && ((time(NULL) - call_matrix[i + 1][0]) >= 2) && call_matrix[i + 1][1] > 0) {
           attron(COLOR_PAIR(2));
           printw("AFS [%lld] [%d-%d-%d] [%s] [%s] ", call_matrix[i + 1][1], ((call_matrix[i + 1][1] & a_mask) >> (11 - a_len)), ((call_matrix[i + 1][1] & f_mask) >> s_len), (call_matrix[i + 1][1] & s_mask), group_matrix[i + 1][0], group_matrix[i + 1][1]);
@@ -1541,23 +1541,24 @@ int main(int argc, char ** argv) {
           if (call_matrix[i][0] > 0 && i < 26) { //1-25 for normal LCN calls
             printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [%19s] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], group_matrix[i][0], (time(NULL) - call_matrix[i][0]) );
           }
-          if (call_matrix[i][0] > 0 && i == 26) { //1-25 for normal LCN calls
-            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:   Downlink] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          //26-31 for Logical LCN "Status"
+          if (call_matrix[i][0] > 0 && i == 26) { 
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:    Downlink] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
           }
-          if (call_matrix[i][0] > 0 && i == 27) { //1-25 for normal LCN calls
-            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:   Reserved] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          if (call_matrix[i][0] > 0 && i == 27) { 
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:    Reserved] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
           }
-          if (call_matrix[i][0] > 0 && i == 28) { //1-25 for normal LCN calls
-            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:  Converted] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          if (call_matrix[i][0] > 0 && i == 28) { 
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status: CallConvert] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
           }
-          if (call_matrix[i][0] > 0 && i == 29) { //1-25 for normal LCN calls
-            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:     Queued] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          if (call_matrix[i][0] > 0 && i == 29) { 
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status: Call Queued] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
           }
-          if (call_matrix[i][0] > 0 && i == 30) { //1-25 for normal LCN calls
-            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:   Sys-Busy] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          if (call_matrix[i][0] > 0 && i == 30) { 
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status: System Busy] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
           }
-          if (call_matrix[i][0] > 0 && i == 31) { //1-25 for normal LCN calls
-            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status: RID Denied] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
+          if (call_matrix[i][0] > 0 && i == 31) { 
+            printw("| LCN [%2lld] RID [%7lld] TG [%5lld] [Status:  RID Denied] Seconds Ago: %5llds|\n", i, call_matrix[i][2], call_matrix[i][1], (time(NULL) - call_matrix[i][0]) );
           } 
         }
         printw("------------------------------------------------------------------------------\n"); //making a fence  
@@ -1567,9 +1568,10 @@ int main(int argc, char ** argv) {
 		attron(COLOR_PAIR(4));
 		printw("--Call Matrix-----------------------------------------------------------------\n"); //making a fence  
         for (short int i = 0; i < 32; i++) {
-          if (call_matrix[i][0] > 0 && i < 26) {
+          if (call_matrix[i][0] > 0 && i < 26) { //1-25 for normal LCN calls
             printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [%22s] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), group_matrix[i][0], (time(NULL) - call_matrix[i][0]) );
           }
+          //26-31 for Logical LCN "Status"
           if (call_matrix[i][0] > 0 && i == 26) {
             printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:       Downlink] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
           }
@@ -1577,13 +1579,13 @@ int main(int argc, char ** argv) {
             printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:       Reserved] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
           }
           if (call_matrix[i][0] > 0 && i == 28) {
-            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:      Converted] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:   Call Convert] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
           }
           if (call_matrix[i][0] > 0 && i == 29) {
-            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:         Queued] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:    Call Queued] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
           }
           if (call_matrix[i][0] > 0 && i == 30) {
-            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:       Sys-Busy] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
+            printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:    System Busy] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
           }
           if (call_matrix[i][0] > 0 && i == 31) {
             printw("| LCN [%2lld] AFS [%4lld] [%2d-%2d-%2d] [Status:     RID Denied] Seconds Ago: %5llds|\n", i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask), (time(NULL) - call_matrix[i][0]) );
