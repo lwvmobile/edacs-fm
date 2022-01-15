@@ -1,6 +1,6 @@
 #comment out git commands if you are rebuilding on your own code, sometimes git commands do strange things
-#git pull
-#sleep 2
+git pull
+sleep 2
 gcc -o edacs-fm edacs-fm.c $(ncursesw5-config --cflags --libs)
 gcc -o edacs-fm-single edacs-fm-single.c $(ncursesw5-config --cflags --libs)
 gcc -o edacs-lcn edacs-lcn.c
