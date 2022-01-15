@@ -1,3 +1,17 @@
+2022.01.15
+Only tune/activate Voice LCN channels IF a frequency is specified for LCN channel in site.csv file
+
+Introduce Single Dongle Mode as Experimental Version using only one dongle for CC and VC using RTL_UDP
+-Recommend only use Single Dongle Mode if monitoring digital only system
+-Recommend only use Single Dongle Mode on strong signals, otherwise may not tune back to CC when a call ends 
+-Don't use Single Dongle Mode if you only wish to decode and not tune signals
+
+Added new interactive scripts to set up and run in Single Dongle Mode
+Added edacs-fm-single.c file
+Added edacs-fm-single.c to build and rebuild files
+
+Will probably need to do a new git pull and build for this to work properly
+
 2022.01.04
 Fix Spacing issue on Logical LCN Status in Call Matrix Display area
 Tweak Status LCN Nomenclature Slightly

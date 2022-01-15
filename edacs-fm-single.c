@@ -199,7 +199,7 @@ char * FM_banner[14] = {
   "||  ||| _'_`|||  ||██╔══╝  ██║  ██║██╔══██║██║  ██╗ ╚═══██╗||  ||| _'_`|||  ||",
   "||   || o o ||   ||███████╗██████╔╝██║  ██║╚█████╔╝██████╔╝||   || o o ||   ||",
   "||  (||  - `||)  ||╚══════╝╚═════╝ ╚═╝  ╚═╝ ╚════╝ ╚═════╝ ||  (||  - `||)  ||",
-  "||   ||  =  ||   ||███████╗███╗   ███╗  Florida Man Edition||   ||  =  ||   ||",
+  "||   ||  =  ||   ||███████╗███╗   ███╗  Lil' Dong Edition  ||   ||  =  ||   ||",
   "||   || (_) ||   ||██╔════╝████╗ ████║  Thanks to:         ||   || (_) ||   ||",
   "||___||) , (||___||█████╗  ██╔████╔██║    sp5wwp           ||___||) , (||___||",
   "||---||- _ -||---||██╔══╝  ██║╚██╔╝██║    EricCottrell     ||---||- _ -||---||",
@@ -690,7 +690,7 @@ bool ParseInputOptions(int argc, char ** argv) {
       x_choice = 1;
       break;
     case 'E':
-      printf("Extended Addressing Mode Enabled \n"); //Extended Addressing without ESK, noticed a new trend lately
+      printf("Extended Addressing Mode Enabled \n"); //Extended Addressing without ESK
       x_mask = 0x0; 
       idcmd = 0xFD;
       vcmd = 0xB8;
@@ -825,14 +825,14 @@ int main(int argc, char ** argv) {
 
   sleep(1); //patience is a virtue
   //if gain specified by user, then change gain in PyEDACS from default value
-  squelchSet(5000);
-  if (rfgain > 0) {
-    gainSet(rfgain);
-  }
+  //squelchSet(5000);
+  //if (rfgain > 0) {
+  //  gainSet(rfgain);
+  //}
   //When using PyEDACS and changing site you want to monitor, this will set to a presumably empty channel so it won't be stuck on the last monitored channel
-  if (start_site_id > 0) {
-    tuneCC(850000000);
-  }
+  //if (start_site_id > 0) {
+  //  tuneCC(850000000);
+  //}
   last_sync_time = time(NULL); //set a sync_time here so we don't jump straight to no signal 
 
   for (int i = 0; i < SAMP_NUM / 2 / 3 - 1; i++) //zero array
@@ -842,6 +842,9 @@ int main(int argc, char ** argv) {
 
   //let's get the party started
   while (1) {
+	//printf("active = %d", active);
+	//printf("last_sync_time = %lld \n", last_sync_time);
+	//printf("start site id = %lld \n", start_site_id);
     initscr(); //Initialize NCURSES screen window
     start_color();
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);      //Yellow/Amber for frame sync/control channel, NV style
@@ -851,14 +854,27 @@ int main(int argc, char ** argv) {
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK); //Magenta for no frame sync/signal
     noecho();
     cbreak();
-    
-    if (hangup == 0 && (time(NULL) - hanguptime) > 30) { //extending to 30 seconds just in case dot detection doesn't catch, or long winded caller
-      squelchSet(5000);
-      hangup = 1;
-    }
-
-    if ((time(NULL) - last_sync_time) > sync_timeout) //Check to see if control channel is still there
+	//single dongle things
+    if (active == 1 && (sr_1 & 0xFFFFFFFFFF) == 0xAAAAAAAAAA){ //when tuned to voice channel and dot detection goes off, go back to CC
+		tune(LCN_list[CC_LCN - 1]);
+		active = 0;
+		current_lcn = 0;
+		hangup = 1;
+		last_sync_time = time(NULL); //set last_sync_time so doesn't try to tune with this and frame_sync loss
+	}
+	
+	if (active == 1 && site_id > 0 && (time(NULL) - last_sync_time) > 30){ //go back to CC after 30 seconds (if no dot detection)
+		tune(LCN_list[CC_LCN - 1]);
+		active = 0;
+		current_lcn = 0;
+		hangup = 1;
+		last_sync_time = time(NULL); //set last_sync_time so doesn't try to tune with this and frame_sync loss
+	}
+	//end new single dongle things
+	//removed numerous things in frame sync loss to deal with tuning to VC, also changed a few tuning things to only tune the UDP dongle
+    if ( time(NULL) - last_sync_time > sync_timeout && active == 0) //Check to see if control channel is still there
     {
+	  squelchSet(0);
       erase();
       attron(COLOR_PAIR(5));
       for (short int i = 0; i < 13; i++) {
@@ -867,16 +883,17 @@ int main(int argc, char ** argv) {
       attroff(COLOR_PAIR(5));
       printw("Control Channel not found/lost. Timeout. Waiting...\n");
       last_sync_time = time(NULL); //this one is still needed to allow time for frame sync to resume
-      kicked = 0;
-      targetp = 0;
-      sourcep = 0;
-      peer = 0;
-      good = 1;
-      bad = 1;
-      gbr = 1; //"zero" out good bad and gbr
+      //kicked = 0;
+      //targetp = 0;
+      //sourcep = 0;
+      //peer = 0;
+      //good = 1;
+      //bad = 1;
+      //gbr = 1; //"zero" out good bad and gbr
       //active = 0; //disable to check behavior now that we are testing signal loss events, don't want leave channel open without dot detection
       current_lcn = 0;
       //reset log peers and patches when signal time out
+      /*
       if (x_choice == 1 && patch_array[0][0] > 0 && Q == 1) { //check patch_array to see if anything is in it, otherwise, will keep logging blanks until signal regained
         FILE * pFile;
         pFile = fopen("pandp.log", "a");
@@ -896,7 +913,9 @@ int main(int argc, char ** argv) {
         }
         fclose(pFile);
       }
+      */ 
       //end logging peers and patches before wipe
+      /*
       for (short int i = 0; i < 12; i++) { //zero out peer_list
         peer_list[i] = 0;
       }
@@ -904,23 +923,25 @@ int main(int argc, char ** argv) {
         patch_array[i][0] = 0;
         patch_array[i][1] = 0;
       }
-      patch_site = 0;
+      */
+      //patch_site = 0;
       tempsite_id = 999;
-      lcn_tally = 0;
-      resettime = time(NULL);
+      //lcn_tally = 0;
+      //resettime = time(NULL);
       logtime = time(NULL) - 540; 
       if (start_site_id == 0) {
         site_id = 0;
         site_name = "Searching";
         location_name = "Searching";
       }
+      //*/
       if (start_site_id > 0) {
         printw("Attemping to tune Site [%d] LCNs to find Control Channel\n", start_site_id);
         site_id = start_site_id;
         csvImport();
         if (cyclecc > -1 && cyclecc < 31) { //cycle through a possibility of 32 LCN channels in the sites.csv file
           if (LCN_list[cyclecc] > 1) {
-            tuneCC(LCN_list[cyclecc]);
+            tune(LCN_list[cyclecc]); //changed from tuneCC to tune for single dongle mode testing
             printw("LCN Freq: [%d]", LCN_list[cyclecc]);
             cyclecc = cyclecc + 1;
             refresh();
@@ -934,6 +955,7 @@ int main(int argc, char ** argv) {
           cyclecc = 0;
         }
       }
+      //*/
       refresh();
 
     }
@@ -1217,7 +1239,7 @@ int main(int argc, char ** argv) {
         if ((time(NULL) - logtime > 600) && x_choice == 1 && Q == 1) {
           FILE * pFile;
           pFile = fopen("pandp.log", "a");
-          fprintf(pFile, "%s %s SITE %3lld Log Time\n", getDate(), getTime(), tempsite_id);
+          fprintf(pFile, "%s %s SITE %3lld Log Time\n", getDate(), getTime(), site_id);
           fprintf(pFile, "Peer Sites ");
           for (short int i = 0; i < 12; i++) {
             if (peer_list[i] > 0) {
@@ -1302,10 +1324,10 @@ int main(int argc, char ** argv) {
             current_lcn = lcn; //currently active LCN
           }
         }  //this once closes vcmd 
-        if (active == 1 && time(NULL) - call_matrix[current_lcn][0] > 1){ //check for active and mark as inactive after more than 1 sec since last seen
+        if (active == 1 && time(NULL) - call_matrix[current_lcn][0] > 15){ //check for active and mark as inactive after more than 1 sec since last seen
 		  active = 0;         //if time between call last seen is more than one second, mark LCN as inactive/ready
 		  current_lcn = 0;   //reset current_lcn back to 0 when inactive
-		  squelchSet(5000); //hangup LCN, see if this works better than dotting sequence detector
+		  //squelchSet(5000); //hangup LCN, see if this works better than dotting sequence detector
 		  hangup = 1;      //same as above, remove these two lines if not working well
 		}
 		
@@ -1388,11 +1410,17 @@ int main(int argc, char ** argv) {
        //-------------------------------------------------
       //singular printw area
       erase();
-      attron(COLOR_PAIR(1));
+      if (active == 0){
+		attron(COLOR_PAIR(1));}
+	  if (active == 1){
+		  attron(COLOR_PAIR(3));}
       for (short int i = 0; i < 13; i++) {
         printw("%s \n", FM_banner[i]);
       }
-      attroff(COLOR_PAIR(1));
+      if (active == 0);{
+		attroff(COLOR_PAIR(1)); }
+	  if (active == 1);{
+		attroff(COLOR_PAIR(3)); }
       printw("--Site Info-------------------------------------------------------------------\n"); //making a fence 
       printw("| %s %s ", getDate(), getTime()); //keep date and time seperate, or strange things happen sometimes
       printw("SNR [%2.0f] AFC [%d]Hz", (gbr * 100), AFC );
@@ -1410,6 +1438,10 @@ int main(int argc, char ** argv) {
 		  printw(" w/  ESK \n");}
 	  if (x_mask == 0x0 ){
 		  printw(" w/o ESK \n");}
+      if (active == 0){
+		  printw("| Single Dongle Mode: Monitoring Control Channel \n");}
+	  if (active == 1){
+		  printw("| Single Dongle Mode: Monitoring Voice Channel \n");}
       if (x_choice == 1) { 
         printw("| Peer Sites ");
         for (short int i = 0; i < 12; i++) {

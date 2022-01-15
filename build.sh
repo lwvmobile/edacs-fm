@@ -13,8 +13,10 @@ chmod +x *.sh
 sudo apt update
 sudo apt install git sox cmake build-essential socat libusb-1.0-0-dev libncurses5 libncurses5-dev gnuradio gr-osmosdr rtl-sdr libusb-1.0-0-dev
 gcc -o edacs-fm edacs-fm.c $(ncursesw5-config --cflags --libs)
-#comment line above and uncomment below line if ncurses produces garbled ascii art, or you have newer than ncurses5, i.e. ARCH LINUX
+gcc -o edacs-fm-single edacs-fm-single.c $(ncursesw5-config --cflags --libs)
+#comment lines above and uncomment below lines if ncurses produces garbled ascii art, or you have newer than ncurses5, i.e. ARCH LINUX
 #gcc -o edacs-fm edacs-fm.c -lncurses
+#gcc -o edacs-fm-single edacs-fm-single.c -lncurses
 gcc -o edacs-lcn edacs-lcn.c
 tar -xvf rtl-sdr-master-udp.tar.xz
 cd rtl-sdr-master-udp/rtl-sdr-master

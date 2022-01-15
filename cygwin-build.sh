@@ -7,6 +7,7 @@ chmod 444 cygwin-sample-configuration/*
 chmod +x *.sh
 
 gcc -o edacs-fm edacs-fm.c -lncurses -Wl,--stack,900000000
+gcc -o edacs-fm-single edacs-fm-single.c -lncurses -Wl,--stack,900000000
 gcc -o edacs-lcn edacs-lcn.c
 wget https://github.com/pbatard/libwdi/releases/download/v1.4.1/zadig-2.7.exe
 chmod +x zadig*
