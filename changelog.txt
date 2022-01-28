@@ -1,9 +1,13 @@
+2022.01.29
+Change the ASCII art, a bit more compact, no more 'jail' motif
+Some random minor tweak or two, can't remember (oops)
+
 2022.01.15
 Only tune/activate Voice LCN channels IF a frequency is specified for LCN channel in site.csv file
 
 Introduce Single Dongle Mode as Experimental Version using only one dongle for CC and VC using RTL_UDP
 -Recommend only use Single Dongle Mode if monitoring digital only system
--Recommend only use Single Dongle Mode on strong signals, otherwise may not tune back to CC when a call ends 
+-Recommend only use Single Dongle Mode on strong signals, otherwise may not tune back to CC when a call ends
 -Don't use Single Dongle Mode if you only wish to decode and not tune signals
 
 Added new interactive scripts to set up and run in Single Dongle Mode
@@ -23,7 +27,7 @@ Add Special Logical LCN status (LCN > 25) to Call Matrix Display
 Test disabling lcn_tally and peers on resettime now that BCH is enabled and Logical Status LCNs sorted.
 Will still reset patches after 20 minutes due to presumtion that they may expire eventually
 
-Fix a few values/conditions still using fr_1 and not fr_1t 
+Fix a few values/conditions still using fr_1 and not fr_1t
 (Honestly, doesn't matter since its after poly test, but doing it for consistency)
 
 Change LCN to &9lld for uniformity and equal legnth on LCN in printw area
@@ -50,12 +54,12 @@ had to change behavior to iterate on all 31 potential LCNs instead of on observe
 2022.01.01
 implementing information regarding high LCN channel numbers found at:
   https://wiki.radioreference.com/index.php/EDACS#Technical_Information
- 
+
 Fix LCNs higher than 25 tallying up and wrecking the printw area, print logical meaning of LCN in log
 (Will still display in Call Matrix, but without status context)
 Also, don't attempt to open calls on LCNs higher than 25.
 
-Revert change EA to only open MT-1 0x3 [0][0][0][1][1] Calls 
+Revert change EA to only open MT-1 0x3 [0][0][0][1][1] Calls
 now opens on mt-1 0x1, 0x2, 0x3 calls (even if they aren't used, haven't witnessed a 0x1 tdma or 0x2 data call yet)
 
 delete old code blocks no longer used, old comments, general cleanup, try to fix indentation a bit but probably made it worse
@@ -115,7 +119,7 @@ Adjust indentation after removing redundant check if statements
 Remove "Shadow" affect from ASCII art, tweak banner thanks.
 
 2021.12.13
-Initial BCH calculation implementation for error detection 
+Initial BCH calculation implementation for error detection
 currently just discards bad ECC messages, accuracy up significantly
 Eliminate Patch Dups (target and source are same)
 Rearrange printw yet again, mostly due to AFC values causing eye strain due to rapid change
@@ -150,7 +154,7 @@ New Screenshot for updates look with fenced areas
 
 2021.12.05
 Minor Cleanup of comments in code and clarifying what does what in the code
-Minor Cleanup on edacs-lcn.c, removing unused static values, 
+Minor Cleanup on edacs-lcn.c, removing unused static values,
 Extend hanguptime to 30 seconds for super annoying long winded callers
 
 2021.12.04
@@ -178,12 +182,12 @@ speed up code, made singular printw screen based on the frame sync
 lots of random under the hood stuff
 another round through the c beautifier to clean up my terrible indentation scheme
 rearragne layout slightly, added date and moved peer sites to top just under site id info
-moved status bits and mt-1 mt-2 bits to verbose mode only, 
+moved status bits and mt-1 mt-2 bits to verbose mode only,
 reassign colors slightly, amber/yellow for control/frame sync, for magenta for no signal/sync, green for active call, red for disconnect call, cyan for debug info/patches
 completely removed edacs standard/network "sender" or "radio id", not sure it co-exists with AFS and can't reliably produce it with my current knowledge
 
 ideas:  on/off bit in call_matrix, log when 0 and not 1? find way to log only once? per-call log and not based on LCN?
-todo: add print usage back into it, completely removed 
+todo: add print usage back into it, completely removed
 idea2: experiment with windows builds, had a little luck before, but obstacles too. Need to learn how to use cross-compiling tools or get v** studio c++ and try that?
 
 Time to take a break from this project! Enjoy Life!
@@ -232,7 +236,7 @@ reset lcn_tally after 20 minutes (resettime variable)
 tweak start-lcn-gr script, set float-to-short for lcn channel up from 500 to 700
 
 work on dotting sequence detection; working it into gnuradio, gr and rtl scripts
-remove some squelch conditions from edacs-fm now that dotting sequence detection is working 
+remove some squelch conditions from edacs-fm now that dotting sequence detection is working
 tweaking gnuradio sample rates, down to 28.8k on lcn channel
 (being very careful not to introduce overrun/underrun issues for gnuradio, sox, or aplay)
 make sure both dotting sequence detection and digital audio decoding both work at same time
@@ -294,7 +298,7 @@ Had to Fix LCN again, was grabbing 6 bits instead of 5;
  Would have potentially caused issues with that extra bit grab on higher LCN numbers
 
 V0.27 Build 2020.09.07
-Implemented Channel Assignment Types for: 
+Implemented Channel Assignment Types for:
    MT-1:
    00001 - TDMA Group Voice Channel Assignment
    00010 - Group Data Channel Assignment
@@ -305,10 +309,10 @@ Implemented Channel Assignment Types for:
    0000 - Initiate Test Call
    1101 - Serial Number Request
 
-Changed 'VOICE' to 'ACTIVE' when a channel is active and 
+Changed 'VOICE' to 'ACTIVE' when a channel is active and
 added printout to bottom to show which of the above it is.
 
-Moved site_id to error detected FR frames in logic 
+Moved site_id to error detected FR frames in logic
 Misc other printout tweaks
 
 Reinstated ADD and KICK listings only in analyzer, way too verbose for normal use.
@@ -337,12 +341,12 @@ Re-wrote sender, group, lcn, and status variables to draw from FR instead of SR
 Implemented 'error detection' by comparing fr messages, not full-proof but better
 Included 'understanding_frames.txt' file that breaks down FR 40 bit message segments
 Minor tweaks to IDLE printing while VOICE still active
-Updated Debug to print FR blocks and implemented Debug 3 for 
-printing all error checked FR blocks, and Debug 4 for 
+Updated Debug to print FR blocks and implemented Debug 3 for
+printing all error checked FR blocks, and Debug 4 for
 non-error checked blocks.
 
 V0.23 Build 2020.08.21
-Implemented Human Readable 'FR' blocks of 40 bit (10 HEX) code to 
+Implemented Human Readable 'FR' blocks of 40 bit (10 HEX) code to
 represent the 40 bit segments of 'messages' the control channel
 sends in pairs of threes. Will use this to impliment error checking
 in future updates.
@@ -375,7 +379,7 @@ Removed all code related to PATCH, ID, DATA, and other commands as they were too
 Removed distinction between a normal call and a PVT call, since it didn't seem reliable
 Renamed standalone.sh to analyzer.sh, so I could call ./start.sh with tabs faster
 Renamed ledacs-esk-standalone to ledacs-esk-analyzer for consistency
-Other minor tweaks/fixes 
+Other minor tweaks/fixes
 Inadvertent new bugs probably
 
 
@@ -383,13 +387,13 @@ Known Issues:
 
 1.) Site ID, LCN, Group, Sender, or other values may temporarily report an incorrect number.
 
-This issue is primarily due to a lack of any real error detection, if the signal or samples read in that 
+This issue is primarily due to a lack of any real error detection, if the signal or samples read in that
 exact moment by the software are 'off', then incorect values may temporarily show up.  Due to the simplicity
 of this software, this issue will most likely not be fixed, but shouldn't greatly affect the performance
 of the software. For now, best fix may be to ensure good signal with your dongle, adjust position/antenna
 if its convenient.
 
-Update: Since implementing FR blocks and error detection, this seems to behave much better, but 
+Update: Since implementing FR blocks and error detection, this seems to behave much better, but
 may still occur just not nearly as frequently as it used to. True way to fix this would probably
 be to implement a second register and compare them, but this could potentially cause bad performance.
 Most likely better to sacrifice accuracy for maintaining performance.
@@ -407,14 +411,14 @@ attempts to speak up at the same time.
 
 If you have items in the allow list and the deny list, the deny list will be ignored in favor of the
 allow list. This is by design, Allow list only allows what you manually specify, denying everything
-else. 
+else.
 
 4.) Segmentation fault if incorrect variables are given at command prompt or in start.sh, standalone.sh.
 
-I haven't had time to rewrite the arguments portion of the software, partially out of not wanting to 
+I haven't had time to rewrite the arguments portion of the software, partially out of not wanting to
 break more stuff and end up banging my head against my desk trying to figure it out. Been focused more
 on getting what works to work better and stripping out things that don't work so well. Also, I'm not
-a good programmer, laziness, busy, etc. etc. Just be sure to use all the required arguments for now. 
+a good programmer, laziness, busy, etc. etc. Just be sure to use all the required arguments for now.
 
 5.) Unknown functionality with other variants of EDACS
 
@@ -422,11 +426,11 @@ Currently, this software has only been tested against a few EDACS ESK control ch
 I don't have any other EDACS in my home area, I have yet to be able to test it against the
 original and other variants of EDACS. Any feedback would be appreciated. If nothing happens
 for you and you are sure you are tuned to a EDACS CC, then please run debug options on for verbose
-details and feel free to submit them. 
+details and feel free to submit them.
 
 rtl_fm -d 0 -f 851375000 -s 28.8k -p 0.5 -g 49 | ./ledacs-esk site243 1 1 3 allow deny >> debug.txt
 
-Run something similar to above for a few moments and then ctrl-c to close it, then submit the 
+Run something similar to above for a few moments and then ctrl-c to close it, then submit the
 debug.txt file with a description of the type of EDACS system, any known site ID, etc.
 
 6.) Incorrect Site ID.
@@ -440,8 +444,4 @@ has multiple rules in play for solving it.
 
 Update Update: Finally figured this out thanks to some seriously awesome help from
 EricCottrell at the Radio Reference forums. He had some notes that seriously put
-that to bed. 
-
-
-
-
+that to bed.
