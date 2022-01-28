@@ -1630,32 +1630,8 @@ int main(int argc, char ** argv) {
         printw("------------------------------------------------------------------------------\n"); //making a fence
         attroff(COLOR_PAIR(4));
       }
-      if (debug == 2 && active == 1 && (sr_0 & 0xFFF0000000000000) == 0x5550000000000000) { //Debug SR Printer
-		attron(COLOR_PAIR(4));
-		printw("--RAW SR PRINT----------------------------------------------------------------\n"); //making a fence
-        printw("| SR_0 = %16llX                                                    |\n", sr_0);
-        printw("| SR_1 = %16llX                                                    |\n", sr_1);
-        printw("| SR_2 = %16llX                                                    |\n", sr_2);
-        printw("| SR_3 = %16llX                                                    |\n", sr_3);
-        printw("| SR_4 = %16llX                                                    |\n", sr_4);
-        printw("------------------------------------------------------------------------------\n"); //making a fence
-        attroff(COLOR_PAIR(4));
-      }
       refresh();
     } //this one closes sync frame
-    if (debug == 1 && active == 1 && (sr_0 & 0xFFF0000000000000) == 0x5550000000000000) { //Debug SR Printer for analyzing voice frames
-		erase();
-		attron(COLOR_PAIR(4));
-		printw("--RAW SR PRINT----------------------------------------------------------------\n"); //making a fence
-        printw("| SR_0 = %16llX                                                    |\n", sr_0);
-        printw("| SR_1 = %16llX                                                    |\n", sr_1);
-        printw("| SR_2 = %16llX                                                    |\n", sr_2);
-        printw("| SR_3 = %16llX                                                    |\n", sr_3);
-        printw("| SR_4 = %16llX                                                    |\n", sr_4);
-        printw("------------------------------------------------------------------------------\n"); //making a fence
-        attroff(COLOR_PAIR(4));
-        refresh();
-      }
   }  //this one terminates while loop
   endwin(); //terminate NCURSES screen
   return 0;
