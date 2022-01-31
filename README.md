@@ -64,7 +64,7 @@ If all is set up properly, you should see your decoding screen.
 
 Alternatively, you can use ./start-control-rtlfm.sh and start-lcn-rtludp.sh instead.
 
-----Want to help the Project?-----
+## ----Want to help the Project?-----
 
 WAV recordings of EDACS 9600 control channels are always nice to have. 
 Currently, I am in need of EDACS Narrowband systems, and any other exotic variants.
