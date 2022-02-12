@@ -49,10 +49,11 @@ If you wish to only decode EDACS systems, and not tune, then using `./start-cont
 
 An alternate solution for EDACS-FM decoding is to use `start-sdrpp-gqrx-udp-signal.sh` which will take signal input from SDR++ or GQRX UDP port 7355 and decode the signal. Make sure to enable/start the UDP sink feature in either program prior to starting this script. This is very useful for discovering EDACS systems in your area, and can still be used with `./start-lcn-rtludp.sh` to tune the second dongle if desired.
 
+## Virtual Audio Sinks
 
 Optional 'Virtual Sinks' for routing audio from EDACS-FM, etc, into DSD-FME or similar.
 
-You may wish to direct sound into DSD-FME via Virtual Sinks. You may set up a Virtual Sink or two on your machine for routing audio in and out of applications to other applications using the following command, and opening up pavucontrol "PulseAudio Volume Control" in the menu to change line out of application to virtual sink, and line in of [DSD-FME](https://github.com/lwvmobile/dsd-fme "DSD-FME") to monitor of virtual sink. This command will not persist past a reboot, so you will need to invoke them each time you reboot, or search for how to add this to your conf files for persistency if desired.
+You may wish to direct sound into DSD-FME, or similar, via Virtual Sinks. You may set up a Virtual Sink or two on your machine for routing audio in and out of applications to other applications using the following command, and opening up pavucontrol "PulseAudio Volume Control" in the menu to change line out of application to virtual sink, and line in of [DSD-FME](https://github.com/lwvmobile/dsd-fme "DSD-FME") to monitor of virtual sink. This command will not persist past a reboot, so you will need to invoke them each time you reboot, or search for how to add this to your conf files for persistency if desired.
 
 ```
 pacmd load-module module-null-sink sink_name=virtual_sink  sink_properties=device.description=Virtual_Sink
@@ -61,7 +62,7 @@ pacmd load-module module-null-sink sink_name=virtual_sink2  sink_properties=devi
 
 ## DSD-FME
 
-With two dongles, [DSD-FME](https://github.com/lwvmobile/dsd-fme "DSD-FME") RTL input mode can be substituted for `./start-lcn-rtludp.sh` on purely digital systems, and also experimentally with mixed analog and digital systems. DSD-FME has the same built in UDP remote features that rtl_udp uses, so it works extremely well when paired together. See more inormation at the link. Running with -W for source monitor input will allow for monitoring mixed analog and digital EDACS systems using the following command for LCN monitoring. The source audio monitor built in is still considered experimental, but works well in the non pulse audio tree for provoice systems.
+With two dongle monitoring, [DSD-FME](https://github.com/lwvmobile/dsd-fme "DSD-FME") RTL input mode can be substituted for `./start-lcn-rtludp.sh` on purely digital systems, and also experimentally with mixed analog and digital systems. DSD-FME has the same built in UDP remote features that rtl_udp uses, so it works extremely well when paired together. See more inormation at the link. Running with -W for source monitor input will allow for monitoring mixed analog and digital EDACS systems using the following command for LCN monitoring. The source audio monitor built in is still considered experimental, but works well in the non pulse audio tree for provoice systems.
 
 `padsp -m DSDFME -- ./dsd -fp -i rtl -o /dev/dsp -c 850M -P -2 -D 1 -G 36 -U 6020 -Y 24 -W`
 
