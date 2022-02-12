@@ -11,6 +11,8 @@ https://github.com/lwvmobile/ledacs-esk
 
 https://github.com/sp5wwp/ledacs
 
+## How to Build
+
 Make sure to have the prerequisite dependencies (or equivalents) installed:
 ```
 sox aplay cmake build-essential socat libusb-1.0-0-dev libncurses5 libncurses5-dev gnuradio rtl-sdr libusb-1.0-0-dev
