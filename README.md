@@ -78,7 +78,7 @@ Samples can be uploaded to https://ufile.io/ free of charge without making a mem
 Thanks for your help.
 
 ----
-## Cygwin Installs
+## Cygwin Builds
 
 Cygwin has limited support by me as far as I can test things on my own personal set up, but currently it can be built in Cygwin with the right prerequisites installed. Check the cygwin-build.sh file for the necessary packages to install in Cygwin prior to building. The build scripts will be prefixed with cygwin and the start up scripts suffixed with cygwin for clarity to denote the correct scripts to use for Cygwin builds.
 
