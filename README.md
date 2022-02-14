@@ -62,10 +62,13 @@ pacmd load-module module-null-sink sink_name=virtual_sink2  sink_properties=devi
 
 ## DSD-FME
 
-With two dongle monitoring, [DSD-FME](https://github.com/lwvmobile/dsd-fme "DSD-FME") RTL input mode can be substituted for `./start-lcn-rtludp.sh` on purely digital systems, and also experimentally with mixed analog and digital systems. DSD-FME has the same built in UDP remote features that rtl_udp uses, so it works extremely well when paired together. See more inormation at the link. Running with -W for source monitor input will allow for monitoring mixed analog and digital EDACS systems using the following command for LCN monitoring. The source audio monitor built in is still considered experimental, but works well in the non pulse audio tree for provoice systems.
+With two dongle monitoring, [DSD-FME](https://github.com/lwvmobile/dsd-fme "DSD-FME") RTL input mode can be substituted for `./start-lcn-rtludp.sh` on purely digital systems, and also experimentally with mixed analog and digital systems. DSD-FME has the same built in UDP remote features that rtl_udp uses, so it works extremely well when paired together. See more inormation at the link. Running with -W for source monitor input will allow for monitoring mixed analog and digital EDACS systems using the following command for LCN monitoring. The source audio monitor built in is still considered experimental, and monitored audio speed of analog systems may be slower (approx. 83%) when using rtl input into DSD-FME. 
 
 `padsp -m DSDFME -- ./dsd -fp -i rtl -o /dev/dsp -c 850M -P -2 -D 1 -G 36 -U 6020 -Y 24 -W`
 
+You can also run two dongle mode (LCH channel with rtl_udp) , and run line in into DSD-FME with the -W switch on DSD-FME to get analog audio monitoring and ProVoice decoding in real time at full speed.
+
+`padsp -m DSDFME -- ./dsd -fp -i pa:1 -o /dev/dsp -W`
 
 ## Want to help the Project?
 
