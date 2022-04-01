@@ -1317,26 +1317,26 @@ int main(int argc, char ** argv) {
 				fprintf(pFile, "  SITE %3lld LCN %2d RID %7lld TG %5lld ", site_id, i, call_matrix[i][2], call_matrix[i][1]);
 
         if (call_matrix[i][3] == 0x1){
-				  fprintf(pFile, "TDMA\n"); }
+				  fprintf(pFile, " TDMA"); }
 				if (call_matrix[i][3] == 0x2){
-				  fprintf(pFile, "Data\n"); }
+				  fprintf(pFile, " Data"); }
 				if (call_matrix[i][3] == 0x3){
-				  fprintf(pFile, "Digital\n"); }
+				  fprintf(pFile, " Digital"); }
 
 				if (i == 0x1A){ //if LCN is 26, print 'Downlink' Status
-				  fprintf(pFile, "Downlink "); }
+				  fprintf(pFile, " Downlink"); }
 				if (i == 0x1B){ //if LCN is 27, print 'Reserved' Status
-				  fprintf(pFile, "Reserved "); }
+				  fprintf(pFile, " Reserved"); }
 				if (i == 0x1C){ //if LCN is 28, print 'Convert to Callee' Status
-				  fprintf(pFile, "Convert to Callee "); }
+				  fprintf(pFile, " Convert to Callee"); }
 				if (i == 0x1D){ //if LCN is 29, print 'Queued' Status
-				  fprintf(pFile, "Caller Queued "); }
+				  fprintf(pFile, " Caller Queued"); }
 				if (i == 0x1E){ //if LCN is 30, print 'System Busy' Status
-				  fprintf(pFile, "System Busy "); }
+				  fprintf(pFile, " System Busy"); }
 				if (i == 0x1F){ //if LCN is 31, print 'Denied Radio' Status
-				  fprintf(pFile, "Radio ID Denied "); }
+				  fprintf(pFile, " Radio ID Denied"); }
 
-
+        fprintf(pFile, "\n");
 
 				call_matrix[i][4] = 2; //log written bit, 2 for written
 			  }
@@ -1353,24 +1353,24 @@ int main(int argc, char ** argv) {
 			  fprintf(pFile, "  SITE %3lld LCN %2d AFS[%4lld][%2lld - %2lld - %2lld] ", site_id, i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask));
 
         if (call_matrix[i][3] == 0xE){
-			    fprintf(pFile, "Analog\n"); }
+			    fprintf(pFile, " Analog"); }
 			  if (call_matrix[i][3] == 0xF){
-			    fprintf(pFile, "Digital\n"); }
+			    fprintf(pFile, " Digital"); }
 
 			  if (i == 0x1A){ //if LCN is 26, print 'Downlink' Status
-			    fprintf(pFile, "Downlink "); }
+			    fprintf(pFile, " Downlink"); }
 			  if (i == 0x1B){ //if LCN is 27, print 'Reserved' Status
-			    fprintf(pFile, "Reserved "); }
+			    fprintf(pFile, " Reserved"); }
 			  if (i == 0x1C){ //if LCN is 28, print 'Convert to Callee' Status
-				  fprintf(pFile, "Converted to Callee "); }
+				  fprintf(pFile, " Converted to Callee"); }
 				if (i == 0x1D){ //if LCN is 29, print 'Queued' Status
-				  fprintf(pFile, "Caller Queued "); }
+				  fprintf(pFile, " Caller Queued"); }
 				if (i == 0x1E){ //if LCN is 30, print 'System Busy' Status
-				  fprintf(pFile, "System Busy "); }
+				  fprintf(pFile, " System Busy"); }
 				if (i == 0x1F){ //if LCN is 31, print 'Denied Radio' Status
-				  fprintf(pFile, "Radio ID Denied "); }
+				  fprintf(pFile, " Radio ID Denied"); }
 
-
+        fprintf(pFile, "\n");
 
 			  call_matrix[i][4] = 2; //log written bit, 2 for written
 		    }
