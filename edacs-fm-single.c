@@ -16,7 +16,7 @@
  * 1994-7
  *
  * LWVMOBILE
- * 2022-02 Version EDACS-FM Florida Man Edition
+ * 2022-04 Version EDACS-FM Florida Man Edition
  *-----------------------------------------------------------------------------*/
 #define _GNU_SOURCE
 
@@ -1288,8 +1288,10 @@ int main(int argc, char ** argv) {
           if (modecompare == 0) {
             deny_flag = 1;
           }
-
-          if (udeny == 0 && deny_flag == 0 && active == 0 && lcn < 26 && LCN_list[lcn - 1] > 0) //tune to LCN if lcn didn't change and active == 0 and lcn is less than 26 and LCN_list has a real freq (not zero)
+          //tune to LCN if lcn didn't change and active == 0 and lcn is less than 26 and LCN_list has a real freq (not zero)
+          //needing to add senderx and groupx greater than zero to prevent tuning in single mode and getting RID or 0 or TG of 0, dwell long enough to capture first
+          //make suer it still tunes okay in Standard/Networked this way before pushing, or change to call_matrix[lcn][1] and [2] if needed
+          if (udeny == 0 && deny_flag == 0 && active == 0 && lcn < 26 && LCN_list[lcn - 1] > 0 && call_matrix[lcn][1] > 0 && call_matrix[lcn][2] > 0)
           {
             tune(LCN_list[lcn - 1]);
             squelchSet(0);
@@ -1304,8 +1306,10 @@ int main(int argc, char ** argv) {
           if (modecompare == 0) {
             allow = 1;
           }
-
-          if (udeny == 1 && allow == 1 && active == 0 && lcn < 26 && LCN_list[lcn - 1] > 0) //tune to LCN if if univeral denial active and allowed group and active == 0 and lcn is less than 26 and LCN_list has a real freq (not zero)
+          //tune to LCN if if univeral denial active and allowed group and active == 0 and lcn is less than 26 and LCN_list has a real freq (not zero)
+          //needing to add senderx and groupx greater than zero to prevent tuning in single mode and getting RID or 0 or TG of 0, dwell long enough to capture first
+          //make suer it still tunes okay in Standard/Networked this way before pushing, or change to call_matrix[lcn][1] and [2] if needed
+          if (udeny == 1 && allow == 1 && active == 0 && lcn < 26 && LCN_list[lcn - 1] > 0 && call_matrix[lcn][1] > 0 && call_matrix[lcn][2] > 0)
           {
             tune(LCN_list[lcn - 1]);
             squelchSet(0);
@@ -1339,6 +1343,13 @@ int main(int argc, char ** argv) {
 				fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
 				fprintf(pFile, "  SITE %3lld LCN %2d RID %7lld TG %5lld ", site_id, i, call_matrix[i][2], call_matrix[i][1]);
 
+        if (call_matrix[i][3] == 0x1){
+				  fprintf(pFile, "TDMA\n"); }
+				if (call_matrix[i][3] == 0x2){
+				  fprintf(pFile, "Data\n"); }
+				if (call_matrix[i][3] == 0x3){
+				  fprintf(pFile, "Digital\n"); }
+
 				if (i == 0x1A){ //if LCN is 26, print 'Downlink' Status
 				  fprintf(pFile, "Downlink "); }
 				if (i == 0x1B){ //if LCN is 27, print 'Reserved' Status
@@ -1352,12 +1363,7 @@ int main(int argc, char ** argv) {
 				if (i == 0x1F){ //if LCN is 31, print 'Denied Radio' Status
 				  fprintf(pFile, "Radio ID Denied "); }
 
-				if (call_matrix[i][3] == 0x1){
-				  fprintf(pFile, "TDMA\n"); }
-				if (call_matrix[i][3] == 0x2){
-				  fprintf(pFile, "Data\n"); }
-				if (call_matrix[i][3] == 0x3){
-				  fprintf(pFile, "Digital\n"); }
+
 
 				call_matrix[i][4] = 2; //log written bit, 2 for written
 			  }
@@ -1373,6 +1379,11 @@ int main(int argc, char ** argv) {
 		      fprintf(pFile, "%s %s", getDate(), getTime()); //keep date string seperate
 			  fprintf(pFile, "  SITE %3lld LCN %2d AFS[%4lld][%2lld - %2lld - %2lld] ", site_id, i, call_matrix[i][1], ((call_matrix[i][1] & a_mask) >> (11 - a_len)), ((call_matrix[i][1] & f_mask) >> s_len), (call_matrix[i][1] & s_mask));
 
+        if (call_matrix[i][3] == 0xE){
+			    fprintf(pFile, "Analog\n"); }
+			  if (call_matrix[i][3] == 0xF){
+			    fprintf(pFile, "Digital\n"); }
+          
 			  if (i == 0x1A){ //if LCN is 26, print 'Downlink' Status
 			    fprintf(pFile, "Downlink "); }
 			  if (i == 0x1B){ //if LCN is 27, print 'Reserved' Status
@@ -1386,10 +1397,7 @@ int main(int argc, char ** argv) {
 				if (i == 0x1F){ //if LCN is 31, print 'Denied Radio' Status
 				  fprintf(pFile, "Radio ID Denied "); }
 
-			  if (call_matrix[i][3] == 0xE){
-			    fprintf(pFile, "Analog\n"); }
-			  if (call_matrix[i][3] == 0xF){
-			    fprintf(pFile, "Digital\n"); }
+
 
 			  call_matrix[i][4] = 2; //log written bit, 2 for written
 		    }
