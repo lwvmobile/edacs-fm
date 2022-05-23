@@ -99,6 +99,10 @@ Thanks for your help.
 ----
 ## Cygwin Builds
 
-Cygwin has limited support by me as far as I can test things on my own personal set up, but currently it can be built in Cygwin with the right prerequisites installed. Check the cygwin-build.sh file for the necessary packages to install in Cygwin prior to building. The build scripts will be prefixed with cygwin and the start up scripts suffixed with cygwin for clarity to denote the correct scripts to use for Cygwin builds.
+2022.05.23 Update
+
+After doing some testing with Cygwin builds, I've determined that there is an inherent lag due to the nature of how Cygwin works. This is fine for just pure control channel decoding, but if a user attempts to tune to voice channels, the lag is enough so that tuning usually misses voice traffic more often than not. Due to this, I am officially not recommending using the Cygwin build. 
+
+If you still wish to build in Cygwin, you can see the instructional video below.
 
 [Cygwin Build Video](https://www.youtube.com/watch?v=FFKR3b4qcTY)
