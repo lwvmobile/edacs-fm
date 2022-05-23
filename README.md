@@ -3,14 +3,6 @@ EDACS 9600 Trunk Tracking software for Linux, *Nix, BSD systems, Cygwin (and may
 
 ![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/screenshot.png)
 
-https://www.youtube.com/watch?v=jCS7RBdyDZg
-
-Continuation of the LEDACS-ESK project, originally forked from LEDACS, appropriate links below:
-
-https://github.com/lwvmobile/ledacs-esk
-
-https://github.com/sp5wwp/ledacs
-
 ## How to Build
 
 Make sure to have the prerequisite dependencies (or equivalents) installed:
@@ -31,7 +23,7 @@ If any build errors occur, double check all dependencies are met, and feel free 
 
 When complete, you can populate your group.csv and site.csv with frequencies and groups. site.csv will need proper site number in decimal with matching frequencies in Hz in order to tune properly. group.csv is purely optional, but provides a way to give groups proper names and also set modes such as DE - Digital Encrypted, A - Allow, D - Digital, and B - Block. Example lines already provided in site.csv and group.csv files. Populating group.csv is highly recommended on highly busy systems to very selectively choose who to listen to.
 
-Choose whether you wish to run software with rtl_fm or gnuradio. gnuradio has added benefit of being able to select site, set gain, and hunt for control channel from LCNs in the site.csv file. ~~Most users are recommended to use the gnuradio/PyEdacs solution provided.~~ Advanced users may also wish to tinker with the provided gr files to fine tune the radio to their desired usage, or select a device type other than rtl dongles. Only support for rtl dongles is provided on the github, but other sources should be compatible, given a little advanced user tweaking to the python code. 
+Choose whether you wish to run software with rtl_fm or gnuradio. gnuradio has added benefit of being able to select site, set gain, and hunt for control channel from LCNs in the site.csv file. Advanced users may also wish to tinker with the provided gr files to fine tune the radio to their desired usage, or select a device type other than rtl dongles. Only support for rtl dongles is provided on the github, but other sources should be compatible, given a little advanced user tweaking to the python code. 
 
 rtl_fm provides two modes of use, two dongle mode, where one dongle dwells on the control channel, and the second dongle tunes directly to the LCN, or single mode, where one dongle is used to tune both the control channel and switch to the voice channel LCN when a voice call is granted. Users are recommended to use this solution.
 
@@ -62,39 +54,17 @@ pacmd load-module module-null-sink sink_name=virtual_sink2  sink_properties=devi
 
 ## DSD-FME
 
-With two dongle monitoring, [DSD-FME](https://github.com/lwvmobile/dsd-fme "DSD-FME") RTL input mode can be substituted for `./start-lcn-rtludp.sh` on purely digital systems, and also experimentally with mixed analog and digital systems. DSD-FME has the same built in UDP remote features that rtl_udp uses, so it works extremely well when paired together. See more inormation at the link. Running with -W for source monitor input will allow for monitoring mixed analog and digital EDACS systems using the following command for LCN monitoring. The source audio monitor built in is still considered experimental, and monitored audio speed of analog systems may be slower (approx. 83%) when using rtl input into DSD-FME. 
+With two dongle monitoring, [DSD-FME](https://github.com/lwvmobile/dsd-fme/tree/pulseaudio "DSD-FME") RTL input mode can be substituted for `./start-lcn-rtludp.sh` on purely digital systems. DSD-FME has the same built in UDP remote features that rtl_udp uses, so it works extremely well when paired together. 
 
-`padsp -m DSDFME -- ./dsd -fp -i rtl -o /dev/dsp -c 850M -P -2 -D 1 -G 36 -U 6020 -Y 24 -W`
+`dsd -fp -i rtl -c 850M -P -2 -D 1 -G 36 -U 6020 -Y 24 -N 2> pv.log`
 
-You can also run two dongle mode (LCH channel with rtl_udp) , and run line in into DSD-FME with the -W switch on DSD-FME to get analog audio monitoring and ProVoice decoding in real time at full speed.
+the log can be viewed in a second terminal tab using
 
-`padsp -m DSDFME -- ./dsd -fp -i pa:1 -o /dev/dsp -W`
+`tail -n 40 -f pv.log`
 
-## Want to help the Project?
+You can also run EDACS-FM single dongle mode, and run line in into DSD-FME with the example below while routing the audio from the single instance into DSD-FME with pavucontrol "Pulse Audio Volume Control".
 
-WAV recordings of EDACS 9600 control channels are always nice to have. 
-Currently, I am in need of EDACS Narrowband systems, and any other exotic variants.
-Feel like your EDACS system isn't working correctly? Then submit the WAV file!
-Please don't submit more than 3 to 5 minute recordings, WAV sample sizes can become very large.
-WAV Samples MUST be 48000Hz 16-bit mono. No Wonky SDR# recording please.
-
-Also, please no baseband recordings unless you discuss it with me first.
-
-WAV files of Control Channels can be acquired using SDR++ .
-
-### SDR++
-
-Be sure to set your VFO to 25khz NFM, set the VFO on the control channel and select Audio under Recorder. Make sure to keep the audio in the green and not in the red under recording, turn the gain down if necessary. Thanks.
-
-![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/sdrpp-help.png)
-
-### GQRX?? SDR#??
-
-I don't recommend sending GQRX or SDR# samples right now, I tested a few of my own creation, and found they may have issues that prevent them from working properly. I highly recommend SDR++ for sample creation (and general use).
-
-Samples can be uploaded to https://ufile.io/ free of charge without making a membership. File links can be sent to me under issues, I will have a rolling issue for control channel samples.
-
-Thanks for your help.
+`dsd -fp `
 
 ----
 ## Cygwin Builds
