@@ -1,3 +1,12 @@
+## 2022.11.17 Update ##
+
+EDACS-FM has been ported into DSD-FME and its trunk tracking capability and digital voice handling can now be used in DSD-FME very similary to how EDACS-FM handled. DSD-FME can also use an rtl dongle directly, or make use of SDR++ TCP linked audio (opening up a lot more devices to be used) with RIGCTL to directly control and tune the VFO and achieve EDACS trunking that way. The only cavaet of the DSD-FME method is that there is single dongle only (honestly probably just as well this way) and there is no handling currently for analog audio. For purely digital/provoice systems, I highly recommend any users of EDACS-FM to checkout DSD-FME in the dev branch, EDACS and EDACS-EA trunking is currently working and the layout will be very similar to anybody using EDACS-FM.
+
+https://github.com/lwvmobile/dsd-fme/tree/dev#very-experimental-edacsp25nxdn-simplesingle-vfo-trunking
+
+![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/dsd-fme-edacs.png)
+
+
 # EDACS-FM Florida Man Edition
 EDACS 9600 Trunk Tracking software for Linux, *Nix, BSD systems, Cygwin (and maybe others) using two RTL2838 dongles for decoding and tuning or decoding with SDR++ and GQRX UDP Sink sources.
 
