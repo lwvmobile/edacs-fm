@@ -1,8 +1,8 @@
-## 2022.11.17 Update ##
+## 2022.12.27 Update ##
 
-EDACS-FM has been ported into DSD-FME and its trunk tracking capability and digital voice handling can now be used in DSD-FME very similary to how EDACS-FM handled. DSD-FME can also use an rtl dongle directly, or make use of SDR++ TCP linked audio (opening up a lot more devices to be used) with RIGCTL to directly control and tune the VFO and achieve EDACS trunking that way. The only cavaet of the DSD-FME method is that there is single dongle only (honestly probably just as well this way) and there is no handling currently for analog audio. For purely digital/provoice systems, I highly recommend any users of EDACS-FM to checkout DSD-FME in the dev branch, EDACS and EDACS-EA trunking is currently working and the layout will be very similar to anybody using EDACS-FM.
+EDACS-FM has been ported into DSD-FME and its trunk tracking capability and digital voice handling can now be used in DSD-FME very similary to how EDACS-FM handled. DSD-FME can also use an rtl dongle directly, or make use of SDR++ TCP linked audio (opening up a lot more devices to be used) with RIGCTL to directly control and tune the VFO and achieve EDACS trunking that way. The only cavaet of the DSD-FME method is that there is single dongle only (honestly probably just as well this way) and there is no handling currently for analog audio. For purely digital/provoice systems, I highly recommend any users of EDACS-FM to checkout DSD-FME in the dev branch, EDACS and EDACS-EA trunking is currently working and the layout will be very similar to anybody using EDACS-FM. This project will be archived with no more updates. 
 
-https://github.com/lwvmobile/dsd-fme/tree/dev#very-experimental-edacsp25nxdn-simplesingle-vfo-trunking
+https://github.com/lwvmobile/dsd-fme
 
 ![alt text](https://raw.githubusercontent.com/lwvmobile/edacs-fm/main/dsd-fme-edacs.png)
 
